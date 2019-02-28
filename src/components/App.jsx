@@ -79,13 +79,12 @@ class App extends Component {
 	@autobind
 	watchLoading() {
 		const {
-			$loading: {
-				current: { clientTop }
-			},
+			$loading: { current: $loading },
 			state: { loading }
 		} = this;
+		const { top } = $loading.getBoundingClientRect();
 
-		if (clientTop >= 0 && !loading) {
+		if (innerHeight >= top && !loading) {
 			(async () => {
 				await this.loadAndAddArticles();
 			})()
