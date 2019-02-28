@@ -53,6 +53,7 @@
     "react": "^16.8.3",
     "react-dom": "^16.8.3",
     "react-hot-loader": "^4.7.1",
+    "react-icons": "^3.4.0",
     "sass-loader": "^7.1.0",
     "style-loader": "^0.23.1",
     "turndown": "^5.0.3",
