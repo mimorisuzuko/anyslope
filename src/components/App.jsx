@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, createRef } from 'react';
 import autobind from 'autobind-decorator';
 import _ from 'lodash';
 import { fetchAll, anyzaka } from '../util';
@@ -17,14 +17,13 @@ class App extends Component {
 		super();
 
 		this.page = 0;
+		this.$loading = createRef();
 		this.state = {
 			articles: [],
 			following: [],
 			checked: [],
 			loading: true
 		};
-
-		window.addEventListener('scroll', this.onScroll);
 
 		(async () => {
 			if (!(await fs.exists(anyzakaStateFilePath))) {
@@ -44,6 +43,10 @@ class App extends Component {
 			});
 			await this.loadAndAddArticles();
 		})().catch(console.error);
+	}
+
+	componentDidMount() {
+		this.watchLoading();
 	}
 
 	async setStateAsync(state) {
@@ -71,6 +74,28 @@ class App extends Component {
 		} = this;
 
 		await fs.writeJSON(anyzakaStateFilePath, { following, checked });
+	}
+
+	@autobind
+	watchLoading() {
+		const {
+			$loading: {
+				current: { clientTop }
+			},
+			state: { loading }
+		} = this;
+
+		if (clientTop >= 0 && !loading) {
+			(async () => {
+				await this.loadAndAddArticles();
+			})()
+				.catch(console.error)
+				.finally(() => {
+					requestAnimationFrame(this.watchLoading);
+				});
+		} else {
+			requestAnimationFrame(this.watchLoading);
+		}
 	}
 
 	@autobind
@@ -160,7 +185,7 @@ class App extends Component {
 						})}
 					</div>
 				</div>
-				<div styleName='loading'>
+				<div styleName='loading' ref={this.$loading}>
 					<BeatLoader />
 				</div>
 			</div>
