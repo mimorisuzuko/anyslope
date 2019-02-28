@@ -22,14 +22,17 @@ const request = async (url) => {
 		.then((r) => r.text());
 };
 
-export const fetchAll = async () => {
+export const fetchAll = async (page = 0) => {
 	return _.sortBy(
-		_.concat(await fetchKeyaki(), await fetchNogi()),
+		_.concat(await fetchKeyaki(page), await fetchNogi(page)),
 		({ date }) => date
 	);
 };
 
-export const fetchNogi = async (page = 0) => {
+/**
+ * @param {number} page
+ */
+export const fetchNogi = async (page) => {
 	const body = await request(`http://localhost:46001/nogi?page=${page + 1}`);
 	const $parsed = dparser.parseFromString(body, 'text/html');
 	const names = $parsed.querySelectorAll('.author');
@@ -51,7 +54,10 @@ export const fetchNogi = async (page = 0) => {
 	return ret;
 };
 
-export const fetchKeyaki = async (page = 0) => {
+/**
+ * @param {number} page
+ */
+export const fetchKeyaki = async (page) => {
 	const body = await request(`http://localhost:46001/keyaki?page=${page}`);
 
 	return _.map(

@@ -1,5 +1,6 @@
 .base {
 	font-family: Helvetica Neue, Helvetica, Arial, ヒラギノ角ゴ Pro W3, Hiragino Kaku Gothic Pro, メイリオ, Meiryo, ＭＳ\ Ｐゴシック, MS PGothic, sans-serif;
+	padding-bottom: 16px;
 }
 
 .header {
@@ -27,4 +28,12 @@
 .filter {
 	width: 960px;
 	margin-bottom: 16px;
+}
+
+.loading {
+	text-align: center;
+
+	> div {
+		display: inline-block;
+	}
 }

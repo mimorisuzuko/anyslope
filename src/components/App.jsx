@@ -7,6 +7,7 @@ import FilterChild from './FilterChild';
 import fs from 'fs-extra';
 import os from 'os';
 import libpath from 'path';
+import { BeatLoader } from 'react-spinners';
 import './App.scss';
 
 const anyzakaStateFilePath = libpath.join(os.homedir(), '.anyzaka');
@@ -15,22 +16,58 @@ class App extends Component {
 	constructor() {
 		super();
 
+		this.page = 0;
 		this.state = {
 			articles: [],
-			following: []
+			following: [],
+			loading: true
 		};
 
-		(async () => {
-			const articles = await fetchAll();
+		window.addEventListener('scroll', this.onScroll);
 
+		(async () => {
 			if (!(await fs.exists(anyzakaStateFilePath))) {
 				await fs.writeJSON(anyzakaStateFilePath, []);
 			}
 
-			const following = await fs.readJSON(anyzakaStateFilePath);
-
-			this.setState({ articles, following });
+			await this.setSatteAsync({
+				following: await fs.readJSON(anyzakaStateFilePath)
+			});
+			await this.loadAndAddArticles();
 		})().catch(console.error);
+	}
+
+	async setSatteAsync(state) {
+		return new Promise((resolve) => {
+			this.setState(state, resolve);
+		});
+	}
+
+	async loadAndAddArticles() {
+		const {
+			state: { articles },
+			page
+		} = this;
+
+		await this.setSatteAsync({
+			articles: _.concat(articles, await fetchAll(page))
+		});
+		this.page += 1;
+		await this.setSatteAsync({ loading: false });
+	}
+
+	@autobind
+	onScroll() {
+		const {
+			state: { loading }
+		} = this;
+		const {
+			documentElement: { scrollHeight }
+		} = document;
+
+		if (scrollY === scrollHeight - innerHeight && !loading) {
+			this.setState({ loading: true }, this.loadAndAddArticles);
+		}
 	}
 
 	/**
@@ -90,6 +127,9 @@ class App extends Component {
 							) : null;
 						})}
 					</div>
+				</div>
+				<div styleName='loading'>
+					<BeatLoader />
 				</div>
 			</div>
 		);

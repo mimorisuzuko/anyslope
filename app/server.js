@@ -7,7 +7,7 @@ app.use(cors());
 
 app.get('/keyaki', (req, res) => {
 	const {
-		params: { page = 0 }
+		query: { page = 0 }
 	} = req;
 
 	(async () => {
@@ -24,7 +24,7 @@ app.get('/keyaki', (req, res) => {
 
 app.get('/nogi', (req, res) => {
 	const {
-		params: { page = 1 }
+		query: { page = 1 }
 	} = req;
 
 	(async () => {
