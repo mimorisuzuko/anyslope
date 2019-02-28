@@ -7,10 +7,15 @@
 	color: white;
 	padding: 16px;
 	display: flex;
+	align-items: center;
 
 	> :first-child {
 		margin-right: 8px;
 	}
+}
+
+.title-outer {
+	flex: 1;
 }
 
 .title {
@@ -20,9 +25,17 @@
 
 .content {
 	padding: 0 16px 16px;
+	position: relative;
 
 	img {
 		max-width: 100%;
 		display: block;
 	}
+}
+
+.check {
+	position: absolute;
+	right: 16px;
+	bottom: 16px;
+	cursor: pointer;
 }

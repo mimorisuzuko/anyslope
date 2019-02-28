@@ -20,6 +20,7 @@ class App extends Component {
 		this.state = {
 			articles: [],
 			following: [],
+			checked: [],
 			loading: true
 		};
 
@@ -27,17 +28,25 @@ class App extends Component {
 
 		(async () => {
 			if (!(await fs.exists(anyzakaStateFilePath))) {
-				await fs.writeJSON(anyzakaStateFilePath, []);
+				await fs.writeJSON(anyzakaStateFilePath, {
+					checked: [],
+					following: []
+				});
 			}
 
-			await this.setSatteAsync({
-				following: await fs.readJSON(anyzakaStateFilePath)
+			const { following, checked } = await fs.readJSON(
+				anyzakaStateFilePath
+			);
+
+			await this.setStateAsync({
+				following,
+				checked
 			});
 			await this.loadAndAddArticles();
 		})().catch(console.error);
 	}
 
-	async setSatteAsync(state) {
+	async setStateAsync(state) {
 		return new Promise((resolve) => {
 			this.setState(state, resolve);
 		});
@@ -49,11 +58,19 @@ class App extends Component {
 			page
 		} = this;
 
-		await this.setSatteAsync({
+		await this.setStateAsync({
 			articles: _.concat(articles, await fetchAll(page))
 		});
 		this.page += 1;
-		await this.setSatteAsync({ loading: false });
+		await this.setStateAsync({ loading: false });
+	}
+
+	async writeState() {
+		const {
+			state: { following, checked }
+		} = this;
+
+		await fs.writeJSON(anyzakaStateFilePath, { following, checked });
 	}
 
 	@autobind
@@ -80,26 +97,38 @@ class App extends Component {
 		} = this;
 
 		(async () => {
-			const next = _.includes(following, name)
-				? _.pull(following, name)
-				: _.concat(following, name);
-
-			await new Promise((resolve) => {
-				this.setState(
-					{
-						following: next
-					},
-					resolve
-				);
+			await this.setStateAsync({
+				following: _.includes(following, name)
+					? _.pull(following, name)
+					: _.concat(following, name)
 			});
 
-			await fs.writeJSON(anyzakaStateFilePath, next);
+			await this.writeState();
+		})().catch(console.error);
+	}
+
+	@autobind
+	onClickCheck(key) {
+		const {
+			state: { checked }
+		} = this;
+
+		console.log(key);
+
+		(async () => {
+			await this.setStateAsync({
+				checked: _.includes(checked, key)
+					? _.pull(checked, key)
+					: _.concat(checked, key)
+			});
+
+			await this.writeState();
 		})().catch(console.error);
 	}
 
 	render() {
 		const {
-			state: { articles, following }
+			state: { articles, following, checked }
 		} = this;
 
 		return (
@@ -123,7 +152,12 @@ class App extends Component {
 							const { name } = article;
 
 							return _.includes(following, name) ? (
-								<Article article={article} key={i} />
+								<Article
+									checkedList={checked}
+									article={article}
+									key={i}
+									onClickCheck={this.onClickCheck}
+								/>
 							) : null;
 						})}
 					</div>

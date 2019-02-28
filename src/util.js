@@ -107,3 +107,9 @@ class Anyzaka {
 }
 
 export const anyzaka = new Anyzaka();
+
+export const getKeyFromArticle = (article) => {
+	const { name, title } = article;
+
+	return `${name}-${title}`;
+};
