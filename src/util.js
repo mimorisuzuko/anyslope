@@ -43,7 +43,7 @@ export const fetchNogi = async (page = 0) => {
 		ret.push({
 			date: new Date(dates[i].childNodes[0].nodeValue.slice(0, -1)),
 			title: titles[i].innerText,
-			name: names[i].innerText,
+			name: names[i].innerText.replace(/\s/g, ''),
 			content: turndownService.turndown(contents[i].innerHTML).trim()
 		});
 	}
@@ -66,7 +66,7 @@ export const fetchKeyaki = async (page = 0) => {
 			return {
 				date: new Date(datestr),
 				title: title.trim(),
-				name: name.trim(),
+				name: name.replace(/\s/g, ''),
 				content: turndownService
 					.turndown($article.querySelector('.box-article').innerHTML)
 					.trim()

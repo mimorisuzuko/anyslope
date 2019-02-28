@@ -1,0 +1,53 @@
+#!/usr/bin/env node
+
+const fs = require('fs-extra');
+const rp = require('request-promise');
+const puppeteer = require('puppeteer');
+const libpath = require('path');
+const _ = require('lodash');
+
+const icondir = libpath.join(__dirname, '../src/assets/icons');
+
+(async () => {
+	const browser = await puppeteer.launch({
+		args: ['--lang=ja,en-US,en']
+	});
+	const page = await browser.newPage();
+
+	await page.goto('https://www.hinatazaka46.com/s/official/search/artist');
+	const members = await page.evaluate(() => {
+		return Array.from(
+			document.querySelectorAll('.p-member__item'),
+			($item) => {
+				return [
+					$item.querySelector('img').src,
+					$item
+						.querySelector('.c-member__name')
+						.innerText.replace(/\s/g, '')
+				];
+			}
+		);
+	});
+
+	for (const [url, name] of members) {
+		await fs.writeFile(
+			libpath.join(icondir, `${name}.jpg`),
+			await rp({ method: 'GET', url, encoding: null }),
+			'binary'
+		);
+	}
+
+	const anyzakaPath = libpath.join(__dirname, '../src/assets/anyzaka.json');
+	const anyzaka = await fs.readJSON(anyzakaPath);
+
+	fs.writeJSON(
+		anyzakaPath,
+		_.concat(_.filter(anyzaka, ({ name }) => name !== '日向坂46'), {
+			name: '日向坂46',
+			color: 'rgb(81, 182, 224)',
+			members: _.map(members, ([, a]) => a)
+		})
+	);
+
+	browser.close();
+})().catch(console.error);
