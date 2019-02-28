@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import autobind from 'autobind-decorator';
 import _ from 'lodash';
-import { fetchKeyaki, anyzaka } from '../util';
+import { fetchAll, anyzaka } from '../util';
 import Article from './Article';
 import FilterChild from './FilterChild';
 import fs from 'fs-extra';
@@ -21,7 +21,7 @@ class App extends Component {
 		};
 
 		(async () => {
-			const articles = await fetchKeyaki();
+			const articles = await fetchAll();
 
 			if (!(await fs.exists(anyzakaStateFilePath))) {
 				await fs.writeJSON(anyzakaStateFilePath, []);

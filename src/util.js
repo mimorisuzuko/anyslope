@@ -5,8 +5,11 @@ import anyzakaJSON from './assets/anyzaka.json';
 const dparser = new DOMParser();
 const turndownService = new TurndownService();
 
-export const fetchKeyaki = async (page = 0) => {
-	const body = await fetch(`http://localhost:46001/all?page=${page}`)
+/**
+ * @param {string} url
+ */
+const request = async (url) => {
+	return await fetch(url)
 		.then((res) => {
 			const { ok } = res;
 
@@ -17,6 +20,39 @@ export const fetchKeyaki = async (page = 0) => {
 			}
 		})
 		.then((r) => r.text());
+};
+
+export const fetchAll = async () => {
+	return _.sortBy(
+		_.concat(await fetchKeyaki(), await fetchNogi()),
+		({ date }) => date
+	);
+};
+
+export const fetchNogi = async (page = 0) => {
+	const body = await request(`http://localhost:46001/nogi?page=${page + 1}`);
+	const $parsed = dparser.parseFromString(body, 'text/html');
+	const names = $parsed.querySelectorAll('.author');
+	const titles = $parsed.querySelectorAll('h1 .entrytitle');
+	const contents = $parsed.querySelectorAll('.entrybody');
+	const dates = $parsed.querySelectorAll('.entrybottom');
+	const { length } = dates;
+	const ret = [];
+
+	for (let i = 0; i < length; i += 1) {
+		ret.push({
+			date: new Date(dates[i].childNodes[0].nodeValue.slice(0, -1)),
+			title: titles[i].innerText,
+			name: names[i].innerText,
+			content: turndownService.turndown(contents[i].innerHTML).trim()
+		});
+	}
+
+	return ret;
+};
+
+export const fetchKeyaki = async (page = 0) => {
+	const body = await request(`http://localhost:46001/keyaki?page=${page}`);
 
 	return _.map(
 		dparser.parseFromString(body, 'text/html').querySelectorAll('article'),

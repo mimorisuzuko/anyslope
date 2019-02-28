@@ -48,6 +48,7 @@
     "postcss-loader": "^3.0.0",
     "postcss-scss": "^2.0.0",
     "pug-cli": "^1.0.0-alpha6",
+    "puppeteer": "^1.12.2",
     "raw-loader": "^1.0.0",
     "react": "^16.8.3",
     "react-dom": "^16.8.3",
@@ -62,6 +63,7 @@
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.16.4",
-    "request": "^2.88.0"
+    "request": "^2.88.0",
+    "request-promise": "^4.2.4"
   }
 }
