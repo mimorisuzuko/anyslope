@@ -113,8 +113,6 @@ class App extends Component {
 			state: { checked }
 		} = this;
 
-		console.log(key);
-
 		(async () => {
 			await this.setStateAsync({
 				checked: _.includes(checked, key)
