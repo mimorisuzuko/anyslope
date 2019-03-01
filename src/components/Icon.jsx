@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { anyzaka } from '../util';
-import './Icon.scss';
+import { css } from 'emotion';
 
 class Icon extends Component {
 	render() {
@@ -10,14 +10,15 @@ class Icon extends Component {
 
 		return (
 			<i
-				styleName='base'
-				style={{
-					background: `url("${anyzaka.toMemberIconPath(
-						name
-					)}") no-repeat`,
+				className={css({
+					display: 'inline-block',
+					borderRadius: '50%',
+					backgroundSize: 'cover',
+					backgroundRepeat: 'no-repeat',
+					backgroundImage: `url("${anyzaka.toMemberIconPath(name)}")`,
 					width: size,
 					height: size
-				}}
+				})}
 			/>
 		);
 	}
