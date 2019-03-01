@@ -9,7 +9,7 @@ const turndownService = new TurndownService();
 export const fetchAll = async (page = 0) => {
 	return _.sortBy(
 		_.concat(await fetchKeyaki(page), await fetchNogi(page)),
-		({ date }) => date
+		({ date }) => -date
 	);
 };
 
