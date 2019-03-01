@@ -9,13 +9,6 @@ import _ from 'lodash';
 import { css } from 'emotion';
 import { shadowBaseStyle } from '../styles';
 
-const checkBaseStyle = css({
-	position: 'absolute',
-	right: 16,
-	bottom: 16,
-	cursor: 'pointer'
-});
-
 class Article extends Component {
 	constructor() {
 		super();
@@ -88,6 +81,7 @@ class Article extends Component {
 							fill='white'
 							onClick={this.onClickCheck}
 							data-key={getKeyFromArticle(article)}
+							className={css({ cursor: 'pointer' })}
 						/>
 					) : null}
 				</div>
@@ -111,7 +105,11 @@ class Article extends Component {
 							size={36}
 							onClick={this.onClickCheck}
 							data-key={getKeyFromArticle(article)}
-							className={css(checkBaseStyle, {
+							className={css({
+								position: 'absolute',
+								right: 16,
+								bottom: 16,
+								cursor: 'pointer',
 								fill: 'lightgray',
 								'&:hover': {
 									fill: color
