@@ -8,7 +8,8 @@ import fs from 'fs-extra';
 import os from 'os';
 import libpath from 'path';
 import { BeatLoader } from 'react-spinners';
-import './App.scss';
+import { css } from 'emotion';
+import { shadowBaseStyle } from '../styles';
 
 const anyzakaStateFilePath = libpath.join(os.homedir(), '.anyzaka');
 
@@ -154,10 +155,35 @@ class App extends Component {
 		} = this;
 
 		return (
-			<div styleName='base'>
-				<div styleName='header'>推しのブログみるやつ</div>
-				<div styleName='content'>
-					<div styleName='filter'>
+			<div
+				className={css({
+					paddingBottom: 16
+				})}
+			>
+				<div
+					className={css(shadowBaseStyle, {
+						backgroundColor: 'rgb(233, 30, 99)',
+						color: 'white',
+						fontWeight: 'bold',
+						fontSize: 40,
+						padding: 16,
+						marginBottom: 16
+					})}
+				>
+					推しのブログみるやつ
+				</div>
+				<div
+					className={css({
+						width: 960,
+						marginLeft: 'auto',
+						marginRight: 'auto'
+					})}
+				>
+					<div
+						className={css({
+							marginBottom: 16
+						})}
+					>
 						{_.map(anyzaka.json(), (json, i) => {
 							return (
 								<FilterChild
@@ -169,7 +195,13 @@ class App extends Component {
 							);
 						})}
 					</div>
-					<div styleName='articles'>
+					<div
+						className={css({
+							'> div': {
+								marginBottom: 16
+							}
+						})}
+					>
 						{_.map(articles, (article, i) => {
 							const { name } = article;
 
@@ -184,7 +216,15 @@ class App extends Component {
 						})}
 					</div>
 				</div>
-				<div styleName='loading' ref={this.$loading}>
+				<div
+					ref={this.$loading}
+					className={css({
+						textAlign: 'center',
+						'> div': {
+							display: 'inline-block'
+						}
+					})}
+				>
 					<BeatLoader />
 				</div>
 			</div>

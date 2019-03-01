@@ -3,7 +3,8 @@ import _ from 'lodash';
 import Icon from './Icon';
 import autobind from 'autobind-decorator';
 import { GoTriangleDown, GoTriangleRight } from 'react-icons/go';
-import './FilterChild.scss';
+import { css } from 'emotion';
+import { shadowBaseStyle } from '../styles';
 
 export default class FilterChild extends Component {
 	constructor() {
@@ -48,14 +49,24 @@ export default class FilterChild extends Component {
 		} = this;
 
 		return (
-			<div styleName='base'>
+			<div
+				className={css({
+					marginBottom: 8
+				})}
+			>
 				<div
-					style={{ color }}
-					styleName='header'
+					className={css({
+						fontWeight: 'bold',
+						cursor: 'pointer',
+						i: {
+							verticalAlign: 'middle'
+						},
+						color
+					})}
 					onClick={this.onClickHeader}
 				>
 					{open ? <GoTriangleDown /> : <GoTriangleRight />}
-					<span styleName='group-name'>{name}</span>
+					<span className={css({ marginRight: 4 })}>{name}</span>
 					{open
 						? null
 						: _.map(members, (member, i) => {
@@ -64,7 +75,12 @@ export default class FilterChild extends Component {
 							) : null;
 						  })}
 				</div>
-				<div styleName='members'>
+				<div
+					className={css({
+						display: 'flex',
+						flexWrap: 'wrap'
+					})}
+				>
 					{open
 						? _.map(members, (member, i) => {
 							return (
@@ -72,15 +88,24 @@ export default class FilterChild extends Component {
 									onClick={this.onClick}
 									key={i}
 									data-name={member}
-									styleName='member'
-									style={{
+									className={css(shadowBaseStyle, {
+										display: 'flex',
+										alignItems: 'center',
+										marginRight: 8,
+										marginBottom: 8,
+										padding: 4,
+										borderRadius: 4,
+										cursor: 'pointer',
 										opacity: _.includes(
 											following,
 											member
 										)
 											? 1
-											: 0.5
-									}}
+											: 0.5,
+										'> :first-of-type': {
+											marginRight: 4
+										}
+									})}
 								>
 									<Icon name={member} size={36} />
 									<span>{member}</span>
