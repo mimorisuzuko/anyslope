@@ -1,26 +1,10 @@
 import _ from 'lodash';
 import TurndownService from 'turndown';
 import anyzakaJSON from './assets/anyzaka.json';
+import rp from 'request-promise';
 
 const dparser = new DOMParser();
 const turndownService = new TurndownService();
-
-/**
- * @param {string} url
- */
-const request = async (url) => {
-	return await fetch(url)
-		.then((res) => {
-			const { ok } = res;
-
-			if (ok) {
-				return res;
-			} else {
-				throw new Error(res);
-			}
-		})
-		.then((r) => r.text());
-};
 
 export const fetchAll = async (page = 0) => {
 	return _.sortBy(
@@ -29,11 +13,8 @@ export const fetchAll = async (page = 0) => {
 	);
 };
 
-/**
- * @param {number} page
- */
-export const fetchNogi = async (page) => {
-	const body = await request(`http://localhost:46001/nogi?page=${page + 1}`);
+export const fetchNogi = async (page = 0) => {
+	const body = await rp(`http://blog.nogizaka46.com/?p=${page + 1}`);
 	const $parsed = dparser.parseFromString(body, 'text/html');
 	const names = $parsed.querySelectorAll('.author');
 	const titles = $parsed.querySelectorAll('h1 .entrytitle');
@@ -54,11 +35,10 @@ export const fetchNogi = async (page) => {
 	return ret;
 };
 
-/**
- * @param {number} page
- */
-export const fetchKeyaki = async (page) => {
-	const body = await request(`http://localhost:46001/keyaki?page=${page}`);
+export const fetchKeyaki = async (page = 0) => {
+	const body = await rp(
+		`http://www.keyakizaka46.com/s/k46o/diary/member/list?page=${page}`
+	);
 
 	return _.map(
 		dparser.parseFromString(body, 'text/html').querySelectorAll('article'),
