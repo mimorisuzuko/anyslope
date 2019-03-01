@@ -6,26 +6,21 @@ import { anyzaka, getKeyFromArticle } from '../util';
 import { GoCheck } from 'react-icons/go';
 import autobind from 'autobind-decorator';
 import _ from 'lodash';
-import './Article.scss';
+import { css } from 'emotion';
+import { shadowBaseStyle } from '../styles';
+
+const checkBaseStyle = css({
+	position: 'absolute',
+	right: 16,
+	bottom: 16,
+	cursor: 'pointer'
+});
 
 class Article extends Component {
 	constructor() {
 		super();
 
-		this.state = {
-			hoverOnCheck: false
-		};
 		this.$base = createRef();
-	}
-
-	@autobind
-	onMouseLeave() {
-		this.setState({ hoverOnCheck: false });
-	}
-
-	@autobind
-	onMouseEnter() {
-		this.setState({ hoverOnCheck: true });
 	}
 
 	/**
@@ -48,23 +43,30 @@ class Article extends Component {
 		} = e;
 
 		onClickCheck(key);
-		this.setState({ hoverOnCheck: false });
 		scroll({ top: offsetTop });
 	}
 
 	render() {
 		const {
-			props: { article, checkedList },
-			state: { hoverOnCheck }
+			props: { article, checkedList }
 		} = this;
 		const { title, name, date, content } = article;
 		const color = anyzaka.getGroupColorFromMember(name);
 		const checked = _.includes(checkedList, getKeyFromArticle(article));
 
 		return (
-			<div styleName='base' ref={this.$base}>
+			<div className={shadowBaseStyle} ref={this.$base}>
 				<div
-					styleName='header'
+					className={css({
+						backgroundColor: color,
+						color: 'white',
+						padding: 16,
+						display: 'flex',
+						alignItems: 'center',
+						'> :first-of-type': {
+							marginRight: 8
+						}
+					})}
 					style={{
 						backgroundColor: color
 					}}
@@ -72,9 +74,16 @@ class Article extends Component {
 					<div>
 						<Icon name={name} size={43} />
 					</div>
-					<div styleName='title-outer'>
+					<div className={css({ flex: 1 })}>
 						<div>{fecha.format(date, 'YY/MM/DD HH:mm:ss')}</div>
-						<div styleName='title'>{title}</div>
+						<div
+							className={css({
+								fontSize: 20,
+								fontWeight: 'bold'
+							})}
+						>
+							{title}
+						</div>
 					</div>
 					{checked ? (
 						<GoCheck
@@ -86,7 +95,16 @@ class Article extends Component {
 					) : null}
 				</div>
 				{checked ? null : (
-					<div styleName='content'>
+					<div
+						className={css({
+							padding: '0 16px 16px',
+							position: 'relative',
+							img: {
+								maxWidth: '100%',
+								display: 'block'
+							}
+						})}
+					>
 						<div
 							dangerouslySetInnerHTML={{
 								__html: marked(content)
@@ -94,12 +112,14 @@ class Article extends Component {
 						/>
 						<GoCheck
 							size={36}
-							styleName='check'
-							fill={hoverOnCheck ? color : 'lightgray'}
-							onMouseEnter={this.onMouseEnter}
-							onMouseLeave={this.onMouseLeave}
 							onClick={this.onClickCheck}
 							data-key={getKeyFromArticle(article)}
+							className={css(checkBaseStyle, {
+								fill: 'lightgray',
+								'&:hover': {
+									fill: color
+								}
+							})}
 						/>
 					</div>
 				)}
