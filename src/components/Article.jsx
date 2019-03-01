@@ -67,9 +67,6 @@ class Article extends Component {
 							marginRight: 8
 						}
 					})}
-					style={{
-						backgroundColor: color
-					}}
 				>
 					<div>
 						<Icon name={name} size={43} />
