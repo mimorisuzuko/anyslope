@@ -167,7 +167,8 @@ class App extends Component {
 						fontWeight: 'bold',
 						fontSize: 40,
 						padding: 16,
-						marginBottom: 16
+						marginBottom: 16,
+						WebkitAppRegion: 'drag'
 					})}
 				>
 					推しのブログみるやつ

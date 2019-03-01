@@ -13,8 +13,9 @@ let browserWindow = null;
 
 const create = () => {
 	const w = new BrowserWindow({
-		width: 800,
-		height: 600
+		width: 980,
+		height: 980,
+		titleBarStyle: 'hidden'
 	});
 
 	w.loadURL(
