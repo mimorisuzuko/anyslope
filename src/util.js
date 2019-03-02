@@ -2,9 +2,18 @@ import _ from 'lodash';
 import TurndownService from 'turndown';
 import anyzakaJSON from './assets/anyzaka.json';
 import rp from 'request-promise';
+import marked from 'marked';
 
 const dparser = new DOMParser();
 const turndownService = new TurndownService();
+
+/**
+ * @param {Element} $html
+ * @returns {string}
+ */
+const convertHtmlToHtmlString = ($html) => {
+	return marked(turndownService.turndown($html.innerHTML).trim());
+};
 
 export const fetchAll = async (page = 0) => {
 	return _.sortBy(
@@ -28,7 +37,7 @@ export const fetchNogi = async (page = 0) => {
 			date: new Date(dates[i].childNodes[0].nodeValue.slice(0, -1)),
 			title: titles[i].innerText,
 			name: names[i].innerText.replace(/\s/g, ''),
-			content: turndownService.turndown(contents[i].innerHTML).trim()
+			content: convertHtmlToHtmlString(contents[i])
 		});
 	}
 
@@ -53,9 +62,9 @@ export const fetchKeyaki = async (page = 0) => {
 				date: new Date(datestr),
 				title: title.trim(),
 				name: name.replace(/\s/g, ''),
-				content: turndownService
-					.turndown($article.querySelector('.box-article').innerHTML)
-					.trim()
+				content: convertHtmlToHtmlString(
+					$article.querySelector('.box-article')
+				)
 			};
 		}
 	);

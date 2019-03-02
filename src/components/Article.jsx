@@ -1,6 +1,5 @@
 import React, { Component, createRef } from 'react';
 import fecha from 'fecha';
-import marked from 'marked';
 import Icon from './Icon';
 import { anyzaka, getKeyFromArticle } from '../util';
 import { GoCheck } from 'react-icons/go';
@@ -8,12 +7,14 @@ import autobind from 'autobind-decorator';
 import _ from 'lodash';
 import { css } from 'emotion';
 import { shadowBaseStyle } from '../styles';
+import { shell } from 'electron';
 
 class Article extends Component {
 	constructor() {
 		super();
 
 		this.$base = createRef();
+		this.$content = createRef();
 	}
 
 	/**
@@ -37,6 +38,29 @@ class Article extends Component {
 
 		onClickCheck(key);
 		scroll({ top: offsetTop });
+	}
+
+	/**
+	 * @param {Event} e
+	 */
+	onClickLink(e) {
+		e.preventDefault();
+
+		const {
+			currentTarget: { href }
+		} = e;
+
+		shell.openExternal(href);
+	}
+
+	componentDidMount() {
+		const {
+			$content: { current: $content }
+		} = this;
+
+		_.forEach($content.querySelectorAll('a'), ($a) => {
+			$a.addEventListener('click', this.onClickLink);
+		});
 	}
 
 	render() {
@@ -85,39 +109,39 @@ class Article extends Component {
 						/>
 					) : null}
 				</div>
-				{checked ? null : (
+				<div
+					className={css({
+						padding: '0 16px 16px',
+						position: 'relative',
+						img: {
+							maxWidth: '100%',
+							display: 'block'
+						},
+						display: checked ? 'none' : 'block'
+					})}
+				>
 					<div
+						ref={this.$content}
+						dangerouslySetInnerHTML={{
+							__html: content
+						}}
+					/>
+					<GoCheck
+						size={36}
+						onClick={this.onClickCheck}
+						data-key={getKeyFromArticle(article)}
 						className={css({
-							padding: '0 16px 16px',
-							position: 'relative',
-							img: {
-								maxWidth: '100%',
-								display: 'block'
+							position: 'absolute',
+							right: 16,
+							bottom: 16,
+							cursor: 'pointer',
+							fill: 'lightgray',
+							'&:hover': {
+								fill: color
 							}
 						})}
-					>
-						<div
-							dangerouslySetInnerHTML={{
-								__html: marked(content)
-							}}
-						/>
-						<GoCheck
-							size={36}
-							onClick={this.onClickCheck}
-							data-key={getKeyFromArticle(article)}
-							className={css({
-								position: 'absolute',
-								right: 16,
-								bottom: 16,
-								cursor: 'pointer',
-								fill: 'lightgray',
-								'&:hover': {
-									fill: color
-								}
-							})}
-						/>
-					</div>
-				)}
+					/>
+				</div>
 			</div>
 		);
 	}
