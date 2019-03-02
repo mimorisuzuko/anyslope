@@ -13,8 +13,8 @@ let browserWindow = null;
 
 const create = () => {
 	const w = new BrowserWindow({
-		width: 980,
-		height: 980,
+		width: 1000,
+		height: 1000,
 		titleBarStyle: 'hidden'
 	});
 

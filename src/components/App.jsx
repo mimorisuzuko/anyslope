@@ -1,15 +1,15 @@
 import React, { Component, createRef } from 'react';
 import autobind from 'autobind-decorator';
 import _ from 'lodash';
-import { fetchAll, anyzaka } from '../util';
+import { fetchAll } from '../util';
 import Article from './Article';
-import FilterChild from './FilterChild';
 import fs from 'fs-extra';
 import os from 'os';
 import libpath from 'path';
 import { BeatLoader } from 'react-spinners';
 import { css } from 'emotion';
 import { shadowBaseStyle } from '../styles';
+import Filter from './Filter';
 
 const anyzakaStateFilePath = libpath.join(os.homedir(), '.anyzaka');
 
@@ -23,7 +23,8 @@ class App extends Component {
 			articles: [],
 			following: [],
 			checked: [],
-			loading: true
+			loading: true,
+			openFilter: -1
 		};
 
 		(async () => {
@@ -78,6 +79,23 @@ class App extends Component {
 	}
 
 	@autobind
+	onClickResetFilter() {
+		this.setState({ openFilter: -1 });
+	}
+
+	/**
+	 * @param {number} key
+	 */
+	@autobind
+	onClickFilter(key) {
+		const {
+			state: { openFilter }
+		} = this;
+
+		this.setState({ openFilter: key === openFilter ? -1 : key });
+	}
+
+	@autobind
 	watchLoading() {
 		const {
 			$loading: { current: $loading },
@@ -116,7 +134,7 @@ class App extends Component {
 	 * @param {string} name
 	 */
 	@autobind
-	onClickMember(name) {
+	onClickFilterMember(name) {
 		const {
 			state: { following }
 		} = this;
@@ -151,13 +169,16 @@ class App extends Component {
 
 	render() {
 		const {
-			state: { articles, following, checked }
+			state: { articles, following, checked, openFilter }
 		} = this;
 
 		return (
 			<div
 				className={css({
-					paddingBottom: 16
+					width: '100%',
+					height: '100%',
+					display: 'flex',
+					flexDirection: 'column'
 				})}
 			>
 				<div
@@ -174,30 +195,17 @@ class App extends Component {
 					推しのブログみるやつ
 				</div>
 				<div
+					onClick={this.onClickResetFilter}
 					className={css({
-						width: 960,
-						marginLeft: 'auto',
-						marginRight: 'auto'
+						flex: 1,
+						overflow: 'scroll'
 					})}
 				>
 					<div
 						className={css({
-							marginBottom: 16
-						})}
-					>
-						{_.map(anyzaka.json(), (json, i) => {
-							return (
-								<FilterChild
-									json={json}
-									key={i}
-									following={following}
-									onClick={this.onClickMember}
-								/>
-							);
-						})}
-					</div>
-					<div
-						className={css({
+							width: 960,
+							marginLeft: 'auto',
+							marginRight: 'auto',
 							'> div': {
 								marginBottom: 16
 							}
@@ -216,17 +224,33 @@ class App extends Component {
 							) : null;
 						})}
 					</div>
+					<div
+						ref={this.$loading}
+						className={css({
+							textAlign: 'center',
+							'> div': {
+								display: 'inline-block'
+							}
+						})}
+					>
+						<BeatLoader />
+					</div>
 				</div>
 				<div
-					ref={this.$loading}
 					className={css({
-						textAlign: 'center',
-						'> div': {
-							display: 'inline-block'
-						}
+						position: 'fixed',
+						left: 0,
+						bottom: 0,
+						width: '100%',
+						backgroundColor: 'rgb(255, 255, 255, 0.9)'
 					})}
 				>
-					<BeatLoader />
+					<Filter
+						following={following}
+						onClickFilterMember={this.onClickFilterMember}
+						onClickFilter={this.onClickFilter}
+						openFilter={openFilter}
+					/>
 				</div>
 			</div>
 		);
