@@ -207,8 +207,7 @@ class App extends Component {
 					onClick={this.onClickResetFilter}
 					className={css({
 						flex: 1,
-						overflow: 'scroll',
-						paddingBottom: 47
+						overflow: 'scroll'
 					})}
 				>
 					<div
@@ -247,15 +246,7 @@ class App extends Component {
 						<BeatLoader />
 					</div>
 				</div>
-				<div
-					className={css({
-						position: 'fixed',
-						left: 0,
-						bottom: 0,
-						width: '100%',
-						backgroundColor: 'rgb(255, 255, 255, 0.9)'
-					})}
-				>
+				<div>
 					<Filter
 						following={following}
 						onClickFilterMember={this.onClickFilterMember}
