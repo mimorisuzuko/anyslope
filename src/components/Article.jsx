@@ -17,27 +17,16 @@ class Article extends Component {
 		this.$content = createRef();
 	}
 
-	/**
-	 * @param {Event} e
-	 */
 	@autobind
-	onClickCheck(e) {
+	onClickCheck() {
 		const {
 			props: { onClickCheck }
 		} = this;
 		const {
-			$base: {
-				current: { offsetTop }
-			}
+			$base: { current: $base }
 		} = this;
-		const {
-			currentTarget: {
-				dataset: { key }
-			}
-		} = e;
 
-		onClickCheck(key);
-		scroll({ top: offsetTop });
+		onClickCheck($base);
 	}
 
 	/**
@@ -72,7 +61,11 @@ class Article extends Component {
 		const checked = _.includes(checkedList, getKeyFromArticle(article));
 
 		return (
-			<div className={shadowBaseStyle} ref={this.$base}>
+			<div
+				className={shadowBaseStyle}
+				ref={this.$base}
+				data-key={getKeyFromArticle(article)}
+			>
 				<div
 					className={css({
 						backgroundColor: color,
@@ -129,7 +122,6 @@ class Article extends Component {
 					<GoCheck
 						size={36}
 						onClick={this.onClickCheck}
-						data-key={getKeyFromArticle(article)}
 						className={css({
 							position: 'absolute',
 							right: 16,

@@ -19,6 +19,7 @@ class App extends Component {
 
 		this.page = 0;
 		this.$loading = createRef();
+		this.$articles = createRef();
 		this.state = {
 			articles: [],
 			following: [],
@@ -150,10 +151,17 @@ class App extends Component {
 		})().catch(console.error);
 	}
 
+	/**
+	 * @param {HTMLDivElement} $article
+	 */
 	@autobind
-	onClickCheck(key) {
+	onClickCheck($article) {
 		const {
-			state: { checked }
+			dataset: { key }
+		} = $article;
+		const {
+			state: { checked },
+			$articles: { current: $aricles }
 		} = this;
 
 		(async () => {
@@ -162,7 +170,7 @@ class App extends Component {
 					? _.pull(checked, key)
 					: _.concat(checked, key)
 			});
-
+			$aricles.scroll({ top: $article.offsetTop - $aricles.offsetTop });
 			await this.writeState();
 		})().catch(console.error);
 	}
@@ -195,6 +203,7 @@ class App extends Component {
 					推しのブログみるやつ
 				</div>
 				<div
+					ref={this.$articles}
 					onClick={this.onClickResetFilter}
 					className={css({
 						flex: 1,
