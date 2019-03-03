@@ -207,7 +207,8 @@ class App extends Component {
 					onClick={this.onClickResetFilter}
 					className={css({
 						flex: 1,
-						overflow: 'scroll'
+						overflow: 'scroll',
+						paddingBottom: 47
 					})}
 				>
 					<div
@@ -236,6 +237,7 @@ class App extends Component {
 					<div
 						ref={this.$loading}
 						className={css({
+							margin: '16px 0',
 							textAlign: 'center',
 							'> div': {
 								display: 'inline-block'
