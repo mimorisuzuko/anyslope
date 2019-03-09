@@ -1,7 +1,6 @@
 import React, { Component, createRef } from 'react';
 import autobind from 'autobind-decorator';
 import _ from 'lodash';
-import { fetchAll } from '../util';
 import Article from './Article';
 import fs from 'fs-extra';
 import os from 'os';
@@ -10,22 +9,22 @@ import { BeatLoader } from 'react-spinners';
 import { css } from 'emotion';
 import { shadowBaseStyle } from '../styles';
 import Filter from './Filter';
+import { connect } from 'react-redux';
+import actions from '../actions';
 
 const anyzakaStateFilePath = libpath.join(os.homedir(), '.anyzaka');
 
+@connect((state) => state)
 class App extends Component {
 	constructor() {
 		super();
 
-		this.page = 0;
 		this.$loading = createRef();
 		this.$articles = createRef();
 		this.prevloadingIsVisible = true;
 		this.state = {
-			articles: [],
 			following: [],
 			checked: [],
-			loading: false,
 			openFilter: -1
 		};
 
@@ -45,7 +44,7 @@ class App extends Component {
 				following,
 				checked
 			});
-			await this.loadAndAddArticles();
+			this.loadAndAddArticles();
 			this.watchLoading();
 		})().catch(console.error);
 	}
@@ -56,19 +55,14 @@ class App extends Component {
 		});
 	}
 
-	async loadAndAddArticles() {
+	loadAndAddArticles() {
 		const {
-			state: { articles, loading },
-			page
+			props: { dispatch, loading }
 		} = this;
 
 		if (!loading) {
-			await this.setStateAsync({ loading: true });
-			await this.setStateAsync({
-				articles: _.concat(articles, await fetchAll(page))
-			});
-			this.page += 1;
-			await this.setStateAsync({ loading: false });
+			dispatch(actions.startToLoadArticles());
+			dispatch(actions.loadArticles());
 		}
 	}
 
@@ -107,17 +101,11 @@ class App extends Component {
 		const loadingIsVisible = innerHeight >= top;
 
 		if (!prevloadingIsVisible && loadingIsVisible) {
-			(async () => {
-				await this.loadAndAddArticles();
-			})()
-				.catch(console.error)
-				.finally(() => {
-					requestAnimationFrame(this.watchLoading);
-				});
-		} else {
-			requestAnimationFrame(this.watchLoading);
+			this.loadAndAddArticles();
 		}
+
 		this.prevloadingIsVisible = loadingIsVisible;
+		requestAnimationFrame(this.watchLoading);
 	}
 
 	/**
@@ -171,7 +159,8 @@ class App extends Component {
 
 	render() {
 		const {
-			state: { articles, following, checked, openFilter, loading }
+			state: { following, checked, openFilter },
+			props: { articles, loading }
 		} = this;
 
 		return (
@@ -214,14 +203,14 @@ class App extends Component {
 							}
 						})}
 					>
-						{_.map(articles, (article, i) => {
-							const { name } = article;
+						{articles.map((article) => {
+							const { name, id } = article;
 
 							return _.includes(following, name) ? (
 								<Article
 									checkedList={checked}
 									article={article}
-									key={i}
+									key={id}
 									onClickCheck={this.onClickCheck}
 								/>
 							) : null;

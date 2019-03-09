@@ -1,7 +1,7 @@
 import React, { Component, createRef } from 'react';
 import fecha from 'fecha';
 import Icon from './Icon';
-import { anyzaka, getKeyFromArticle } from '../util';
+import { anyzaka } from '../util';
 import { GoCheck } from 'react-icons/go';
 import autobind from 'autobind-decorator';
 import _ from 'lodash';
@@ -56,16 +56,12 @@ class Article extends Component {
 		const {
 			props: { article, checkedList }
 		} = this;
-		const { title, name, date, content } = article;
+		const { title, name, date, content, key } = article;
 		const color = anyzaka.getGroupColorFromMember(name);
-		const checked = _.includes(checkedList, getKeyFromArticle(article));
+		const checked = _.includes(checkedList, key);
 
 		return (
-			<div
-				className={shadowBaseStyle}
-				ref={this.$base}
-				data-key={getKeyFromArticle(article)}
-			>
+			<div className={shadowBaseStyle} ref={this.$base} data-key={key}>
 				<div
 					className={css({
 						backgroundColor: color,
@@ -97,7 +93,7 @@ class Article extends Component {
 							size={36}
 							fill='white'
 							onClick={this.onClickCheck}
-							data-key={getKeyFromArticle(article)}
+							data-key={key}
 							className={css({ cursor: 'pointer' })}
 						/>
 					) : null}

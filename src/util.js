@@ -3,6 +3,7 @@ import TurndownService from 'turndown';
 import anyzakaJSON from './assets/anyzaka.json';
 import rp from 'request-promise';
 import marked from 'marked';
+import Article from './models/Article';
 
 const dparser = new DOMParser();
 const turndownService = new TurndownService();
@@ -33,12 +34,14 @@ export const fetchNogi = async (page = 0) => {
 	const ret = [];
 
 	for (let i = 0; i < length; i += 1) {
-		ret.push({
-			date: new Date(dates[i].childNodes[0].nodeValue.slice(0, -1)),
-			title: titles[i].innerText,
-			name: names[i].innerText.replace(/\s/g, ''),
-			content: convertHtmlToHtmlString(contents[i])
-		});
+		ret.push(
+			new Article({
+				date: new Date(dates[i].childNodes[0].nodeValue.slice(0, -1)),
+				title: titles[i].innerText,
+				name: names[i].innerText.replace(/\s/g, ''),
+				content: convertHtmlToHtmlString(contents[i])
+			})
+		);
 	}
 
 	return ret;
@@ -58,14 +61,14 @@ export const fetchKeyaki = async (page = 0) => {
 			const { innerText: title } = $article.querySelector('h3');
 			const { innerText: name } = $article.querySelector('.name');
 
-			return {
+			return new Article({
 				date: new Date(datestr),
 				title: title.trim(),
 				name: name.replace(/\s/g, ''),
 				content: convertHtmlToHtmlString(
 					$article.querySelector('.box-article')
 				)
-			};
+			});
 		}
 	);
 };
@@ -96,9 +99,3 @@ class Anyzaka {
 }
 
 export const anyzaka = new Anyzaka();
-
-export const getKeyFromArticle = (article) => {
-	const { name, title } = article;
-
-	return `${name}-${title}`;
-};
