@@ -20,11 +20,12 @@ class App extends Component {
 		this.page = 0;
 		this.$loading = createRef();
 		this.$articles = createRef();
+		this.prevloadingIsVisible = true;
 		this.state = {
 			articles: [],
 			following: [],
 			checked: [],
-			loading: true,
+			loading: false,
 			openFilter: -1
 		};
 
@@ -45,11 +46,8 @@ class App extends Component {
 				checked
 			});
 			await this.loadAndAddArticles();
+			this.watchLoading();
 		})().catch(console.error);
-	}
-
-	componentDidMount() {
-		this.watchLoading();
 	}
 
 	async setStateAsync(state) {
@@ -60,15 +58,18 @@ class App extends Component {
 
 	async loadAndAddArticles() {
 		const {
-			state: { articles },
+			state: { articles, loading },
 			page
 		} = this;
 
-		await this.setStateAsync({
-			articles: _.concat(articles, await fetchAll(page))
-		});
-		this.page += 1;
-		await this.setStateAsync({ loading: false });
+		if (!loading) {
+			await this.setStateAsync({ loading: true });
+			await this.setStateAsync({
+				articles: _.concat(articles, await fetchAll(page))
+			});
+			this.page += 1;
+			await this.setStateAsync({ loading: false });
+		}
 	}
 
 	async writeState() {
@@ -100,11 +101,12 @@ class App extends Component {
 	watchLoading() {
 		const {
 			$loading: { current: $loading },
-			state: { loading }
+			prevloadingIsVisible
 		} = this;
 		const { top } = $loading.getBoundingClientRect();
+		const loadingIsVisible = innerHeight >= top;
 
-		if (innerHeight >= top && !loading) {
+		if (!prevloadingIsVisible && loadingIsVisible) {
 			(async () => {
 				await this.loadAndAddArticles();
 			})()
@@ -115,20 +117,7 @@ class App extends Component {
 		} else {
 			requestAnimationFrame(this.watchLoading);
 		}
-	}
-
-	@autobind
-	onScroll() {
-		const {
-			state: { loading }
-		} = this;
-		const {
-			documentElement: { scrollHeight }
-		} = document;
-
-		if (scrollY === scrollHeight - innerHeight && !loading) {
-			this.setState({ loading: true }, this.loadAndAddArticles);
-		}
+		this.prevloadingIsVisible = loadingIsVisible;
 	}
 
 	/**
@@ -175,9 +164,14 @@ class App extends Component {
 		})().catch(console.error);
 	}
 
+	@autobind
+	onClickLoad() {
+		this.loadAndAddArticles();
+	}
+
 	render() {
 		const {
-			state: { articles, following, checked, openFilter }
+			state: { articles, following, checked, openFilter, loading }
 		} = this;
 
 		return (
@@ -243,7 +237,22 @@ class App extends Component {
 							}
 						})}
 					>
-						<BeatLoader />
+						{loading ? (
+							<BeatLoader />
+						) : (
+							<div
+								onClick={this.onClickLoad}
+								className={css({
+									color: 'rgb(233, 30, 99)',
+									border: '1px solid rgb(233, 30, 99)',
+									padding: '4px 8px',
+									borderRadius: 4,
+									cursor: 'pointer'
+								})}
+							>
+								さらに記事を読み込む
+							</div>
+						)}
 					</div>
 				</div>
 				<div>
