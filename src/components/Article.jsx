@@ -8,7 +8,12 @@ import _ from 'lodash';
 import { css } from 'emotion';
 import { shadowBaseStyle } from '../styles';
 import { shell } from 'electron';
+import { connect } from 'react-redux';
+import actions from '../actions';
 
+@connect(({ checked }) => {
+	return { checked };
+})
 class Article extends Component {
 	constructor() {
 		super();
@@ -20,13 +25,18 @@ class Article extends Component {
 	@autobind
 	onClickCheck() {
 		const {
-			props: { onClickCheck }
+			props: { dispatch }
 		} = this;
 		const {
 			$base: { current: $base }
 		} = this;
+		const {
+			dataset: { key },
+			parentElement: $parent
+		} = $base;
 
-		onClickCheck($base);
+		dispatch(actions.toggleChecked(key));
+		$parent.scroll({ top: $base.offsetTop - $parent.offsetTop });
 	}
 
 	/**
@@ -54,11 +64,11 @@ class Article extends Component {
 
 	render() {
 		const {
-			props: { article, checkedList }
+			props: { article, checked }
 		} = this;
 		const { title, name, date, content, key } = article;
 		const color = anyzaka.getGroupColorFromMember(name);
-		const checked = _.includes(checkedList, key);
+		const isChecked = checked.includes(key);
 
 		return (
 			<div className={shadowBaseStyle} ref={this.$base} data-key={key}>
@@ -88,7 +98,7 @@ class Article extends Component {
 							{title}
 						</div>
 					</div>
-					{checked ? (
+					{isChecked ? (
 						<GoCheck
 							size={36}
 							fill='white'
@@ -106,7 +116,7 @@ class Article extends Component {
 							maxWidth: '100%',
 							display: 'block'
 						},
-						display: checked ? 'none' : 'block'
+						display: isChecked ? 'none' : 'block'
 					})}
 				>
 					<div

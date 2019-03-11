@@ -11,8 +11,8 @@ import actions from '../actions';
 
 const json = anyzaka.json();
 
-@connect(({ openFilterIndex }) => {
-	return { openFilterIndex };
+@connect(({ openFilterIndex, following }) => {
+	return { openFilterIndex, following };
 })
 export default class Filter extends Component {
 	/**
@@ -39,7 +39,7 @@ export default class Filter extends Component {
 	@autobind
 	onClickFilterMember(e) {
 		const {
-			props: { onClickFilterMember }
+			props: { dispatch }
 		} = this;
 		const {
 			currentTarget: {
@@ -47,7 +47,7 @@ export default class Filter extends Component {
 			}
 		} = e;
 
-		onClickFilterMember(name);
+		dispatch(actions.toggleFollowing(name));
 	}
 
 	render() {
@@ -95,7 +95,7 @@ export default class Filter extends Component {
 									{name}
 								</span>
 								{_.map(members, (member) => {
-									return _.includes(following, member) &&
+									return following.includes(member) &&
 										openFilterIndex !== i ? (
 											<Icon
 												name={member}
@@ -130,8 +130,7 @@ export default class Filter extends Component {
 											padding: 4,
 											borderRadius: 4,
 											cursor: 'pointer',
-											opacity: _.includes(
-												following,
+											opacity: following.includes(
 												member
 											)
 												? 1

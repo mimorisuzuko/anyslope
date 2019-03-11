@@ -1,10 +1,6 @@
 import React, { Component, createRef } from 'react';
 import autobind from 'autobind-decorator';
-import _ from 'lodash';
 import Article from './Article';
-import fs from 'fs-extra';
-import os from 'os';
-import libpath from 'path';
 import { BeatLoader } from 'react-spinners';
 import { css } from 'emotion';
 import { shadowBaseStyle } from '../styles';
@@ -12,46 +8,18 @@ import Filter from './Filter';
 import { connect } from 'react-redux';
 import actions from '../actions';
 
-const anyzakaStateFilePath = libpath.join(os.homedir(), '.anyzaka');
-
 @connect((state) => state)
 class App extends Component {
 	constructor() {
 		super();
 
 		this.$loading = createRef();
-		this.$articles = createRef();
 		this.prevloadingIsVisible = true;
-		this.state = {
-			following: [],
-			checked: []
-		};
-
-		(async () => {
-			if (!(await fs.exists(anyzakaStateFilePath))) {
-				await fs.writeJSON(anyzakaStateFilePath, {
-					checked: [],
-					following: []
-				});
-			}
-
-			const { following, checked } = await fs.readJSON(
-				anyzakaStateFilePath
-			);
-
-			await this.setStateAsync({
-				following,
-				checked
-			});
-			this.loadAndAddArticles();
-			this.watchLoading();
-		})().catch(console.error);
 	}
 
-	async setStateAsync(state) {
-		return new Promise((resolve) => {
-			this.setState(state, resolve);
-		});
+	componentDidMount() {
+		this.loadAndAddArticles();
+		this.watchLoading();
 	}
 
 	loadAndAddArticles() {
@@ -63,14 +31,6 @@ class App extends Component {
 			dispatch(actions.startToLoadArticles());
 			dispatch(actions.loadArticles());
 		}
-	}
-
-	async writeState() {
-		const {
-			state: { following, checked }
-		} = this;
-
-		await fs.writeJSON(anyzakaStateFilePath, { following, checked });
 	}
 
 	@autobind
@@ -99,50 +59,6 @@ class App extends Component {
 		requestAnimationFrame(this.watchLoading);
 	}
 
-	/**
-	 * @param {string} name
-	 */
-	@autobind
-	onClickFilterMember(name) {
-		const {
-			state: { following }
-		} = this;
-
-		(async () => {
-			await this.setStateAsync({
-				following: _.includes(following, name)
-					? _.pull(following, name)
-					: _.concat(following, name)
-			});
-
-			await this.writeState();
-		})().catch(console.error);
-	}
-
-	/**
-	 * @param {HTMLDivElement} $article
-	 */
-	@autobind
-	onClickCheck($article) {
-		const {
-			dataset: { key }
-		} = $article;
-		const {
-			state: { checked },
-			$articles: { current: $aricles }
-		} = this;
-
-		(async () => {
-			await this.setStateAsync({
-				checked: _.includes(checked, key)
-					? _.pull(checked, key)
-					: _.concat(checked, key)
-			});
-			$aricles.scroll({ top: $article.offsetTop - $aricles.offsetTop });
-			await this.writeState();
-		})().catch(console.error);
-	}
-
 	@autobind
 	onClickLoad() {
 		this.loadAndAddArticles();
@@ -150,8 +66,7 @@ class App extends Component {
 
 	render() {
 		const {
-			state: { following, checked },
-			props: { articles, loading }
+			props: { articles, loading, following }
 		} = this;
 
 		return (
@@ -177,48 +92,38 @@ class App extends Component {
 					推しのブログみるやつ
 				</div>
 				<div
-					ref={this.$articles}
 					onClick={this.onClickResetFilter}
 					className={css({
 						flex: 1,
-						overflow: 'scroll'
+						overflow: 'scroll',
+						width: 960,
+						marginLeft: 'auto',
+						marginRight: 'auto',
+						'> div': {
+							marginBottom: 16
+						}
 					})}
 				>
-					<div
-						className={css({
-							width: 960,
-							marginLeft: 'auto',
-							marginRight: 'auto',
-							'> div': {
-								marginBottom: 16
-							}
-						})}
-					>
-						{articles.map((article) => {
-							const { name, id } = article;
+					{articles.map((article) => {
+						const { name, id } = article;
 
-							return _.includes(following, name) ? (
-								<Article
-									checkedList={checked}
-									article={article}
-									key={id}
-									onClickCheck={this.onClickCheck}
-								/>
-							) : null;
-						})}
-					</div>
+						return following.includes(name) ? (
+							<Article article={article} key={id} />
+						) : null;
+					})}
 					<div
 						ref={this.$loading}
 						className={css({
 							margin: '16px 0',
-							textAlign: 'center',
-							'> div': {
-								display: 'inline-block'
-							}
+							textAlign: 'center'
 						})}
 					>
 						{loading ? (
-							<BeatLoader />
+							<BeatLoader
+								css={css({
+									display: 'inline-block'
+								})}
+							/>
 						) : (
 							<div
 								onClick={this.onClickLoad}
@@ -236,10 +141,7 @@ class App extends Component {
 					</div>
 				</div>
 				<div>
-					<Filter
-						following={following}
-						onClickFilterMember={this.onClickFilterMember}
-					/>
+					<Filter />
 				</div>
 			</div>
 		);
