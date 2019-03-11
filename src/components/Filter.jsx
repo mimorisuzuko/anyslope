@@ -57,9 +57,8 @@ export default class Filter extends Component {
 
 		return (
 			<div
-				className={css({
-					padding: 8,
-					borderTop: '1px solid rgb(237, 239, 241)'
+				className={css(shadowBaseStyle, {
+					padding: 8
 				})}
 			>
 				<div

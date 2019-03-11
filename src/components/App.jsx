@@ -3,23 +3,36 @@ import autobind from 'autobind-decorator';
 import Article from './Article';
 import { BeatLoader } from 'react-spinners';
 import { css } from 'emotion';
-import { shadowBaseStyle } from '../styles';
+import { titlebarBaseStyle } from '../styles';
 import Filter from './Filter';
 import { connect } from 'react-redux';
 import actions from '../actions';
+import Sidebar from './Sidebar';
 
-@connect((state) => state)
+@connect(({ articles, loading, following }) => {
+	return { articles, loading, following };
+})
 class App extends Component {
 	constructor() {
 		super();
 
 		this.$loading = createRef();
+		this.$articles = createRef();
 		this.prevloadingIsVisible = true;
 	}
 
 	componentDidMount() {
 		this.loadAndAddArticles();
 		this.watchLoading();
+	}
+
+	@autobind
+	scrollToArticleTop($div) {
+		const {
+			$articles: { current: $articles }
+		} = this;
+
+		$articles.scroll({ top: $div.offsetTop - $articles.offsetTop });
 	}
 
 	loadAndAddArticles() {
@@ -75,72 +88,81 @@ class App extends Component {
 					width: '100%',
 					height: '100%',
 					display: 'flex',
-					flexDirection: 'column'
+					flexDirection: 'row'
 				})}
 			>
+				<Sidebar />
 				<div
-					className={css(shadowBaseStyle, {
-						backgroundColor: 'rgb(233, 30, 99)',
-						color: 'white',
-						fontWeight: 'bold',
-						fontSize: 40,
-						padding: 16,
-						marginBottom: 16,
-						WebkitAppRegion: 'drag'
-					})}
-				>
-					推しのブログみるやつ
-				</div>
-				<div
-					onClick={this.onClickResetFilter}
 					className={css({
 						flex: 1,
-						overflow: 'scroll',
-						width: 960,
-						marginLeft: 'auto',
-						marginRight: 'auto',
-						'> div': {
-							marginBottom: 16
-						}
+						height: '100%',
+						display: 'flex',
+						flexDirection: 'column'
 					})}
 				>
-					{articles.map((article) => {
-						const { name, id } = article;
-
-						return following.includes(name) ? (
-							<Article article={article} key={id} />
-						) : null;
-					})}
+					<div className={titlebarBaseStyle} />
 					<div
-						ref={this.$loading}
+						ref={this.$articles}
+						onClick={this.onClickResetFilter}
 						className={css({
-							margin: '16px 0',
-							textAlign: 'center'
+							flex: 1,
+							overflow: 'scroll'
 						})}
 					>
-						{loading ? (
-							<BeatLoader
-								css={css({
-									display: 'inline-block'
-								})}
-							/>
-						) : (
+						<div
+							className={css({
+								width: 960,
+								marginLeft: 'auto',
+								marginRight: 'auto',
+								'> div': {
+									marginBottom: 16
+								}
+							})}
+						>
+							{articles.map((article) => {
+								const { name, id } = article;
+
+								return following.includes(name) ? (
+									<Article
+										article={article}
+										key={id}
+										scrollToArticleTop={
+											this.scrollToArticleTop
+										}
+									/>
+								) : null;
+							})}
 							<div
-								onClick={this.onClickLoad}
+								ref={this.$loading}
 								className={css({
-									color: 'rgb(233, 30, 99)',
-									border: '1px solid rgb(233, 30, 99)',
-									padding: '4px 8px',
-									borderRadius: 4,
-									cursor: 'pointer'
+									margin: '16px 0',
+									textAlign: 'center'
 								})}
 							>
-								さらに記事を読み込む
+								{loading ? (
+									<BeatLoader
+										css={css({
+											display: 'inline-block'
+										})}
+									/>
+								) : (
+									<div
+										onClick={this.onClickLoad}
+										className={css({
+											color: 'rgb(233, 30, 99)',
+											border:
+												'1px solid rgb(233, 30, 99)',
+											padding: '4px 8px',
+											borderRadius: 4,
+											cursor: 'pointer'
+										})}
+									>
+										さらに記事を読み込む
+									</div>
+								)}
 							</div>
-						)}
+						</div>
 					</div>
-				</div>
-				<div>
 					<Filter />
 				</div>
 			</div>

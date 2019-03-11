@@ -25,18 +25,17 @@ class Article extends Component {
 	@autobind
 	onClickCheck() {
 		const {
-			props: { dispatch }
+			props: { dispatch, scrollToArticleTop }
 		} = this;
 		const {
 			$base: { current: $base }
 		} = this;
 		const {
-			dataset: { key },
-			parentElement: $parent
+			dataset: { key }
 		} = $base;
 
 		dispatch(actions.toggleChecked(key));
-		$parent.scroll({ top: $base.offsetTop - $parent.offsetTop });
+		scrollToArticleTop($base);
 	}
 
 	/**

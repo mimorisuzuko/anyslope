@@ -5,12 +5,12 @@ import { css } from 'emotion';
 class Icon extends Component {
 	render() {
 		const {
-			props: { name, size = 48 }
+			props: { name, size = 48, css: baseStyle }
 		} = this;
 
 		return (
 			<i
-				className={css({
+				className={css(baseStyle, {
 					display: 'inline-block',
 					borderRadius: '50%',
 					backgroundSize: 'cover',
