@@ -24,8 +24,7 @@ class App extends Component {
 		this.prevloadingIsVisible = true;
 		this.state = {
 			following: [],
-			checked: [],
-			openFilter: -1
+			checked: []
 		};
 
 		(async () => {
@@ -76,19 +75,11 @@ class App extends Component {
 
 	@autobind
 	onClickResetFilter() {
-		this.setState({ openFilter: -1 });
-	}
-
-	/**
-	 * @param {number} key
-	 */
-	@autobind
-	onClickFilter(key) {
 		const {
-			state: { openFilter }
+			props: { dispatch }
 		} = this;
 
-		this.setState({ openFilter: key === openFilter ? -1 : key });
+		dispatch(actions.setFilter(-1));
 	}
 
 	@autobind
@@ -159,7 +150,7 @@ class App extends Component {
 
 	render() {
 		const {
-			state: { following, checked, openFilter },
+			state: { following, checked },
 			props: { articles, loading }
 		} = this;
 
@@ -248,8 +239,6 @@ class App extends Component {
 					<Filter
 						following={following}
 						onClickFilterMember={this.onClickFilterMember}
-						onClickFilter={this.onClickFilter}
-						openFilter={openFilter}
 					/>
 				</div>
 			</div>

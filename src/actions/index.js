@@ -11,5 +11,6 @@ export default createActions(
 			return await fetchAll(page);
 		}
 	},
-	'START_TO_LOAD_ARTICLES'
+	'START_TO_LOAD_ARTICLES',
+	'SET_FILTER'
 );

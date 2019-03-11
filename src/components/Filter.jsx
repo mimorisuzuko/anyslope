@@ -6,9 +6,14 @@ import Icon from './Icon';
 import { GoTriangleDown, GoTriangleRight } from 'react-icons/go';
 import { shadowBaseStyle } from '../styles';
 import autobind from 'autobind-decorator';
+import { connect } from 'react-redux';
+import actions from '../actions';
 
 const json = anyzaka.json();
 
+@connect(({ openFilterIndex }) => {
+	return { openFilterIndex };
+})
 export default class Filter extends Component {
 	/**
 	 * @param {Event} e
@@ -21,11 +26,11 @@ export default class Filter extends Component {
 			}
 		} = e;
 		const {
-			props: { onClickFilter }
+			props: { dispatch, openFilterIndex }
 		} = this;
 		const key = parseInt(strkey);
 
-		onClickFilter(key);
+		dispatch(actions.setFilter(key === openFilterIndex ? -1 : key));
 	}
 
 	/**
@@ -47,7 +52,7 @@ export default class Filter extends Component {
 
 	render() {
 		const {
-			props: { following, openFilter }
+			props: { following, openFilterIndex }
 		} = this;
 
 		return (
@@ -76,7 +81,7 @@ export default class Filter extends Component {
 									}
 								})}
 							>
-								{openFilter === i ? (
+								{openFilterIndex === i ? (
 									<GoTriangleDown />
 								) : (
 									<GoTriangleRight />
@@ -91,7 +96,7 @@ export default class Filter extends Component {
 								</span>
 								{_.map(members, (member) => {
 									return _.includes(following, member) &&
-										openFilter !== i ? (
+										openFilterIndex !== i ? (
 											<Icon
 												name={member}
 												size={24}
@@ -110,7 +115,7 @@ export default class Filter extends Component {
 					})}
 				>
 					{_.map(json, ({ members }, i) => {
-						return openFilter === i
+						return openFilterIndex === i
 							? _.map(members, (member) => {
 								return (
 									<div
