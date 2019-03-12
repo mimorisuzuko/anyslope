@@ -9,8 +9,8 @@ import { connect } from 'react-redux';
 import actions from '../actions';
 import Sidebar from './Sidebar';
 
-@connect(({ articles, loading, following }) => {
-	return { articles, loading, following };
+@connect(({ articles, loading }) => {
+	return { articles, loading };
 })
 class App extends Component {
 	constructor() {
@@ -70,7 +70,7 @@ class App extends Component {
 
 	render() {
 		const {
-			props: { articles, loading, following }
+			props: { articles, loading }
 		} = this;
 
 		return (
@@ -104,18 +104,19 @@ class App extends Component {
 							className={css({
 								width: 960,
 								marginLeft: 'auto',
-								marginRight: 'auto',
-								'> div': {
-									marginBottom: 16
-								}
+								marginRight: 'auto'
 							})}
 						>
 							{articles.map((article) => {
-								const { name, id } = article;
-
-								return following.includes(name) ? (
-									<Article article={article} key={id} />
-								) : null;
+								return (
+									<Article
+										article={article}
+										key={article.id}
+										css={css({
+											marginBottom: 16
+										})}
+									/>
+								);
 							})}
 							<div
 								ref={this.$loading}

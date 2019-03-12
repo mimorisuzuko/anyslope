@@ -11,8 +11,8 @@ import { shell } from 'electron';
 import { connect } from 'react-redux';
 import actions from '../actions';
 
-@connect(({ checked }) => {
-	return { checked };
+@connect(({ checked, following }) => {
+	return { checked, following };
 })
 class Article extends Component {
 	constructor() {
@@ -63,7 +63,7 @@ class Article extends Component {
 
 	render() {
 		const {
-			props: { article, checked }
+			props: { article, checked, following, css: baseStyle = '' }
 		} = this;
 		const { title, name, date, content, key, id } = article;
 		const color = anyzaka.getGroupColorFromMember(name);
@@ -71,7 +71,17 @@ class Article extends Component {
 
 		return (
 			<div
-				className={shadowBaseStyle}
+				className={css(
+					baseStyle,
+					shadowBaseStyle,
+					article.visible(following)
+						? null
+						: {
+							height: 0,
+							marginBottom: 0,
+							overflow: 'hidden'
+						  }
+				)}
 				ref={this.$base}
 				data-article-id={id}
 			>

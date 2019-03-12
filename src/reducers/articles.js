@@ -8,6 +8,14 @@ export default handleActions(
 			const { payload } = action;
 
 			return state.push(...payload);
+		},
+		[actions.showArticle]: (state, { payload }) => {
+			return state.update(
+				state.findIndex(({ id }) => id === payload),
+				(a) => {
+					return a.set('temporaryVisible', true);
+				}
+			);
 		}
 	},
 	List()

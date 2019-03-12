@@ -7,10 +7,21 @@ export default class Article extends Record({
 	date: new Date(),
 	title: '',
 	name: '',
-	content: ''
+	content: '',
+	temporaryVisible: false
 }) {
 	constructor(...args) {
 		super(_.merge(...args, { id: uuid() }));
+	}
+
+	/**
+	 * @param {} following
+	 * @returns {boolean}
+	 */
+	visible(following) {
+		const { name, temporaryVisible } = this;
+
+		return following.includes(name) || temporaryVisible;
 	}
 
 	get key() {
