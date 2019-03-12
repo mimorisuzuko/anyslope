@@ -1,7 +1,7 @@
 import React, { Component, createRef } from 'react';
 import fecha from 'fecha';
 import Icon from './Icon';
-import { anyzaka } from '../util';
+import { anyzaka, scrollToArticleTop } from '../util';
 import { GoCheck } from 'react-icons/go';
 import autobind from 'autobind-decorator';
 import _ from 'lodash';
@@ -25,14 +25,14 @@ class Article extends Component {
 	@autobind
 	onClickCheck() {
 		const {
-			props: { dispatch, scrollToArticleTop }
+			props: {
+				dispatch,
+				article: { key }
+			}
 		} = this;
 		const {
 			$base: { current: $base }
 		} = this;
-		const {
-			dataset: { key }
-		} = $base;
 
 		dispatch(actions.toggleChecked(key));
 		scrollToArticleTop($base);
@@ -65,12 +65,16 @@ class Article extends Component {
 		const {
 			props: { article, checked }
 		} = this;
-		const { title, name, date, content, key } = article;
+		const { title, name, date, content, key, id } = article;
 		const color = anyzaka.getGroupColorFromMember(name);
 		const isChecked = checked.includes(key);
 
 		return (
-			<div className={shadowBaseStyle} ref={this.$base} data-key={key}>
+			<div
+				className={shadowBaseStyle}
+				ref={this.$base}
+				data-article-id={id}
+			>
 				<div
 					className={css({
 						backgroundColor: color,

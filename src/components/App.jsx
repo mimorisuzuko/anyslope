@@ -26,15 +26,6 @@ class App extends Component {
 		this.watchLoading();
 	}
 
-	@autobind
-	scrollToArticleTop($div) {
-		const {
-			$articles: { current: $articles }
-		} = this;
-
-		$articles.scroll({ top: $div.offsetTop - $articles.offsetTop });
-	}
-
 	loadAndAddArticles() {
 		const {
 			props: { dispatch, loading }
@@ -123,13 +114,7 @@ class App extends Component {
 								const { name, id } = article;
 
 								return following.includes(name) ? (
-									<Article
-										article={article}
-										key={id}
-										scrollToArticleTop={
-											this.scrollToArticleTop
-										}
-									/>
+									<Article article={article} key={id} />
 								) : null;
 							})}
 							<div

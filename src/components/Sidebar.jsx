@@ -2,16 +2,19 @@ import React, { Component } from 'react';
 import { css } from 'emotion';
 import { shadowBaseStyle, titlebarBaseStyle } from '../styles';
 import { connect } from 'react-redux';
-import Icon from './Icon';
-import { GoCheck } from 'react-icons/go';
+import autobind from 'autobind-decorator';
+import SidebarItem from './SidebarItem';
 
-@connect(({ articles, following, checked }) => {
-	return { articles, following, checked };
+@connect(({ articles }) => {
+	return { articles };
 })
 export default class Sidebar extends Component {
+	@autobind
+	onClickItem() {}
+
 	render() {
 		const {
-			props: { articles, following, checked }
+			props: { articles }
 		} = this;
 
 		return (
@@ -30,41 +33,13 @@ export default class Sidebar extends Component {
 				<div
 					className={css({
 						overflowY: 'scroll',
-						flex: 1,
-						padding: '0 8px'
+						flex: 1
 					})}
 				>
-					{articles.map(({ name, title, id, key }) => {
-						return (
-							<div
-								key={id}
-								className={css({
-									overflowX: 'hidden',
-									whiteSpace: 'nowrap',
-									textOverflow: 'ellipsis',
-									opacity: following.includes(name) ? 1 : 0.5
-								})}
-							>
-								<GoCheck
-									style={{
-										marginRight: 4,
-										verticalAlign: 'middle',
-										visibility: checked.includes(key)
-											? 'visible'
-											: 'hidden'
-									}}
-								/>
-								<Icon
-									name={name}
-									size={24}
-									css={css({
-										verticalAlign: 'middle',
-										marginRight: 4
-									})}
-								/>
-								{title}
-							</div>
-						);
+					{articles.map((article) => {
+						const { id } = article;
+
+						return <SidebarItem article={article} key={id} />;
 					})}
 				</div>
 			</div>

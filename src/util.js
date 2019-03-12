@@ -99,3 +99,26 @@ class Anyzaka {
 }
 
 export const anyzaka = new Anyzaka();
+
+/**
+ * @param {Element} $e
+ * @returns {Element}
+ */
+const getScrollableParentOfArticle = ($e) => {
+	const { parentElement } = $e;
+
+	if (getComputedStyle($e).overflowY === 'scroll') {
+		return $e;
+	} else {
+		return getScrollableParentOfArticle(parentElement);
+	}
+};
+
+/**
+ * @param {Element} $article
+ */
+export const scrollToArticleTop = ($article) => {
+	const $parent = getScrollableParentOfArticle($article);
+
+	$parent.scroll({ top: $article.offsetTop - $parent.offsetTop });
+};
