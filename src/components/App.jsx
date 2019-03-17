@@ -102,7 +102,8 @@ class App extends Component {
 					>
 						<div
 							className={css({
-								width: 960,
+								minWidth: 960,
+								padding: 16,
 								marginLeft: 'auto',
 								marginRight: 'auto'
 							})}
