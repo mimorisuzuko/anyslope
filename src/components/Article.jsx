@@ -11,6 +11,49 @@ import { shell } from 'electron';
 import { connect } from 'react-redux';
 import actions from '../actions';
 
+const headerIconSize = 43;
+const headerMarginRight = 8;
+const articlePadding = 16;
+
+const ArticleHeader = ({ article: { date, name, title }, color }) => {
+	return (
+		<div
+			className={css({
+				backgroundColor: color,
+				color: 'white',
+				padding: `${articlePadding}px ${articlePadding +
+					headerIconSize +
+					headerMarginRight}px`,
+				position: 'relative'
+			})}
+		>
+			<Icon
+				name={name}
+				size={headerIconSize}
+				css={css({
+					position: 'absolute',
+					left: articlePadding,
+					top: articlePadding
+				})}
+			/>
+			<div>
+				<div>{fecha.format(date, 'YY/MM/DD HH:mm:ss')}</div>
+				<div
+					className={css({
+						fontSize: 20,
+						fontWeight: 'bold',
+						overflow: 'hidden',
+						whiteSpace: 'nowrap',
+						textOverflow: 'ellipsis'
+					})}
+				>
+					{title}
+				</div>
+			</div>
+		</div>
+	);
+};
+
 @connect(({ checked, following }) => {
 	return { checked, following };
 })
@@ -65,7 +108,7 @@ class Article extends Component {
 		const {
 			props: { article, checked, following, css: baseStyle = '' }
 		} = this;
-		const { title, name, date, content, key, id } = article;
+		const { name, content, key, id } = article;
 		const color = anyzaka.getGroupColorFromMember(name);
 		const isChecked = checked.includes(key);
 
@@ -80,50 +123,16 @@ class Article extends Component {
 							height: 0,
 							marginBottom: 0,
 							overflow: 'hidden'
-						  }
+						  },
+					{ position: 'relative' }
 				)}
 				ref={this.$base}
 				data-article-id={id}
 			>
+				<ArticleHeader article={article} color={color} />
 				<div
 					className={css({
-						backgroundColor: color,
-						color: 'white',
-						padding: 16,
-						display: 'flex',
-						alignItems: 'center',
-						'> :first-of-type': {
-							marginRight: 8
-						}
-					})}
-				>
-					<div>
-						<Icon name={name} size={43} />
-					</div>
-					<div className={css({ flex: 1 })}>
-						<div>{fecha.format(date, 'YY/MM/DD HH:mm:ss')}</div>
-						<div
-							className={css({
-								fontSize: 20,
-								fontWeight: 'bold'
-							})}
-						>
-							{title}
-						</div>
-					</div>
-					{isChecked ? (
-						<GoCheck
-							size={36}
-							fill='white'
-							onClick={this.onClickCheck}
-							data-key={key}
-							className={css({ cursor: 'pointer' })}
-						/>
-					) : null}
-				</div>
-				<div
-					className={css({
-						padding: '0 16px 16px',
+						padding: `0 ${articlePadding}px ${articlePadding}px`,
 						position: 'relative',
 						img: {
 							maxWidth: '100%',
@@ -138,21 +147,29 @@ class Article extends Component {
 							__html: content
 						}}
 					/>
-					<GoCheck
-						size={36}
-						onClick={this.onClickCheck}
-						className={css({
-							position: 'absolute',
-							right: 16,
-							bottom: 16,
-							cursor: 'pointer',
-							fill: 'lightgray',
-							'&:hover': {
-								fill: color
-							}
-						})}
-					/>
 				</div>
+				<GoCheck
+					size={headerIconSize}
+					onClick={this.onClickCheck}
+					className={css(
+						{
+							position: 'absolute',
+							right: articlePadding,
+							bottom: articlePadding,
+							cursor: 'pointer'
+						},
+						isChecked
+							? {
+								fill: 'white'
+							  }
+							: {
+								fill: 'lightgray',
+								'&:hover': {
+									fill: color
+								}
+							  }
+					)}
+				/>
 			</div>
 		);
 	}

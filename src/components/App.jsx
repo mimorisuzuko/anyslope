@@ -3,7 +3,7 @@ import autobind from 'autobind-decorator';
 import Article from './Article';
 import { BeatLoader } from 'react-spinners';
 import { css } from 'emotion';
-import { titlebarBaseStyle } from '../styles';
+import { titlebarBaseStyle, bodyBaseStyle } from '../styles';
 import Filter from './Filter';
 import { connect } from 'react-redux';
 import actions from '../actions';
@@ -84,9 +84,7 @@ class App extends Component {
 			>
 				<Sidebar />
 				<div
-					className={css({
-						flex: 1,
-						height: '100%',
+					className={css(bodyBaseStyle, {
 						display: 'flex',
 						flexDirection: 'column'
 					})}

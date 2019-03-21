@@ -1,6 +1,10 @@
 import React, { Component } from 'react';
 import { css } from 'emotion';
-import { shadowBaseStyle, titlebarBaseStyle } from '../styles';
+import {
+	shadowBaseStyle,
+	titlebarBaseStyle,
+	sidebarBaseStyle
+} from '../styles';
 import { connect } from 'react-redux';
 import autobind from 'autobind-decorator';
 import SidebarItem from './SidebarItem';
@@ -19,10 +23,7 @@ export default class Sidebar extends Component {
 
 		return (
 			<div
-				className={css(shadowBaseStyle, {
-					width: 220,
-					height: '100%',
-					boxSizing: 'border-box',
+				className={css(sidebarBaseStyle, shadowBaseStyle, {
 					display: 'flex',
 					flexDirection: 'column',
 					backgroundColor: 'rgb(244, 143, 177)',
