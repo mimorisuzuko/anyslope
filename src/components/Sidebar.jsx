@@ -3,7 +3,8 @@ import { css } from 'emotion';
 import {
 	shadowBaseStyle,
 	titlebarBaseStyle,
-	sidebarBaseStyle
+	sidebarBaseStyle,
+	pink
 } from '../styles';
 import { connect } from 'react-redux';
 import autobind from 'autobind-decorator';
@@ -26,7 +27,7 @@ export default class Sidebar extends Component {
 				className={css(sidebarBaseStyle, shadowBaseStyle, {
 					display: 'flex',
 					flexDirection: 'column',
-					backgroundColor: 'rgb(244, 143, 177)',
+					backgroundColor: pink,
 					color: 'white'
 				})}
 			>

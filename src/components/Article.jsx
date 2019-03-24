@@ -1,7 +1,7 @@
 import React, { Component, createRef } from 'react';
 import fecha from 'fecha';
 import Icon from './Icon';
-import { anyzaka, scrollToArticleTop } from '../util';
+import { scrollToArticleTop } from '../util';
 import { GoCheck } from 'react-icons/go';
 import autobind from 'autobind-decorator';
 import _ from 'lodash';
@@ -10,6 +10,7 @@ import { shadowBaseStyle } from '../styles';
 import { shell } from 'electron';
 import { connect } from 'react-redux';
 import actions from '../actions';
+import anyzaka from '../anyzaka';
 
 const headerIconSize = 43;
 const headerMarginRight = 8;

@@ -22,3 +22,5 @@ export const bodyBaseStyle = css({
 	width: `calc(100% - ${sidebarWidth}px)`,
 	height: '100%'
 });
+
+export const pink = 'rgb(244, 143, 177)';

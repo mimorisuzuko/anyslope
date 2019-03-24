@@ -8,6 +8,8 @@ import Filter from './Filter';
 import { connect } from 'react-redux';
 import actions from '../actions';
 import Sidebar from './Sidebar';
+import { ipcRenderer } from 'electron';
+import Preferences from './Preferences';
 
 @connect(({ articles, loading }) => {
 	return { articles, loading };
@@ -19,11 +21,21 @@ class App extends Component {
 		this.$loading = createRef();
 		this.$articles = createRef();
 		this.prevloadingIsVisible = true;
+		ipcRenderer.on('menu:preferences', this.onClickPreferencesOfMenuItem);
 	}
 
 	componentDidMount() {
 		this.loadAndAddArticles();
 		this.watchLoading();
+	}
+
+	@autobind
+	onClickPreferencesOfMenuItem() {
+		const {
+			props: { dispatch }
+		} = this;
+
+		dispatch(actions.setPreferencesState(true));
 	}
 
 	loadAndAddArticles() {
@@ -150,6 +162,7 @@ class App extends Component {
 					</div>
 					<Filter />
 				</div>
+				<Preferences />
 			</div>
 		);
 	}

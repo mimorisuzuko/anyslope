@@ -1,5 +1,6 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, Menu } = require('electron');
 const libpath = require('path');
+const menu = require('./menu');
 const {
 	env: { NODE_ENV }
 } = process;
@@ -27,6 +28,7 @@ const create = () => {
 };
 
 app.on('ready', () => {
+	Menu.setApplicationMenu(Menu.buildFromTemplate(menu));
 	create();
 
 	if (NODE_ENV === 'development') {

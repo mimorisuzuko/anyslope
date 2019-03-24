@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { anyzaka } from '../util';
+import anyzaka from '../anyzaka';
 import _ from 'lodash';
 import { css } from 'emotion';
 import Icon from './Icon';
@@ -8,8 +8,6 @@ import { shadowBaseStyle } from '../styles';
 import autobind from 'autobind-decorator';
 import { connect } from 'react-redux';
 import actions from '../actions';
-
-const json = anyzaka.json();
 
 @connect(({ openFilterIndex, following }) => {
 	return { openFilterIndex, following };
@@ -66,7 +64,7 @@ export default class Filter extends Component {
 						marginBottom: 4
 					})}
 				>
-					{_.map(json, ({ name, color, members }, i) => {
+					{_.map(anyzaka.json(), ({ name, color, members }, i) => {
 						return (
 							<span
 								onClick={this.onClickFilter}
@@ -113,7 +111,7 @@ export default class Filter extends Component {
 						flexWrap: 'wrap'
 					})}
 				>
-					{_.map(json, ({ members }, i) => {
+					{_.map(anyzaka.json(), ({ members }, i) => {
 						return openFilterIndex === i
 							? _.map(members, (member) => {
 								return (

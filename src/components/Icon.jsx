@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { anyzaka } from '../util';
+import anyzaka from '../anyzaka';
 import { css } from 'emotion';
 
 class Icon extends Component {
@@ -16,6 +16,8 @@ class Icon extends Component {
 					backgroundSize: 'cover',
 					backgroundRepeat: 'no-repeat',
 					backgroundImage: `url("${anyzaka.toMemberIconPath(
+						name
+					)}"), url("${anyzaka.toExtraIconPath(
 						name
 					)}"), url(assets/icons/fallback.png)`,
 					width: size,
