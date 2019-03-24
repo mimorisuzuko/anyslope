@@ -44,11 +44,11 @@ export default createActions(
 				fs.writeJsonSync(otherBlogsFile, {});
 			}
 
-			if (!fs.existsSync(extraIconsDirname)) {
-				fs.mkdirSync(extraIconsDirname);
-			} else {
+			if (fs.existsSync(extraIconsDirname)) {
 				fs.removeSync(extraIconsDirname);
 			}
+
+			fs.mkdirSync(extraIconsDirname);
 
 			const otherBlogs = fs.readJsonSync(otherBlogsFile);
 			const otherBlogsRet = {};
