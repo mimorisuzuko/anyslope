@@ -79,14 +79,23 @@ export default class Filter extends Component {
 								})}
 							>
 								{openFilterIndex === i ? (
-									<GoTriangleDown />
+									<GoTriangleDown
+										className={css({
+											verticalAlign: 'middle'
+										})}
+									/>
 								) : (
-									<GoTriangleRight />
+									<GoTriangleRight
+										className={css({
+											verticalAlign: 'middle'
+										})}
+									/>
 								)}
 								<span
 									className={css({
 										fontWeight: 'bold',
-										marginRight: 2
+										marginRight: 2,
+										verticalAlign: 'middle'
 									})}
 								>
 									{name}
