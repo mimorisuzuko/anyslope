@@ -7,7 +7,7 @@ export default handleActions(
 		[actions.loadArticles]: (state, action) => {
 			const { payload } = action;
 
-			return state.push(...payload);
+			return state.push(...payload).sortBy(({ date }) => -date);
 		},
 		[actions.showArticle]: (state, { payload }) => {
 			return state.update(

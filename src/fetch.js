@@ -84,5 +84,5 @@ export default async (page = 0) => {
 		}
 	}
 
-	return _.sortBy(blogs, ({ date }) => -date);
+	return blogs;
 };
