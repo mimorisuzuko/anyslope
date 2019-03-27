@@ -50,7 +50,7 @@ export default class SidebarItem extends Component {
 					style={{
 						marginRight: 4,
 						verticalAlign: 'middle',
-						visibility: checked.includes(article.key)
+						visibility: checked.includes(article.url)
 							? 'visible'
 							: 'hidden',
 						opacity: visible ? 1 : 0.5

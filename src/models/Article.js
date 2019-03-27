@@ -8,7 +8,8 @@ export default class Article extends Record({
 	title: '',
 	name: '',
 	content: '',
-	temporaryVisible: false
+	temporaryVisible: false,
+	url: ''
 }) {
 	constructor(...args) {
 		super(_.merge(...args, { id: uuid() }));
@@ -22,11 +23,5 @@ export default class Article extends Record({
 		const { name, temporaryVisible } = this;
 
 		return following.includes(name) || temporaryVisible;
-	}
-
-	get key() {
-		const { title, name } = this;
-
-		return `${name}-${title}`;
 	}
 }

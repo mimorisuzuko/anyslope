@@ -16,7 +16,7 @@ const headerIconSize = 43;
 const headerMarginRight = 8;
 const articlePadding = 16;
 
-const ArticleHeader = ({ article: { date, name, title }, color }) => {
+const ArticleHeader = ({ article: { date, name, title, url }, color }) => {
 	return (
 		<div
 			className={css({
@@ -48,7 +48,18 @@ const ArticleHeader = ({ article: { date, name, title }, color }) => {
 						textOverflow: 'ellipsis'
 					})}
 				>
-					{title}
+					<a
+						href={url}
+						className={css({
+							color: 'white',
+							textDecoration: 'none',
+							':hover': {
+								textDecoration: 'underline'
+							}
+						})}
+					>
+						{title}
+					</a>
 				</div>
 			</div>
 		</div>
@@ -63,7 +74,6 @@ class Article extends Component {
 		super();
 
 		this.$base = createRef();
-		this.$content = createRef();
 	}
 
 	@autobind
@@ -71,20 +81,21 @@ class Article extends Component {
 		const {
 			props: {
 				dispatch,
-				article: { key }
+				article: { url }
 			}
 		} = this;
 		const {
 			$base: { current: $base }
 		} = this;
 
-		dispatch(actions.toggleChecked(key));
+		dispatch(actions.toggleChecked(url));
 		scrollToArticleTop($base);
 	}
 
 	/**
 	 * @param {Event} e
 	 */
+	@autobind
 	onClickLink(e) {
 		e.preventDefault();
 
@@ -97,10 +108,10 @@ class Article extends Component {
 
 	componentDidMount() {
 		const {
-			$content: { current: $content }
+			$base: { current: $base }
 		} = this;
 
-		_.forEach($content.querySelectorAll('a'), ($a) => {
+		_.forEach($base.querySelectorAll('a'), ($a) => {
 			$a.addEventListener('click', this.onClickLink);
 		});
 	}
@@ -109,9 +120,9 @@ class Article extends Component {
 		const {
 			props: { article, checked, following, css: baseStyle = '' }
 		} = this;
-		const { name, content, key, id } = article;
+		const { name, content, url, id } = article;
 		const color = anyzaka.getGroupColorFromMember(name);
-		const isChecked = checked.includes(key);
+		const contentIsVisible = checked.includes(url);
 
 		return (
 			<div
@@ -139,11 +150,10 @@ class Article extends Component {
 							maxWidth: '100%',
 							display: 'block'
 						},
-						display: isChecked ? 'none' : 'block'
+						display: contentIsVisible ? 'none' : 'block'
 					})}
 				>
 					<div
-						ref={this.$content}
 						dangerouslySetInnerHTML={{
 							__html: content
 						}}
@@ -159,7 +169,7 @@ class Article extends Component {
 							bottom: articlePadding,
 							cursor: 'pointer'
 						},
-						isChecked
+						contentIsVisible
 							? {
 								fill: 'white'
 							  }

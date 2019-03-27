@@ -4,6 +4,7 @@ import Article from './models/Article';
 import anyzaka from './anyzaka';
 import { convertHtmlToHtmlString } from './util';
 import lineblog from './lineblog';
+import liburl from 'url';
 
 const dparser = new DOMParser();
 
@@ -27,7 +28,7 @@ const fetchNogi = async (page = 0) => {
 	const body = await rp(`http://blog.nogizaka46.com/?p=${page + 1}`);
 	const $parsed = dparser.parseFromString(body, 'text/html');
 	const names = $parsed.querySelectorAll('.author');
-	const titles = $parsed.querySelectorAll('h1 .entrytitle');
+	const titles = $parsed.querySelectorAll('h1 .entrytitle a');
 	const contents = $parsed.querySelectorAll('.entrybody');
 	const dates = $parsed.querySelectorAll('.entrybottom');
 	const { length } = dates;
@@ -39,7 +40,8 @@ const fetchNogi = async (page = 0) => {
 				date: new Date(dates[i].childNodes[0].nodeValue.slice(0, -1)),
 				title: titles[i].innerText,
 				name: names[i].innerText.replace(/\s/g, ''),
-				content: convertHtmlToHtmlString(contents[i])
+				content: convertHtmlToHtmlString(contents[i]),
+				url: titles[i].href
 			})
 		);
 	}
@@ -48,9 +50,8 @@ const fetchNogi = async (page = 0) => {
 };
 
 const fetchKeyaki = async (page = 0) => {
-	const body = await rp(
-		`http://www.keyakizaka46.com/s/k46o/diary/member/list?page=${page}`
-	);
+	const baseUrl = `http://www.keyakizaka46.com/s/k46o/diary/member/list?page=${page}`;
+	const body = await rp(baseUrl);
 
 	return _.map(
 		dparser.parseFromString(body, 'text/html').querySelectorAll('article'),
@@ -58,16 +59,17 @@ const fetchKeyaki = async (page = 0) => {
 			const { innerText: datestr } = $article.querySelector(
 				'.box-bottom li'
 			);
-			const { innerText: title } = $article.querySelector('h3');
+			const $title = $article.querySelector('h3 a');
 			const { innerText: name } = $article.querySelector('.name');
 
 			return new Article({
 				date: new Date(datestr),
-				title: title.trim(),
+				title: $title.innerText.trim(),
 				name: name.replace(/\s/g, ''),
 				content: convertHtmlToHtmlString(
 					$article.querySelector('.box-article')
-				)
+				),
+				url: liburl.resolve(baseUrl, $title.pathname)
 			});
 		}
 	);

@@ -31,15 +31,18 @@ class LineBlog {
 		const $parsed = dparser.parseFromString(body, 'text/html');
 
 		return _.map($parsed.querySelectorAll('.article'), ($article) => {
+			const $title = $article.querySelector('.article-title a');
+
 			return new Article({
 				date: new Date(
 					$article.querySelector('.article-date').innerText
 				),
-				title: $article.querySelector('.article-title').innerText,
+				title: $title.innerText,
 				name: $parsed.querySelector('h2').innerText,
 				content: convertHtmlToHtmlString(
 					$article.querySelector('.article-body')
-				)
+				),
+				url: $title.href
 			});
 		});
 	}
