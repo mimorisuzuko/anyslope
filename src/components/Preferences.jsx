@@ -1,4 +1,4 @@
-import React, { Component, createRef } from 'react';
+import React, { Component } from 'react';
 import { css } from 'emotion';
 import { shadowBaseStyle, pink } from '../styles';
 import { connect } from 'react-redux';
@@ -6,6 +6,11 @@ import autobind from 'autobind-decorator';
 import fs from 'fs-extra';
 import os from 'os';
 import libpath from 'path';
+import AceEditor from 'react-ace';
+import { toast } from 'react-toastify';
+import 'brace';
+import 'brace/mode/json';
+import 'brace/theme/github';
 
 const path = libpath.join(os.homedir(), '.anyzaka', 'other-blogs.json');
 
@@ -13,44 +18,30 @@ const path = libpath.join(os.homedir(), '.anyzaka', 'other-blogs.json');
 	return { openPreferences, otherBlogs };
 })
 export default class Preferences extends Component {
-	constructor(props) {
-		super(props);
-
-		const { otherBlogs } = props;
-
-		this.$textarea = createRef();
-		this.state = {
-			otherBlogs: JSON.stringify(otherBlogs, null, 4)
-		};
-	}
-
 	@autobind
 	onClickSaveButton() {
-		const {
-			state: { otherBlogs }
-		} = this;
-		const json = JSON.parse(otherBlogs);
+		const { innerText } = document.getElementById('brace-editor');
 
-		fs.writeJsonSync(path, json);
-		location.reload();
-	}
+		try {
+			const json = JSON.parse(innerText.slice(1));
 
-	/**
-	 * @param {Event} e
-	 */
-	@autobind
-	onChange(e) {
-		const {
-			currentTarget: { value }
-		} = e;
-
-		this.setState({ otherBlogs: value });
+			fs.writeJsonSync(path, json);
+			location.reload();
+		} catch (e) {
+			toast.error(String(e), {
+				position: 'top-center',
+				autoClose: 5000,
+				hideProgressBar: false,
+				closeOnClick: true,
+				pauseOnHover: true,
+				draggable: false
+			});
+		}
 	}
 
 	render() {
 		const {
-			props: { openPreferences },
-			state: { otherBlogs }
+			props: { openPreferences, otherBlogs }
 		} = this;
 
 		return openPreferences ? (
@@ -97,21 +88,19 @@ export default class Preferences extends Component {
 							padding: 24
 						})}
 					>
-						<textarea
-							onChange={this.onChange}
-							ref={this.$textarea}
-							value={otherBlogs}
-							className={css({
-								fontFamily:
-									'Menlo, Monaco, "Courier New", monospace',
-								fontWeight: 'normal',
-								fontSize: 12,
-								lineHeight: '18px',
-								letterSpacing: 0,
+						<AceEditor
+							defaultValue={otherBlogs}
+							mode='json'
+							theme='github'
+							showGutter={false}
+							style={{
 								width: '100%',
-								height: 72,
-								resize: 'none'
-							})}
+								height: 160,
+								border: '1px solid rgb(230, 236, 240)'
+							}}
+							editorProps={{
+								$blockScrolling: true
+							}}
 						/>
 					</div>
 					<div

@@ -10,6 +10,8 @@ import actions from '../actions';
 import Sidebar from './Sidebar';
 import { ipcRenderer } from 'electron';
 import Preferences from './Preferences';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.min.css';
 
 @connect(({ articles, loading }) => {
 	return { articles, loading };
@@ -163,6 +165,17 @@ class App extends Component {
 					<Filter />
 				</div>
 				<Preferences />
+				<ToastContainer
+					position='top-center'
+					autoClose={5000}
+					hideProgressBar={false}
+					newestOnTop={false}
+					closeOnClick
+					rtl={false}
+					pauseOnVisibilityChange
+					draggable={false}
+					pauseOnHover
+				/>
 			</div>
 		);
 	}

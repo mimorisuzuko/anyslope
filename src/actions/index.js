@@ -7,9 +7,47 @@ import { remote } from 'electron';
 import _ from 'lodash';
 import lineblog from '../lineblog';
 import rp from 'request-promise';
+import anyzaka from '../anyzaka';
 
 let page = -1;
 const { app } = remote;
+const dirname = libpath.join(os.homedir(), '.anyzaka');
+const checkedFile = libpath.join(dirname, 'checked.json');
+const followingFile = libpath.join(dirname, 'following.json');
+const otherBlogsFile = libpath.join(dirname, 'other-blogs.json');
+const extraIconsDirname = libpath.join(
+	app.getAppPath(),
+	'app/dst/assets/icons/extras'
+);
+
+const convertOtherBlogsForAnyzaka = async (otherBlogs) => {
+	const ret = {};
+
+	for (const key of _.keys(otherBlogs)) {
+		if (key === 'line') {
+			if (!_.has(ret, key)) {
+				ret[key] = {
+					ids: [],
+					members: []
+				};
+			}
+
+			for (const id of otherBlogs[key]) {
+				const { url, name } = await lineblog.idToImageUrlAndName(id);
+
+				await fs.writeFile(
+					libpath.join(extraIconsDirname, `${name}.jpg`),
+					await rp(url, { encoding: null })
+				);
+
+				ret[key].ids.push(id);
+				ret[key].members.push(name);
+			}
+		}
+	}
+
+	return ret;
+};
 
 export default createActions(
 	{
@@ -19,15 +57,6 @@ export default createActions(
 			return await fetch(page);
 		},
 		INIT: async () => {
-			const dirname = libpath.join(os.homedir(), '.anyzaka');
-			const checkedFile = libpath.join(dirname, 'checked.json');
-			const followingFile = libpath.join(dirname, 'following.json');
-			const otherBlogsFile = libpath.join(dirname, 'other-blogs.json');
-			const extraIconsDirname = libpath.join(
-				app.getAppPath(),
-				'app/dst/assets/icons/extras'
-			);
-
 			if (!fs.existsSync(dirname)) {
 				fs.mkdirSync(dirname);
 			}
@@ -51,38 +80,14 @@ export default createActions(
 			fs.mkdirSync(extraIconsDirname);
 
 			const otherBlogs = fs.readJsonSync(otherBlogsFile);
-			const otherBlogsRet = {};
-
-			for (const key of _.keys(otherBlogs)) {
-				if (key === 'line') {
-					if (!_.has(otherBlogsRet, key)) {
-						otherBlogsRet[key] = {
-							ids: [],
-							members: []
-						};
-					}
-
-					for (const id of otherBlogs[key]) {
-						const {
-							url,
-							name
-						} = await lineblog.idToImageUrlAndName(id);
-
-						await fs.writeFile(
-							libpath.join(extraIconsDirname, `${name}.jpg`),
-							await rp(url, { encoding: null })
-						);
-
-						otherBlogsRet[key].ids.push(id);
-						otherBlogsRet[key].members.push(name);
-					}
-				}
-			}
+			anyzaka.addOtherBlogs(
+				await convertOtherBlogsForAnyzaka(otherBlogs)
+			);
 
 			return {
 				checked: fs.readJsonSync(checkedFile),
 				following: fs.readJsonSync(followingFile),
-				otherBlogs: otherBlogsRet
+				otherBlogs: JSON.stringify(otherBlogs, null, 4)
 			};
 		}
 	},
