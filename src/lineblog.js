@@ -32,6 +32,11 @@ class LineBlog {
 
 		return _.map($parsed.querySelectorAll('.article'), ($article) => {
 			const $title = $article.querySelector('.article-title a');
+			let $content = $article.querySelector('.article-body');
+
+			_.forEach($content.querySelectorAll('.lineemoji'), ($emoji) => {
+				$emoji.alt = 'lineemoji';
+			});
 
 			return new Article({
 				date: new Date(
@@ -39,8 +44,11 @@ class LineBlog {
 				),
 				title: $title.innerText,
 				name: $parsed.querySelector('h2').innerText,
-				content: convertHtmlToHtmlString(
-					$article.querySelector('.article-body')
+				content: convertHtmlToHtmlString($content).replace(
+					/<img\s+src="(https:\/\/parts\.lineblog\.me\/img\/emoji\/line\/\d+\/\d+\.png)"\s+alt="lineemoji">/g,
+					(match, p1) => {
+						return `<img src="${p1}" style="width:1.3em;height:1.3em;position:relative;top:0.2em;" alt="lineemoji">`;
+					}
 				),
 				url: $title.href
 			});
