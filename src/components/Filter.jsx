@@ -64,7 +64,7 @@ export default class Filter extends Component {
 						marginBottom: 4
 					})}
 				>
-					{_.map(anyzaka.json(), ({ name, color, members }, i) => {
+					{_.map(anyzaka.entries, ({ name, color, members }, i) => {
 						return (
 							<span
 								onClick={this.onClickFilter}
@@ -120,7 +120,7 @@ export default class Filter extends Component {
 						flexWrap: 'wrap'
 					})}
 				>
-					{_.map(anyzaka.json(), ({ members }, i) => {
+					{_.map(anyzaka.entries, ({ members }, i) => {
 						return openFilterIndex === i
 							? _.map(members, (member) => {
 								return (

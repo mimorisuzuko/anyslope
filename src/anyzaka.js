@@ -17,36 +17,30 @@ class Anyzaka {
 	}
 
 	constructor() {
-		this._json = anyzakaJSON;
-	}
-
-	json() {
-		const { _json } = this;
-
-		return _json;
+		this.entries = anyzakaJSON;
 	}
 
 	/**
 	 * @param {{}} otherBlogs
 	 */
 	addOtherBlogs(otherBlogs) {
-		let { _json } = this;
+		let { entries } = this;
 
 		_.forEach(_.keys(otherBlogs), (key) => {
 			const blogs = Anyzaka.converter[key](otherBlogs[key]);
 
-			_json = _.filter(_json, ({ name }) => name !== blogs.name);
-			_json.push(blogs);
+			entries = _.filter(entries, ({ name }) => name !== blogs.name);
+			entries.push(blogs);
 		});
 
-		this._json = _json;
+		this.entries = entries;
 	}
 
 	getGroupColorFromMember(name) {
-		const { _json } = this;
+		const { entries } = this;
 		let ret = null;
 
-		_.forEach(_json, ({ members, color }) => {
+		_.forEach(entries, ({ members, color }) => {
 			if (_.includes(members, name)) {
 				ret = color;
 			}

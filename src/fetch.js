@@ -78,10 +78,10 @@ const fetchKeyaki = async (page = 0) => {
 export default async (page = 0) => {
 	const blogs = [...(await fetchKeyaki(page)), ...(await fetchNogi(page))];
 
-	for (const other of anyzaka.json()) {
-		if (_.has(other, '_fetcher')) {
+	for (const entry of anyzaka.entries) {
+		if (_.has(entry, '_fetcher')) {
 			blogs.push(
-				...(await otherBlogFetcher[other['_fetcher']](other, page))
+				...(await otherBlogFetcher[entry['_fetcher']](entry, page))
 			);
 		}
 	}
