@@ -27,12 +27,21 @@ const convertOtherBlogsForAnyzaka = async (otherBlogs) => {
 		if (key === 'line') {
 			if (!_.has(ret, key)) {
 				ret[key] = {
-					ids: [],
+					name: 'LINE BLOG',
+					color: 'rgb(90, 196, 127)',
+					_ids: [],
+					_fetcher: 'fetchLineBlog',
+					_optionsList: [],
 					members: []
 				};
 			}
 
-			for (const id of otherBlogs[key]) {
+			for (let value of otherBlogs[key]) {
+				if (typeof value === 'string') {
+					value = [value, { pages: 1 }];
+				}
+
+				const [id, options] = value;
 				const { url, name } = await lineblog.idToImageUrlAndName(id);
 
 				await fs.writeFile(
@@ -40,7 +49,8 @@ const convertOtherBlogsForAnyzaka = async (otherBlogs) => {
 					await rp(url, { encoding: null })
 				);
 
-				ret[key].ids.push(id);
+				ret[key]._optionsList.push(options);
+				ret[key]._ids.push(id);
 				ret[key].members.push(name);
 			}
 		}

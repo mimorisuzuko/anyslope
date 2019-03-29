@@ -13,11 +13,12 @@ export const getLineBlogUrl = (id) => {
 };
 
 const otherBlogFetcher = {
-	fetchLineBlog: async ({ _ids }, page = 0) => {
+	fetchLineBlog: async ({ _ids, _optionsList }, page = 0) => {
 		const ret = [];
+		const { length } = _ids;
 
-		for (const id of _ids) {
-			ret.push(...(await lineblog.fetch(id, page)));
+		for (let i = 0; i < length; i += 1) {
+			ret.push(...(await lineblog.fetch(_ids[i], page, _optionsList[i])));
 		}
 
 		return ret;

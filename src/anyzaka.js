@@ -2,20 +2,6 @@ import anyzakaJSON from './assets/anyzaka.json';
 import _ from 'lodash';
 
 class Anyzaka {
-	static get converter() {
-		return {
-			line: ({ ids, members }) => {
-				return {
-					name: 'LINE BLOG',
-					color: 'rgb(90, 196, 127)',
-					_fetcher: 'fetchLineBlog',
-					_ids: ids,
-					members
-				};
-			}
-		};
-	}
-
 	constructor() {
 		this.entries = anyzakaJSON;
 	}
@@ -26,9 +12,7 @@ class Anyzaka {
 	addOtherBlogs(otherBlogs) {
 		let { entries } = this;
 
-		_.forEach(_.keys(otherBlogs), (key) => {
-			const blogs = Anyzaka.converter[key](otherBlogs[key]);
-
+		_.forEach(_.values(otherBlogs), (blogs) => {
 			entries = _.filter(entries, ({ name }) => name !== blogs.name);
 			entries.push(blogs);
 		});
