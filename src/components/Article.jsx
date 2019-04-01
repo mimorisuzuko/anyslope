@@ -146,7 +146,7 @@ class Article extends Component {
 					className={css({
 						padding: `0 ${articlePadding}px ${articlePadding}px`,
 						position: 'relative',
-						'img[^="lineemoji"]': {
+						'img:not([alt="lineemoji"])': {
 							maxWidth: '100%',
 							display: 'block'
 						},
