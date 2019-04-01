@@ -8,10 +8,6 @@ import liburl from 'url';
 
 const dparser = new DOMParser();
 
-export const getLineBlogUrl = (id) => {
-	return `https://lineblog.me/${id}`;
-};
-
 const otherBlogFetcher = {
 	fetchLineBlog: async ({ _ids, _optionsList }, page = 0) => {
 		const ret = [];
