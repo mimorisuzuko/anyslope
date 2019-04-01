@@ -76,8 +76,43 @@ const fetchKeyaki = async (page = 0) => {
 	);
 };
 
+const fetchHinata = async (page = 0) => {
+	const baseUrl = `https://www.hinatazaka46.com/s/official/diary/member/list?page=${page}`;
+	const body = await rp(baseUrl);
+
+	return _.map(
+		dparser
+			.parseFromString(body, 'text/html')
+			.querySelectorAll('.p-blog-article'),
+		($article) => {
+			return new Article({
+				date: new Date(
+					$article.querySelector('.c-blog-article__date').innerText
+				),
+				title: $article
+					.querySelector('.c-blog-article__title')
+					.innerText.trim(),
+				name: $article
+					.querySelector('.c-blog-article__name')
+					.innerText.replace(/\s/g, ''),
+				content: convertHtmlToHtmlString(
+					$article.querySelector('.c-blog-article__text')
+				),
+				url: liburl.resolve(
+					baseUrl,
+					$article.querySelector('.c-button-blog-detail').pathname
+				)
+			});
+		}
+	);
+};
+
 export default async (page = 0) => {
-	const blogs = [...(await fetchKeyaki(page)), ...(await fetchNogi(page))];
+	const blogs = [
+		...(await fetchKeyaki(page)),
+		...(await fetchNogi(page)),
+		...(await fetchHinata(page))
+	];
 
 	for (const entry of anyzaka.entries) {
 		if (_.has(entry, '_fetcher')) {
