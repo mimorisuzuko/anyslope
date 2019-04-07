@@ -73,7 +73,6 @@ class LineBlog {
 						)
 					);
 					$instagram.innerText = key;
-					console.log($instagram);
 				}
 
 				ret.push(
