@@ -7,6 +7,7 @@ import { css } from 'emotion';
 import _ from 'lodash';
 
 const turndownService = new TurndownService();
+const mediaCardWidth = 500;
 
 /**
  * @param {Element} $html
@@ -40,6 +41,21 @@ export const scrollToArticleTop = ($article) => {
 };
 
 /**
+ * @param {string} text
+ * @param {string|RegExp} splitter
+ */
+const renderTextWithNewLines = (text, splitter) => {
+	const tmplines = _.split(text, splitter);
+	const lines = [tmplines.shift()];
+
+	_.forEach(tmplines, (line, i) => {
+		lines.push(line, <br key={i} />);
+	});
+
+	return lines;
+};
+
+/**
  * @param {string} url
  */
 export const renderTweetCard = async (url) => {
@@ -62,17 +78,13 @@ export const renderTweetCard = async (url) => {
 		new Date(parseInt(datestr)),
 		'HH:mm - YY年MM月DD日'
 	);
-	const tmplines = _.split(text.trim(), /&#10;/);
-	const lines = [tmplines.unshift()];
-
-	_.forEach(tmplines, (line, i) => {
-		lines.push(line, <br key={i} />);
-	});
 
 	return (
 		<a
 			href={url}
 			className={css({
+				display: 'block',
+				width: mediaCardWidth,
 				color: 'inherit',
 				textDecoration: 'none',
 				cursor: 'pointer'
@@ -80,7 +92,6 @@ export const renderTweetCard = async (url) => {
 		>
 			<div
 				className={css({
-					maxWidth: 500,
 					borderRadius: 4,
 					border: '1px solid rgb(225, 232, 237)'
 				})}
@@ -135,7 +146,7 @@ export const renderTweetCard = async (url) => {
 						</div>
 					</div>
 					<div>
-						{lines}
+						{renderTextWithNewLines(text.trim(), /&#10;/)}
 						<div
 							className={css({
 								color: 'rgb(105, 120, 130)',
@@ -154,6 +165,85 @@ export const renderTweetCard = async (url) => {
 							})}
 						/>
 					</div>
+				</div>
+			</div>
+		</a>
+	);
+};
+
+/**
+ * @param {string} url
+ */
+export const renderInstgramCard = async (url) => {
+	const body = await rp(url);
+	const [, jsonstr] = body.match(
+		/<script\s+type="text\/javascript">window._sharedData =([\s\S]+);<\/script>\s+<script\s+type="text\/javascript">window\.__initialDataLoaded\(window._sharedData\);<\/script>/
+	);
+	const json = JSON.parse(jsonstr).entry_data.PostPage[0].graphql
+		.shortcode_media;
+
+	return (
+		<a
+			href={url}
+			className={css({
+				display: 'block',
+				width: mediaCardWidth,
+				color: 'inherit',
+				textDecoration: 'none',
+				cursor: 'pointer'
+			})}
+		>
+			<div
+				className={css({
+					border: '1px solid rgb(225, 232, 237)'
+				})}
+			>
+				<div
+					className={css({
+						padding: 8,
+						display: 'flex',
+						fontSize: '0.9rem'
+					})}
+				>
+					<img
+						className={css({
+							width: 34,
+							height: 34,
+							marginRight: 8,
+							borderRadius: '50%'
+						})}
+						src={json.owner.profile_pic_url}
+					/>
+					<div>
+						<div
+							className={css({
+								fontWeight: 600
+							})}
+						>
+							{json.owner.full_name}
+						</div>
+						<div className={css({ color: 'rgb(101, 119, 134)' })}>
+							@{json.owner.username}
+						</div>
+					</div>
+				</div>
+				<img
+					className={css({
+						display: 'block'
+					})}
+					src={json.display_url}
+				/>
+				<div
+					className={css({
+						padding: 10,
+						lineHeight: '18px',
+						fontSize: '0.9rem'
+					})}
+				>
+					{renderTextWithNewLines(
+						json.edge_media_to_caption.edges[0].node.text,
+						'\n'
+					)}
 				</div>
 			</div>
 		</a>

@@ -3,7 +3,7 @@ import rp from 'request-promise';
 import { convertHtmlToHtmlString } from './util';
 import Article from './models/Article';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { renderTweetCard } from './util';
+import { renderTweetCard, renderInstgramCard } from './util';
 
 const dparser = new DOMParser();
 
@@ -44,7 +44,7 @@ class LineBlog {
 
 			for (const $article of $parsed.querySelectorAll('.article')) {
 				const $title = $article.querySelector('.article-title a');
-				const tweetDic = {};
+				const mediaDic = {};
 				let $content = $article.querySelector('.article-body');
 
 				for (const $emoji of $content.querySelectorAll('.lineemoji')) {
@@ -56,10 +56,24 @@ class LineBlog {
 				)) {
 					const key = `_tweet_${Date.now()}`;
 
-					tweetDic[key] = renderToStaticMarkup(
+					mediaDic[key] = renderToStaticMarkup(
 						await renderTweetCard($tweet.children[1].href)
 					);
 					$tweet.innerText = key;
+				}
+
+				for (const $instagram of $content.querySelectorAll(
+					'.instagram-media'
+				)) {
+					const key = `_instagram_${Date.now()}`;
+
+					mediaDic[key] = renderToStaticMarkup(
+						await renderInstgramCard(
+							$instagram.dataset.instgrmPermalink
+						)
+					);
+					$instagram.innerText = key;
+					console.log($instagram);
 				}
 
 				ret.push(
@@ -79,7 +93,7 @@ class LineBlog {
 							.replace(
 								/<blockquote>\n<p>([\s\S]+)<\/p>\n<\/blockquote>/g,
 								(match, key) => {
-									return tweetDic[key];
+									return mediaDic[key];
 								}
 							),
 						url: $title.href
