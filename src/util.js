@@ -2,9 +2,9 @@ import TurndownService from 'turndown';
 import marked from 'marked';
 import React from 'react';
 import rp from 'request-promise';
-import fecha from 'fecha';
 import { css } from 'emotion';
 import _ from 'lodash';
+import dayjs from 'dayjs';
 
 const turndownService = new TurndownService();
 const mediaCardWidth = 500;
@@ -74,10 +74,7 @@ export const renderTweetCard = async (url) => {
 		/<img\s+class="ProfileAvatar-image\s+"\s+src="(.+)"\s+alt=".+">/
 	);
 	const [, datestr] = body.match(/data-time-ms="(\d+)"/);
-	const date = fecha.format(
-		new Date(parseInt(datestr)),
-		'HH:mm - YY年MM月DD日'
-	);
+	const date = dayjs(datestr).format('HH:mm - YY年MM月DD日');
 
 	return (
 		<a

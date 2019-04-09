@@ -5,6 +5,7 @@ import anyzaka from './anyzaka';
 import { convertHtmlToHtmlString } from './util';
 import lineblog from './lineblog';
 import liburl from 'url';
+import dayjs from 'dayjs';
 
 const dparser = new DOMParser();
 
@@ -34,7 +35,7 @@ const fetchNogi = async (page = 0) => {
 	for (let i = 0; i < length; i += 1) {
 		ret.push(
 			new Article({
-				date: new Date(dates[i].childNodes[0].nodeValue.slice(0, -1)),
+				date: dayjs(dates[i].childNodes[0].nodeValue.slice(0, -1)),
 				title: titles[i].innerText,
 				name: names[i].innerText.replace(/\s/g, ''),
 				content: convertHtmlToHtmlString(contents[i]),
@@ -60,7 +61,7 @@ const fetchKeyaki = async (page = 0) => {
 			const { innerText: name } = $article.querySelector('.name');
 
 			return new Article({
-				date: new Date(datestr),
+				date: dayjs(datestr),
 				title: $title.innerText.trim(),
 				name: name.replace(/\s/g, ''),
 				content: convertHtmlToHtmlString(
@@ -82,7 +83,7 @@ const fetchHinata = async (page = 0) => {
 			.querySelectorAll('.p-blog-article'),
 		($article) => {
 			return new Article({
-				date: new Date(
+				date: dayjs(
 					$article.querySelector('.c-blog-article__date').innerText
 				),
 				title: $article

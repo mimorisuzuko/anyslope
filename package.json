@@ -43,7 +43,6 @@
     "emotion": "^10.0.7",
     "eslint": "^5.14.1",
     "eslint-plugin-react": "^7.12.4",
-    "fecha": "^3.0.2",
     "fs-extra": "^7.0.1",
     "immutable": "^4.0.0-rc.12",
     "lodash": "^4.17.11",
@@ -77,5 +76,7 @@
     "webpack-cli": "^3.2.3",
     "webpack-dev-server": "^3.2.1"
   },
-  "dependencies": {}
+  "dependencies": {
+    "dayjs": "^1.8.12"
+  }
 }

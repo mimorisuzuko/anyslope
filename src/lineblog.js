@@ -4,6 +4,7 @@ import { convertHtmlToHtmlString } from './util';
 import Article from './models/Article';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { renderTweetCard, renderInstgramCard } from './util';
+import dayjs from 'dayjs';
 
 const dparser = new DOMParser();
 
@@ -77,7 +78,7 @@ class LineBlog {
 
 				ret.push(
 					new Article({
-						date: new Date(
+						date: dayjs(
 							$article.querySelector('.article-date').innerText
 						),
 						title: $title.innerText,

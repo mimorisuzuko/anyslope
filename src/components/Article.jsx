@@ -1,5 +1,4 @@
 import React, { Component, createRef } from 'react';
-import fecha from 'fecha';
 import Icon from './Icon';
 import { scrollToArticleTop } from '../util';
 import { GoCheck } from 'react-icons/go';
@@ -38,7 +37,7 @@ const ArticleHeader = ({ article: { date, name, title, url }, color }) => {
 				})}
 			/>
 			<div>
-				<div>{fecha.format(date, 'YY/MM/DD HH:mm:ss')}</div>
+				<div>{date.format('YY/MM/DD HH:mm:ss')}</div>
 				<div
 					className={css({
 						fontSize: 20,
