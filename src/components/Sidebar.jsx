@@ -8,7 +8,8 @@ import {
 } from '../styles';
 import { connect } from 'react-redux';
 import autobind from 'autobind-decorator';
-import SidebarItem from './SidebarItem';
+import SidebarArticleItem from './SidebarArticleItem';
+import DateSeparator from './DateSeparator';
 
 @connect(({ articles }) => {
 	return { articles };
@@ -21,6 +22,40 @@ export default class Sidebar extends Component {
 		const {
 			props: { articles }
 		} = this;
+		const items = [];
+		const { size } = articles;
+
+		if (size > 1) {
+			let prevArticle = articles.get(0);
+			items.push(
+				<DateSeparator
+					key={`d${prevArticle.id}`}
+					date={prevArticle.date}
+				/>,
+				<SidebarArticleItem
+					article={prevArticle}
+					key={prevArticle.id}
+				/>
+			);
+
+			for (let i = 1; i < size; i += 1) {
+				const article = articles.get(i);
+
+				if (prevArticle.date.get('day') !== article.date.get('day')) {
+					items.push(
+						<DateSeparator
+							key={`d${article.id}`}
+							date={article.date}
+						/>
+					);
+				}
+
+				items.push(
+					<SidebarArticleItem article={article} key={article.id} />
+				);
+				prevArticle = article;
+			}
+		}
 
 		return (
 			<div
@@ -38,11 +73,7 @@ export default class Sidebar extends Component {
 						flex: 1
 					})}
 				>
-					{articles.map((article) => {
-						const { id } = article;
-
-						return <SidebarItem article={article} key={id} />;
-					})}
+					{items}
 				</div>
 			</div>
 		);

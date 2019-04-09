@@ -10,7 +10,7 @@ import actions from '../actions';
 @connect(({ following, checked }) => {
 	return { following, checked };
 })
-export default class SidebarItem extends Component {
+export default class SidebarArticleItem extends Component {
 	@autobind
 	onClickItem() {
 		const {
