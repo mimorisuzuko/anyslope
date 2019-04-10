@@ -74,7 +74,7 @@ export const renderTweetCard = async (url) => {
 		/<img\s+class="ProfileAvatar-image\s+"\s+src="(.+)"\s+alt=".+">/
 	);
 	const [, datestr] = body.match(/data-time-ms="(\d+)"/);
-	const date = dayjs(datestr).format('HH:mm - YY年MM月DD日');
+	const date = dayjs(datestr).format('HH:mm - YYYY年MM月DD日');
 
 	return (
 		<a

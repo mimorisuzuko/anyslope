@@ -37,7 +37,7 @@ const ArticleHeader = ({ article: { date, name, title, url }, color }) => {
 				})}
 			/>
 			<div>
-				<div>{date.format('YY/MM/DD HH:mm:ss')}</div>
+				<div>{date.format('YYYY/MM/DD HH:mm:ss')}</div>
 				<div
 					className={css({
 						fontSize: 20,

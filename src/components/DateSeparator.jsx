@@ -14,7 +14,7 @@ export default class DateSeparator extends PureComponent {
 					borderBottom: '1px solid white'
 				})}
 			>
-				{date.format('YY/MM/DD')}
+				{date.format('YYYY/MM/DD')}
 			</div>
 		);
 	}
