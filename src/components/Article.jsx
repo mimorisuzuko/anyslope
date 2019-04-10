@@ -153,6 +153,11 @@ class Article extends Component {
 					})}
 				>
 					<div
+						className={css({
+							'p:last-child': {
+								marginBottom: 0
+							}
+						})}
 						dangerouslySetInnerHTML={{
 							__html: content
 						}}
