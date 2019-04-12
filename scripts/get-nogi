@@ -23,8 +23,6 @@ const icondir = libpath.join(__dirname, '../src/assets/icons');
 			return href;
 		});
 	})) {
-		console.log(href);
-
 		await page.goto(href);
 		members.push(
 			await page.evaluate(() => {
@@ -55,7 +53,7 @@ const icondir = libpath.join(__dirname, '../src/assets/icons');
 		_.concat(_.filter(anyzaka, ({ name }) => name !== '乃木坂46'), {
 			name: '乃木坂46',
 			color: 'rgb(118, 37, 133)',
-			members: _.map(members, ([, a]) => a)
+			members: _.concat(_.map(members, ([, a]) => a), '運営スタッフ')
 		})
 	);
 

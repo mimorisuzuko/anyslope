@@ -49,7 +49,7 @@ const icondir = libpath.join(__dirname, '../src/assets/icons');
 		_.concat(_.filter(anyzaka, ({ name }) => name !== '欅坂46'), {
 			name: '欅坂46',
 			color: 'rgb(84, 176, 74)',
-			members: _.concat(_.map(members, ([, a]) => a), '欅坂46二期生')
+			members: _.map(members, ([, a]) => a)
 		})
 	);
 
