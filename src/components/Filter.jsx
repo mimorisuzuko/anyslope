@@ -41,11 +41,11 @@ export default class Filter extends Component {
 		} = this;
 		const {
 			currentTarget: {
-				dataset: { name }
+				dataset: { member }
 			}
 		} = e;
 
-		dispatch(actions.toggleFollowing(name));
+		dispatch(actions.toggleFollowing(member));
 	}
 
 	render() {
@@ -127,7 +127,7 @@ export default class Filter extends Component {
 									<div
 										onClick={this.onClickFilterMember}
 										key={member}
-										data-name={member}
+										data-member={member}
 										className={css(shadowBaseStyle, {
 											display: 'flex',
 											alignItems: 'center',

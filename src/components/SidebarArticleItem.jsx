@@ -7,17 +7,17 @@ import autobind from 'autobind-decorator';
 import { scrollToArticleTop } from '../util';
 import actions from '../actions';
 
-@connect(({ following, checked }) => {
-	return { following, checked };
+@connect(({ following, checked, searchState }) => {
+	return { following, checked, searchState };
 })
 export default class SidebarArticleItem extends Component {
 	@autobind
 	onClickItem() {
 		const {
-			props: { article, following, dispatch }
+			props: { article, following, searchState, dispatch }
 		} = this;
 
-		if (!article.visible(following)) {
+		if (!article.visible(following, searchState)) {
 			dispatch(actions.showArticle(article.id));
 		}
 
@@ -28,9 +28,9 @@ export default class SidebarArticleItem extends Component {
 
 	render() {
 		const {
-			props: { article, following, checked }
+			props: { article, following, checked, searchState }
 		} = this;
-		const visible = article.visible(following);
+		const visible = article.visible(following, searchState);
 
 		return (
 			<div
@@ -57,7 +57,7 @@ export default class SidebarArticleItem extends Component {
 					}}
 				/>
 				<Icon
-					name={article.name}
+					name={article.author}
 					size={24}
 					css={css({
 						verticalAlign: 'middle',

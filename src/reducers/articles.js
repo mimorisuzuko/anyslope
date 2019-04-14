@@ -16,6 +16,11 @@ export default handleActions(
 					return a.set('temporaryVisible', true);
 				}
 			);
+		},
+		[actions.updateParsedQuery]: (state) => {
+			return state.map((a) => {
+				return a.set('temporaryVisible', false);
+			});
 		}
 	},
 	List()

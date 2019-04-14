@@ -15,7 +15,7 @@ const headerIconSize = 43;
 const headerMarginRight = 8;
 const articlePadding = 16;
 
-const ArticleHeader = ({ article: { date, name, title, url }, color }) => {
+const ArticleHeader = ({ article: { date, author, title, url }, color }) => {
 	return (
 		<div
 			className={css({
@@ -28,7 +28,7 @@ const ArticleHeader = ({ article: { date, name, title, url }, color }) => {
 			})}
 		>
 			<Icon
-				name={name}
+				name={author}
 				size={headerIconSize}
 				css={css({
 					position: 'absolute',
@@ -65,8 +65,8 @@ const ArticleHeader = ({ article: { date, name, title, url }, color }) => {
 	);
 };
 
-@connect(({ checked, following }) => {
-	return { checked, following };
+@connect(({ checked, following, searchState }) => {
+	return { checked, following, searchState };
 })
 class Article extends Component {
 	constructor() {
@@ -117,10 +117,16 @@ class Article extends Component {
 
 	render() {
 		const {
-			props: { article, checked, following, css: baseStyle = '' }
+			props: {
+				article,
+				checked,
+				following,
+				searchState,
+				css: baseStyle = ''
+			}
 		} = this;
-		const { name, content, url, id } = article;
-		const color = anyzaka.getGroupColorFromMember(name);
+		const { author, content, url, id } = article;
+		const color = anyzaka.getGroupColorFromMember(author);
 		const contentIsVisible = checked.includes(url);
 
 		return (
@@ -128,7 +134,7 @@ class Article extends Component {
 				className={css(
 					baseStyle,
 					shadowBaseStyle,
-					article.visible(following)
+					article.visible(following, searchState)
 						? null
 						: {
 							height: 0,

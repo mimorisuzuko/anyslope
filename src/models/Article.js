@@ -6,7 +6,7 @@ export default class Article extends Record({
 	id: '',
 	date: new Date(),
 	title: '',
-	name: '',
+	author: '',
 	content: '',
 	temporaryVisible: false,
 	url: ''
@@ -17,11 +17,16 @@ export default class Article extends Record({
 
 	/**
 	 * @param {} following
+	 * @param {} searchState
 	 * @returns {boolean}
 	 */
-	visible(following) {
-		const { name, temporaryVisible } = this;
+	visible(following, searchState) {
+		const { author, temporaryVisible } = this;
 
-		return following.includes(name) || temporaryVisible;
+		if (!searchState.searched()) {
+			return following.includes(author) || temporaryVisible;
+		}
+
+		return searchState.test(this) || temporaryVisible;
 	}
 }

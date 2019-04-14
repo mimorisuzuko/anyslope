@@ -6,6 +6,7 @@ import checked from './checked';
 import following from './following';
 import openPreferences from './openPreferences';
 import otherBlogs from './otherBlogs';
+import searchState from './searchState';
 
 export default combineReducers({
 	articles,
@@ -14,5 +15,6 @@ export default combineReducers({
 	checked,
 	following,
 	openPreferences,
-	otherBlogs
+	otherBlogs,
+	searchState
 });

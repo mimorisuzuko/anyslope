@@ -3,7 +3,7 @@ import autobind from 'autobind-decorator';
 import Article from './Article';
 import { BeatLoader } from 'react-spinners';
 import { css } from 'emotion';
-import { titlebarBaseStyle, bodyBaseStyle } from '../styles';
+import { bodyBaseStyle, titlebarBaseStyle } from '../styles';
 import Filter from './Filter';
 import { connect } from 'react-redux';
 import actions from '../actions';
@@ -11,6 +11,7 @@ import Sidebar from './Sidebar';
 import { ipcRenderer } from 'electron';
 import Preferences from './Preferences';
 import { ToastContainer } from 'react-toastify';
+import Search from './Search';
 import 'react-toastify/dist/ReactToastify.min.css';
 
 @connect(({ articles, loading }) => {
@@ -109,7 +110,8 @@ class App extends Component {
 						onClick={this.onClickResetFilter}
 						className={css({
 							flex: 1,
-							overflow: 'scroll'
+							overflow: 'scroll',
+							position: 'relative'
 						})}
 					>
 						<div
@@ -161,6 +163,7 @@ class App extends Component {
 								)}
 							</div>
 						</div>
+						<Search />
 					</div>
 					<Filter />
 				</div>

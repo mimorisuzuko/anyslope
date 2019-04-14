@@ -6851,6 +6851,11 @@ scss-tokenizer@^0.2.3:
     js-base64 "^2.1.8"
     source-map "^0.4.2"
 
+search-query-parser@^1.4.2:
+  version "1.4.2"
+  resolved "https://registry.yarnpkg.com/search-query-parser/-/search-query-parser-1.4.2.tgz#de99b7d7138ca62809c0d35de628a702239ffbae"
+  integrity sha512-t3jIavdqaZcJHKSujNUBwt5O+b86OlOYrjUPasQDOTqVld5TsLSJ6L5YwWB0wkAxBS6tillJ51tbe1NJ85/tmw==
+
 select-hose@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/select-hose/-/select-hose-2.0.0.tgz#625d8658f865af43ec962bfc376a37359a4994ca"

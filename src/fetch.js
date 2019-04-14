@@ -37,7 +37,7 @@ const fetchNogi = async (page = 0) => {
 			new Article({
 				date: dayjs(dates[i].childNodes[0].nodeValue.slice(0, -1)),
 				title: titles[i].innerText,
-				name: names[i].innerText.replace(/\s/g, ''),
+				author: names[i].innerText.replace(/\s/g, ''),
 				content: convertHtmlToHtmlString(contents[i]),
 				url: titles[i].href
 			})
@@ -63,7 +63,7 @@ const fetchKeyaki = async (page = 0) => {
 			return new Article({
 				date: dayjs(datestr),
 				title: $title.innerText.trim(),
-				name: name.replace(/\s/g, ''),
+				author: name.replace(/\s/g, ''),
 				content: convertHtmlToHtmlString(
 					$article.querySelector('.box-article')
 				),
@@ -89,7 +89,7 @@ const fetchHinata = async (page = 0) => {
 				title: $article
 					.querySelector('.c-blog-article__title')
 					.innerText.trim(),
-				name: $article
+				author: $article
 					.querySelector('.c-blog-article__name')
 					.innerText.replace(/\s/g, ''),
 				content: convertHtmlToHtmlString(
