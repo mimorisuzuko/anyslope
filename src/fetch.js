@@ -33,12 +33,15 @@ const fetchNogi = async (page = 0) => {
 	const ret = [];
 
 	for (let i = 0; i < length; i += 1) {
+		const $content = contents[i];
+
 		ret.push(
 			new Article({
 				date: dayjs(dates[i].childNodes[0].nodeValue.slice(0, -1)),
 				title: titles[i].innerText,
 				author: names[i].innerText.replace(/\s/g, ''),
-				content: convertHtmlToHtmlString(contents[i]),
+				contentHtml: convertHtmlToHtmlString($content),
+				content: $content.innerText,
 				url: titles[i].href
 			})
 		);
@@ -59,14 +62,14 @@ const fetchKeyaki = async (page = 0) => {
 			);
 			const $title = $article.querySelector('h3 a');
 			const { innerText: name } = $article.querySelector('.name');
+			const $content = $article.querySelector('.box-article');
 
 			return new Article({
 				date: dayjs(datestr),
 				title: $title.innerText.trim(),
 				author: name.replace(/\s/g, ''),
-				content: convertHtmlToHtmlString(
-					$article.querySelector('.box-article')
-				),
+				contentHtml: convertHtmlToHtmlString($content),
+				content: $content.innerText,
 				url: liburl.resolve(baseUrl, $title.pathname)
 			});
 		}
@@ -82,6 +85,8 @@ const fetchHinata = async (page = 0) => {
 			.parseFromString(body, 'text/html')
 			.querySelectorAll('.p-blog-article'),
 		($article) => {
+			const $content = $article.querySelector('.c-blog-article__text');
+
 			return new Article({
 				date: dayjs(
 					$article.querySelector('.c-blog-article__date').innerText
@@ -92,9 +97,8 @@ const fetchHinata = async (page = 0) => {
 				author: $article
 					.querySelector('.c-blog-article__name')
 					.innerText.replace(/\s/g, ''),
-				content: convertHtmlToHtmlString(
-					$article.querySelector('.c-blog-article__text')
-				),
+				contentHtml: convertHtmlToHtmlString($content),
+				content: $content.innerText,
 				url: liburl.resolve(
 					baseUrl,
 					$article.querySelector('.c-button-blog-detail').pathname

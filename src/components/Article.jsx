@@ -125,7 +125,7 @@ class Article extends Component {
 				css: baseStyle = ''
 			}
 		} = this;
-		const { author, content, url, id } = article;
+		const { author, contentHtml, url, id } = article;
 		const color = anyzaka.getGroupColorFromMember(author);
 		const contentIsVisible = checked.includes(url);
 
@@ -165,7 +165,7 @@ class Article extends Component {
 							}
 						})}
 						dangerouslySetInnerHTML={{
-							__html: content
+							__html: contentHtml
 						}}
 					/>
 				</div>
