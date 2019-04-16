@@ -43,13 +43,11 @@ class App extends Component {
 
 	loadAndAddArticles() {
 		const {
-			props: { dispatch, loading }
+			props: { dispatch }
 		} = this;
 
-		if (!loading) {
-			dispatch(actions.startToLoadArticles());
-			dispatch(actions.loadArticles());
-		}
+		dispatch(actions.startToLoadArticles());
+		dispatch(actions.loadArticles());
 	}
 
 	@autobind
@@ -65,12 +63,13 @@ class App extends Component {
 	watchLoading() {
 		const {
 			$loading: { current: $loading },
-			prevloadingIsVisible
+			prevloadingIsVisible,
+			props: { loading }
 		} = this;
 		const { top } = $loading.getBoundingClientRect();
 		const loadingIsVisible = innerHeight >= top;
 
-		if (!prevloadingIsVisible && loadingIsVisible) {
+		if (!prevloadingIsVisible && loadingIsVisible && loading.can()) {
 			this.loadAndAddArticles();
 		}
 
@@ -140,7 +139,7 @@ class App extends Component {
 									textAlign: 'center'
 								})}
 							>
-								{loading ? (
+								{loading.now() ? (
 									<BeatLoader
 										css={css({
 											display: 'inline-block'

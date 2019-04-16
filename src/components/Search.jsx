@@ -6,9 +6,10 @@ import actions from '../actions';
 import { shadowBaseStyle } from '../styles';
 import autobind from 'autobind-decorator';
 
-@connect(({ searchState }) => {
+@connect(({ searchState, loading }) => {
 	return {
-		searchState
+		searchState,
+		loading
 	};
 })
 export default class Search extends Component {
@@ -49,23 +50,33 @@ export default class Search extends Component {
 	}
 
 	@autobind
+	onFocus() {
+		const {
+			props: { dispatch }
+		} = this;
+
+		dispatch(actions.canLoadArticles(false));
+	}
+
+	@autobind
 	onBlur() {
 		const {
 			props: { dispatch, searchState }
 		} = this;
 
+		dispatch(actions.canLoadArticles(true));
 		if (!searchState.get('query')) {
 			dispatch(actions.setSearchVisible(false));
 		}
 	}
 
-	componentDidUpdate() {
+	componentDidUpdate({ searchState: prevSearchState }) {
 		const {
 			props: { searchState },
 			$input: { current: $input }
 		} = this;
 
-		if (searchState.get('visible')) {
+		if (!prevSearchState.get('visible') && searchState.get('visible')) {
 			$input.focus();
 		}
 	}
@@ -94,6 +105,7 @@ export default class Search extends Component {
 					<input
 						value={searchState.get('query')}
 						onChange={this.onChange}
+						onFocus={this.onFocus}
 						onBlur={this.onBlur}
 						ref={this.$input}
 						type='text'
