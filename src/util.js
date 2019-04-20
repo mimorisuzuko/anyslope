@@ -37,7 +37,7 @@ const getScrollableParentOfArticle = ($e) => {
 export const scrollToArticleTop = ($article) => {
 	const $parent = getScrollableParentOfArticle($article);
 
-	$parent.scroll({ top: $article.offsetTop - $parent.offsetTop });
+	$parent.scroll({ top: $article.offsetTop });
 };
 
 /**
