@@ -155,6 +155,10 @@ class Article extends Component {
 							maxWidth: '100%',
 							display: 'block'
 						},
+						video: {
+							maxWidth: '100%',
+							display: 'block'
+						},
 						display: contentIsVisible ? 'none' : 'block'
 					})}
 				>

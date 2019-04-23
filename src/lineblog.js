@@ -5,6 +5,7 @@ import Article from './models/Article';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { renderTweetCard, renderInstgramCard } from './util';
 import dayjs from 'dayjs';
+import React from 'react';
 
 const dparser = new DOMParser();
 
@@ -76,6 +77,20 @@ class LineBlog {
 					$instagram.innerText = key;
 				}
 
+				for (const $video of $content.querySelectorAll(
+					'.uploaded-video'
+				)) {
+					const { src } = $video.querySelector('source');
+					const key = `_video_${Date.now()}`;
+
+					mediaDic[key] = renderToStaticMarkup(
+						<p>
+							<video controls src={src} />
+						</p>
+					);
+					$video.innerText = key;
+				}
+
 				ret.push(
 					new Article({
 						date: dayjs(
@@ -96,7 +111,10 @@ class LineBlog {
 								(match, key) => {
 									return mediaDic[key];
 								}
-							),
+							)
+							.replace(/<p>(_video_\d+)<\/p>/g, (match, key) => {
+								return mediaDic[key];
+							}),
 						url: $title.href
 					})
 				);
