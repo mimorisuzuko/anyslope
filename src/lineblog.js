@@ -61,7 +61,7 @@ class LineBlog {
 					mediaDic[key] = renderToStaticMarkup(
 						await renderTweetCard($tweet.children[1].href)
 					);
-					$tweet.innerText = key;
+					$tweet.outerHTML = key;
 				}
 
 				for (const $instagram of $content.querySelectorAll(
@@ -74,7 +74,7 @@ class LineBlog {
 							$instagram.dataset.instgrmPermalink
 						)
 					);
-					$instagram.innerText = key;
+					$instagram.outerHTML = key;
 				}
 
 				for (const $video of $content.querySelectorAll(
@@ -88,7 +88,7 @@ class LineBlog {
 							<video controls src={src} />
 						</p>
 					);
-					$video.innerText = key;
+					$video.outerHTML = key;
 				}
 
 				ret.push(
@@ -107,14 +107,11 @@ class LineBlog {
 								}
 							)
 							.replace(
-								/<blockquote>\n<p>([\s\S]+)<\/p>\n<\/blockquote>/g,
+								/<p>(_(video|instagram|tweet)_\d+)<\/p>/g,
 								(match, key) => {
 									return mediaDic[key];
 								}
-							)
-							.replace(/<p>(_video_\d+)<\/p>/g, (match, key) => {
-								return mediaDic[key];
-							}),
+							),
 						url: $title.href
 					})
 				);
