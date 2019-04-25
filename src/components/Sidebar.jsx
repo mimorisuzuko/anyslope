@@ -4,10 +4,11 @@ import {
 	shadowBaseStyle,
 	titlebarBaseStyle,
 	sidebarBaseStyle,
-	pink
+	pink,
+	sidebarItemMarginStyle
 } from '../styles';
 import { connect } from 'react-redux';
-import autobind from 'autobind-decorator';
+import { GoSearch } from 'react-icons/go';
 import SidebarArticleItem from './SidebarArticleItem';
 import DateSeparator from './DateSeparator';
 
@@ -15,9 +16,6 @@ import DateSeparator from './DateSeparator';
 	return { articles };
 })
 export default class Sidebar extends Component {
-	@autobind
-	onClickItem() {}
-
 	render() {
 		const {
 			props: { articles }
@@ -67,6 +65,35 @@ export default class Sidebar extends Component {
 				})}
 			>
 				<div className={titlebarBaseStyle} />
+				<div className={sidebarItemMarginStyle}>
+					<div
+						className={css({
+							backgroundColor: 'rgb(0, 0, 0, 0.1)',
+							borderRadius: 4,
+							padding: '4px 8px',
+							marginBottom: 8,
+							boxSizing: 'border-box',
+							display: 'flex',
+							alignItems: 'center'
+						})}
+					>
+						<GoSearch />
+						<input
+							type='text'
+							className={css({
+								font: 'inherit',
+								display: 'block',
+								border: 'none',
+								outline: 'none',
+								width: '100%',
+								color: 'white',
+								padding: 0,
+								marginLeft: 8,
+								backgroundColor: 'transparent'
+							})}
+						/>
+					</div>
+				</div>
 				<div
 					className={css({
 						overflowY: 'scroll',
