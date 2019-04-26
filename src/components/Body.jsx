@@ -7,7 +7,6 @@ import { bodyBaseStyle, titlebarBaseStyle } from '../styles';
 import Filter from './Filter';
 import { connect } from 'react-redux';
 import actions from '../actions';
-import Search from './Search';
 import 'react-toastify/dist/ReactToastify.min.css';
 
 @connect(({ articles, loading }) => {
@@ -138,7 +137,6 @@ export default class Body extends Component {
 							)}
 						</div>
 					</div>
-					<Search />
 				</div>
 				<Filter />
 			</div>
