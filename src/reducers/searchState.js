@@ -10,8 +10,8 @@ export default handleActions(
 		[actions.updateSearchQuery]: (state, { payload }) => {
 			return state.set('query', payload);
 		},
-		[actions.updateParsedQuery]: (state) => {
-			return state.updateParsedQuery();
+		[actions.updateParsedQuery]: (state, { payload }) => {
+			return state.updateParsedQuery(payload);
 		}
 	},
 	new Search()

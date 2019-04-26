@@ -32,7 +32,7 @@ export default class SearchInSidebar extends Component {
 		clearTimeout(timer);
 		dispatch(actions.updateSearchQuery(value));
 		this.timer = setTimeout(() => {
-			dispatch(actions.updateParsedQuery());
+			dispatch(actions.updateParsedQuery(value));
 		}, 300);
 	}
 

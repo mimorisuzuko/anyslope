@@ -7,8 +7,7 @@ export default class Search extends Record({
 	query: '',
 	parsedQuery: {}
 }) {
-	updateParsedQuery() {
-		const { query } = this;
+	updateParsedQuery(query) {
 		const keywords = ['author', 'title', 'content'];
 		const parsed = queryParser.parse(query, {
 			keywords: ['author', 'title', 'content']
