@@ -28,6 +28,9 @@ export default class Article extends Record({
 			return following.includes(author) || temporaryVisible;
 		}
 
-		return searchState.test(this) || temporaryVisible;
+		return (
+			(searchState.test(this) && following.includes(author)) ||
+			temporaryVisible
+		);
 	}
 }

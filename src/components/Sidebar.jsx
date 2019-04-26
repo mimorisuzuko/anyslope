@@ -12,13 +12,13 @@ import SidebarArticleItem from './SidebarArticleItem';
 import DateSeparator from './DateSeparator';
 import SearchInSidebar from './SearchInSidebar';
 
-@connect(({ articles, searchState, following }) => {
-	return { articles, searchState, following };
+@connect(({ articles, searchState }) => {
+	return { articles, searchState };
 })
 export default class Sidebar extends Component {
 	render() {
 		const {
-			props: { articles, searchState, following }
+			props: { articles, searchState }
 		} = this;
 		const items = [];
 		const { size } = articles;
@@ -31,7 +31,7 @@ export default class Sidebar extends Component {
 			if (
 				searchState.searched() &&
 				article !== null &&
-				!article.visible(following, searchState)
+				!searchState.test(article)
 			) {
 				continue;
 			}
