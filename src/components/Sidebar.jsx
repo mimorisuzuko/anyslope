@@ -12,47 +12,46 @@ import SidebarArticleItem from './SidebarArticleItem';
 import DateSeparator from './DateSeparator';
 import SearchInSidebar from './SearchInSidebar';
 
-@connect(({ articles }) => {
-	return { articles };
+@connect(({ articles, searchState, following }) => {
+	return { articles, searchState, following };
 })
 export default class Sidebar extends Component {
 	render() {
 		const {
-			props: { articles }
+			props: { articles, searchState, following }
 		} = this;
 		const items = [];
 		const { size } = articles;
 
-		if (size > 1) {
-			let prevArticle = articles.get(0);
-			items.push(
-				<DateSeparator
-					key={`d${prevArticle.id}`}
-					date={prevArticle.date}
-				/>,
-				<SidebarArticleItem
-					article={prevArticle}
-					key={prevArticle.id}
-				/>
-			);
+		let prevArticle = null;
 
-			for (let i = 1; i < size; i += 1) {
-				const article = articles.get(i);
+		for (let i = 0; i < size; i += 1) {
+			const article = articles.get(i);
 
-				if (prevArticle.date.get('day') !== article.date.get('day')) {
-					items.push(
-						<DateSeparator
-							key={`d${article.id}`}
-							date={article.date}
-						/>
-					);
-				}
-
-				items.push(
-					<SidebarArticleItem article={article} key={article.id} />
-				);
-				prevArticle = article;
+			if (
+				searchState.searched() &&
+				article !== null &&
+				!article.visible(following, searchState)
+			) {
+				continue;
 			}
+
+			if (prevArticle === null) {
+				items.push(
+					<DateSeparator key={`d${article.id}`} date={article.date} />
+				);
+			} else if (
+				prevArticle.date.get('day') !== article.date.get('day')
+			) {
+				items.push(
+					<DateSeparator key={`d${article.id}`} date={article.date} />
+				);
+			}
+
+			items.push(
+				<SidebarArticleItem article={article} key={article.id} />
+			);
+			prevArticle = article;
 		}
 
 		return (
