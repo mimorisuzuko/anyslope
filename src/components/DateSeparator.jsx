@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import { css } from 'emotion';
+import { sidebarItemMarginStyle } from '../styles';
 
 export default class DateSeparator extends PureComponent {
 	render() {
@@ -9,8 +10,7 @@ export default class DateSeparator extends PureComponent {
 
 		return (
 			<div
-				className={css({
-					margin: '0 8px 0px 24px',
+				className={css(sidebarItemMarginStyle, {
 					borderBottom: '1px solid white'
 				})}
 			>
