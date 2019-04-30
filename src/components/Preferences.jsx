@@ -11,6 +11,7 @@ import { toast } from 'react-toastify';
 import 'brace';
 import 'brace/mode/json';
 import 'brace/theme/github';
+import actions from '../actions';
 
 const path = libpath.join(os.homedir(), '.anyzaka', 'other-blogs.json');
 
@@ -20,10 +21,12 @@ const path = libpath.join(os.homedir(), '.anyzaka', 'other-blogs.json');
 export default class Preferences extends Component {
 	@autobind
 	onClickSaveButton() {
-		const { innerText } = document.getElementById('brace-editor');
+		const {
+			props: { otherBlogs }
+		} = this;
 
 		try {
-			const json = JSON.parse(innerText.slice(1));
+			const json = JSON.parse(otherBlogs);
 
 			fs.writeJsonSync(path, json);
 			location.reload();
@@ -37,6 +40,15 @@ export default class Preferences extends Component {
 				draggable: false
 			});
 		}
+	}
+
+	@autobind
+	onChange(value) {
+		const {
+			props: { dispatch }
+		} = this;
+
+		dispatch(actions.updateOtherBlogs(value));
 	}
 
 	render() {
@@ -89,7 +101,8 @@ export default class Preferences extends Component {
 						})}
 					>
 						<AceEditor
-							defaultValue={otherBlogs}
+							value={otherBlogs}
+							onChange={this.onChange}
 							mode='json'
 							theme='github'
 							showGutter={false}

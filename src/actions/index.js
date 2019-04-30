@@ -8,6 +8,7 @@ import _ from 'lodash';
 import lineblog from '../lineblog';
 import rp from 'request-promise';
 import anyzaka from '../anyzaka';
+import ameblo from '../ameblo';
 
 let page = -1;
 const { app } = remote;
@@ -22,19 +23,30 @@ const extraIconsDirname = libpath.join(
 
 const convertOtherBlogsForAnyzaka = async (otherBlogs) => {
 	const ret = {};
+	const dic = {
+		line: {
+			name: 'LINE BLOG',
+			color: 'rgb(90, 196, 127)',
+			_fetcher: lineblog
+		},
+		ameblo: {
+			name: 'Ameba Blog',
+			color: 'rgb(45, 140, 60)',
+			_fetcher: ameblo
+		}
+	};
 
 	for (const key of _.keys(otherBlogs)) {
-		if (key === 'line') {
-			if (!_.has(ret, key)) {
-				ret[key] = {
-					name: 'LINE BLOG',
-					color: 'rgb(90, 196, 127)',
+		if (!_.has(ret, key)) {
+			ret[key] = _.merge(
+				{
 					_ids: [],
-					_fetcher: 'fetchLineBlog',
+					_key: key,
 					_optionsList: [],
 					members: []
-				};
-			}
+				},
+				dic[key]
+			);
 
 			for (let value of otherBlogs[key]) {
 				if (typeof value === 'string') {
@@ -42,7 +54,9 @@ const convertOtherBlogsForAnyzaka = async (otherBlogs) => {
 				}
 
 				const [id, options] = value;
-				const { url, name } = await lineblog.idToImageUrlAndName(id);
+				const { url, name } = await dic[
+					key
+				]._fetcher.idToImageUrlAndName(id);
 
 				await fs.writeFile(
 					libpath.join(extraIconsDirname, `${name}.jpg`),
@@ -111,5 +125,6 @@ export default createActions(
 	'SET_SEARCH_VISIBLE',
 	'UPDATE_SEARCH_QUERY',
 	'UPDATE_PARSED_QUERY',
-	'CAN_LOAD_ARTICLES'
+	'CAN_LOAD_ARTICLES',
+	'UPDATE_OTHER_BLOGS'
 );

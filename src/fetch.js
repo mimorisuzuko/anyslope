@@ -3,23 +3,20 @@ import rp from 'request-promise';
 import Article from './models/Article';
 import anyzaka from './anyzaka';
 import { convertHtmlToHtmlString } from './util';
-import lineblog from './lineblog';
 import liburl from 'url';
 import dayjs from 'dayjs';
 
 const dparser = new DOMParser();
 
-const otherBlogFetcher = {
-	fetchLineBlog: async ({ _ids, _optionsList }, page = 0) => {
-		const ret = [];
-		const { length } = _ids;
+const otherBlogFetcher = async ({ _fetcher, _ids, _optionsList }, page) => {
+	const ret = [];
+	const { length } = _ids;
 
-		for (let i = 0; i < length; i += 1) {
-			ret.push(...(await lineblog.fetch(_ids[i], page, _optionsList[i])));
-		}
-
-		return ret;
+	for (let i = 0; i < length; i += 1) {
+		ret.push(...(await _fetcher.fetch(_ids[i], page, _optionsList[i])));
 	}
+
+	return ret;
 };
 
 const fetchNogi = async (page = 0) => {
@@ -117,9 +114,7 @@ export default async (page = 0) => {
 
 	for (const entry of anyzaka.entries) {
 		if (_.has(entry, '_fetcher')) {
-			blogs.push(
-				...(await otherBlogFetcher[entry['_fetcher']](entry, page))
-			);
+			blogs.push(...(await otherBlogFetcher(entry, page)));
 		}
 	}
 

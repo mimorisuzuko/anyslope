@@ -8,7 +8,9 @@ import Preferences from './Preferences';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.min.css';
 import Body from './Body';
+import { connect } from 'react-redux';
 
+@connect()
 class App extends PureComponent {
 	constructor() {
 		super();
