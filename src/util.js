@@ -7,7 +7,7 @@ import _ from 'lodash';
 import dayjs from 'dayjs';
 
 const turndownService = new TurndownService();
-const mediaCardWidth = 500;
+const cardWidth = 500;
 
 /**
  * @param {Element} $html
@@ -59,13 +59,17 @@ const renderTextWithNewLines = (text, splitter) => {
  * @param {string} url
  */
 export const renderTweetCard = async (url) => {
+	const tweetCardVideoWidth = 500 - 16 * 2;
 	const body = await rp(url);
 	const [, sceenname] = url.match(/https:\/\/twitter.com\/(.+)\/status/);
 	const [, username] = body.match(
 		/<meta\s+property="og:title"\s+content="(.+)\s+on Twitter">/
 	);
-	const [, picUrl] = body.match(
+	const picMatced = body.match(
 		/<meta\s+property="og:image"\s+content="(.+):large">/
+	);
+	const videoMatched = body.match(
+		/<meta\s+property="og:video:url"\s+content="(.+)">/
 	);
 	const [, text] = body.match(
 		/<meta\s+property="og:description"\s+content="“(.+)”">/
@@ -81,7 +85,7 @@ export const renderTweetCard = async (url) => {
 			href={url}
 			className={css({
 				display: 'block',
-				width: mediaCardWidth,
+				width: cardWidth,
 				color: 'inherit',
 				textDecoration: 'none',
 				cursor: 'pointer'
@@ -152,15 +156,41 @@ export const renderTweetCard = async (url) => {
 						>
 							{date}
 						</div>
-						<img
-							src={picUrl}
-							className={css({
-								width: '100%',
-								display: 'block',
-								borderRadius: 12,
-								marginTop: 8
-							})}
-						/>
+						{picMatced ? (
+							<img
+								src={picMatced[1]}
+								className={css({
+									width: '100%',
+									display: 'block',
+									borderRadius: 12,
+									marginTop: 8
+								})}
+							/>
+						) : videoMatched ? (
+							<iframe
+								src={videoMatched[1]}
+								className={css({
+									display: 'block',
+									borderRadius: 12,
+									marginTop: 8,
+									border: 'none'
+								})}
+								width={tweetCardVideoWidth}
+								height={
+									(tweetCardVideoWidth *
+										parseInt(
+											body.match(
+												/<meta\s+property="og:video:height"\s+content="(\d+)">/
+											)[1]
+										)) /
+									parseInt(
+										body.match(
+											/<meta\s+property="og:video:width"\s+content="(\d+)">/
+										)[1]
+									)
+								}
+							/>
+						) : null}
 					</div>
 				</div>
 			</div>
@@ -184,7 +214,7 @@ export const renderInstgramCard = async (url) => {
 			href={url}
 			className={css({
 				display: 'block',
-				width: mediaCardWidth,
+				width: cardWidth,
 				color: 'inherit',
 				textDecoration: 'none',
 				cursor: 'pointer'
