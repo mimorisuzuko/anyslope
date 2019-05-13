@@ -5,6 +5,8 @@ import rp from 'request-promise';
 import { css } from 'emotion';
 import _ from 'lodash';
 import dayjs from 'dayjs';
+import liburl from 'url';
+import Hls from 'hls.js';
 
 const turndownService = new TurndownService();
 const cardWidth = 500;
@@ -55,11 +57,51 @@ const renderTextWithNewLines = (text, splitter) => {
 	return lines;
 };
 
+const renderVideoInTweet = async (src) => {
+	const {
+		track: { playbackUrl }
+	} = JSON.parse(
+		await rp(
+			`https://api.twitter.com/1.1/videos/tweet/config/${
+				src.match(/https:\/\/twitter.com\/i\/videos\/(\d+)/)[1]
+			}.json`,
+			{
+				headers: {
+					authorization:
+						'Bearer AAAAAAAAAAAAAAAAAAAAAIK1zgAAAAAA2tUWuhGZ2JceoId5GwYWU5GspY4%3DUq7gzFoCZs1QfwGoVdvSac3IniczZEYXIcDyumCauIXpcAPorE'
+				}
+			}
+		)
+	);
+	const mediaPath = _.nth(_.split(await rp(playbackUrl), '\n'), -2);
+	const $video = document.createElement('video');
+	const id = `_hls_${Date.now()}`;
+	$video.controls = true;
+
+	const hls = new Hls();
+	hls.loadSource(liburl.resolve(playbackUrl, mediaPath));
+	hls.attachMedia($video);
+	hls.on(Hls.Events.MANIFEST_PARSED, () => {
+		const observer = new MutationObserver(() => {
+			const $div = document.getElementById(id);
+			if ($div) {
+				$div.replaceWith($video);
+				observer.disconnect();
+			}
+		});
+		observer.observe(document.body, {
+			childList: true,
+			subtree: true
+		});
+	});
+
+	return <div id={id} />;
+};
+
 /**
  * @param {string} url
  */
 export const renderTweetCard = async (url) => {
-	const tweetCardVideoWidth = 500 - 16 * 2;
 	const body = await rp(url);
 	const [, sceenname] = url.match(/https:\/\/twitter.com\/(.+)\/status/);
 	const [, username] = body.match(
@@ -146,7 +188,14 @@ export const renderTweetCard = async (url) => {
 							</div>
 						</div>
 					</div>
-					<div>
+					<div
+						className={css({
+							video: {
+								borderRadius: 12,
+								marginTop: 8
+							}
+						})}
+					>
 						{renderTextWithNewLines(text.trim(), /&#10;/)}
 						<div
 							className={css({
@@ -167,29 +216,7 @@ export const renderTweetCard = async (url) => {
 								})}
 							/>
 						) : videoMatched ? (
-							<iframe
-								src={videoMatched[1]}
-								className={css({
-									display: 'block',
-									borderRadius: 12,
-									marginTop: 8,
-									border: 'none'
-								})}
-								width={tweetCardVideoWidth}
-								height={
-									(tweetCardVideoWidth *
-										parseInt(
-											body.match(
-												/<meta\s+property="og:video:height"\s+content="(\d+)">/
-											)[1]
-										)) /
-									parseInt(
-										body.match(
-											/<meta\s+property="og:video:width"\s+content="(\d+)">/
-										)[1]
-									)
-								}
-							/>
+							await renderVideoInTweet(videoMatched[1])
 						) : null}
 					</div>
 				</div>
@@ -204,7 +231,7 @@ export const renderTweetCard = async (url) => {
 export const renderInstgramCard = async (url) => {
 	const body = await rp(url);
 	const [, jsonstr] = body.match(
-		/<script\s+type="text\/javascript">window._sharedData =([\s\S]+);<\/script>\s+<script\s+type="text\/javascript">window\.__initialDataLoaded\(window._sharedData\);<\/script>/
+		/<script\s+type="text\/javascript">window._sharedData\s+=([\s\S]+);<\/script>\s+<script\s+type="text\/javascript">window\.__initialDataLoaded\(window._sharedData\);<\/script>/
 	);
 	const json = JSON.parse(jsonstr).entry_data.PostPage[0].graphql
 		.shortcode_media;
