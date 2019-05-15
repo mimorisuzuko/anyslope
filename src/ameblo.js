@@ -3,6 +3,7 @@ import rp from 'request-promise';
 import { convertHtmlToHtmlString } from './util';
 import Article from './models/Article';
 import dayjs from 'dayjs';
+import _ from 'lodash';
 
 const dparser = new DOMParser();
 
@@ -42,7 +43,7 @@ class Ameblo {
 			const $parsed = dparser.parseFromString(body, 'text/html');
 
 			for (const $article of $parsed.querySelectorAll(
-				'.skin-blogMainInner.skin-bgMain'
+				'.skin-entry.js-entryWrapper'
 			)) {
 				const $title = $article.querySelector('a.skinArticleTitle');
 				const $content = $article.querySelector('.skin-entryBody');
@@ -50,7 +51,13 @@ class Ameblo {
 				ret.push(
 					new Article({
 						date: dayjs(
-							$article.querySelector('.skin-textQuiet').innerText
+							_.nth(
+								$article.querySelector('.skin-textQuiet')
+									.childNodes,
+								-1
+							)
+								.nodeValue.replace(/[年|月|日]/g, '/')
+								.replace(/[時|分|秒]/g, ':')
 						),
 						title: $title.innerText,
 						author: $parsed.querySelector('.skin-profileName')
