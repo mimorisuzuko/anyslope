@@ -74,28 +74,21 @@ const renderVideoInTweet = async (src) => {
 		)
 	);
 	const mediaPath = _.nth(_.split(await rp(playbackUrl), '\n'), -2);
-	const $video = document.createElement('video');
 	const id = `_hls_${Date.now()}`;
-	$video.controls = true;
 
-	const hls = new Hls();
-	hls.loadSource(liburl.resolve(playbackUrl, mediaPath));
-	hls.attachMedia($video);
-	hls.on(Hls.Events.MANIFEST_PARSED, () => {
-		const observer = new MutationObserver(() => {
-			const $div = document.getElementById(id);
-			if ($div) {
-				$div.replaceWith($video);
-				observer.disconnect();
-			}
-		});
-		observer.observe(document.body, {
-			childList: true,
-			subtree: true
-		});
+	const observer = new MutationObserver(() => {
+		const hls = new Hls();
+		hls.loadSource(liburl.resolve(playbackUrl, mediaPath));
+		hls.attachMedia(document.getElementById(id));
+		observer.disconnect();
 	});
 
-	return <div id={id} />;
+	observer.observe(document.body, {
+		childList: true,
+		subtree: true
+	});
+
+	return <video id={id} controls />;
 };
 
 /**
