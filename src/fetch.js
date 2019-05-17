@@ -37,7 +37,7 @@ const fetchNogi = async (page = 0) => {
 				date: dayjs(dates[i].childNodes[0].nodeValue.slice(0, -1)),
 				title: titles[i].innerText,
 				author: names[i].innerText.replace(/\s/g, ''),
-				contentHtml: convertHtmlToHtmlString($content),
+				html: convertHtmlToHtmlString($content),
 				content: $content.innerText,
 				url: titles[i].href
 			})
@@ -65,7 +65,7 @@ const fetchKeyaki = async (page = 0) => {
 				date: dayjs(datestr),
 				title: $title.innerText.trim(),
 				author: name.replace(/\s/g, ''),
-				contentHtml: convertHtmlToHtmlString($content),
+				html: convertHtmlToHtmlString($content),
 				content: $content.innerText,
 				url: liburl.resolve(baseUrl, $title.pathname)
 			});
@@ -94,7 +94,7 @@ const fetchHinata = async (page = 0) => {
 				author: $article
 					.querySelector('.c-blog-article__name')
 					.innerText.replace(/\s/g, ''),
-				contentHtml: convertHtmlToHtmlString($content),
+				html: convertHtmlToHtmlString($content),
 				content: $content.innerText,
 				url: liburl.resolve(
 					baseUrl,

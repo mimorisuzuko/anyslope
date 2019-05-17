@@ -99,7 +99,7 @@ class LineBlog {
 						title: $title.innerText,
 						author: $parsed.querySelector('h2').innerText,
 						content: $content.innerText,
-						contentHtml: convertHtmlToHtmlString($content)
+						html: convertHtmlToHtmlString($content)
 							.replace(
 								/<img\s+src="(https:\/\/parts\.lineblog\.me\/img\/emoji\/line\/\d+\/\d+\.png)"\s+alt="lineemoji">/g,
 								(match, p1) => {

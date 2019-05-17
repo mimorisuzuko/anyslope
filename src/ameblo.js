@@ -63,7 +63,7 @@ class Ameblo {
 						author: $parsed.querySelector('.skin-profileName')
 							.innerText,
 						content: $content.innerText,
-						contentHtml: convertHtmlToHtmlString($content),
+						html: convertHtmlToHtmlString($content),
 						url: $title.href
 					})
 				);

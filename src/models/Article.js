@@ -7,7 +7,7 @@ export default class Article extends Record({
 	date: new Date(),
 	title: '',
 	author: '',
-	contentHtml: '',
+	html: '',
 	content: '',
 	temporaryVisible: false,
 	url: ''

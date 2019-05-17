@@ -7,10 +7,13 @@ export default class Search extends Record({
 	query: '',
 	parsedQuery: {}
 }) {
+	static get KEYWORDS() {
+		return ['author', 'title', 'content', 'html'];
+	}
+
 	updateParsedQuery(query) {
-		const keywords = ['author', 'title', 'content'];
 		const parsed = queryParser.parse(query, {
-			keywords: ['author', 'title', 'content']
+			keywords: Search.KEYWORDS
 		});
 		let parsedQuery = {};
 
@@ -22,7 +25,7 @@ export default class Search extends Record({
 				text: [parsed]
 			};
 		} else {
-			_.forEach(_.concat('text', keywords), (k) => {
+			_.forEach(_.concat('text', Search.KEYWORDS), (k) => {
 				if (_.has(parsed, k)) {
 					const v = parsed[k];
 
@@ -49,7 +52,7 @@ export default class Search extends Record({
 			return true;
 		}
 
-		return _.some(['title', 'author', 'content'], (k0) => {
+		return _.some(Search.KEYWORDS, (k0) => {
 			const v0 = article.get(k0);
 
 			return _.some([k0, 'text'], (k1) => {
