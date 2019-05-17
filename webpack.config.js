@@ -9,25 +9,12 @@ const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = (env, { mode }) => {
 	const dst = 'app/dst';
-	const generateScopedName = '[name]__[local]_[hash:base64:5]';
 	const context = libpath.join(__dirname, 'src/');
 	const presets = ['@babel/react'];
 	const isProduction = mode === 'production';
 	const babelPlugins = [
 		['@babel/plugin-proposal-decorators', { legacy: true }],
-		['@babel/plugin-proposal-class-properties', { loose: false }],
-		[
-			'react-css-modules',
-			{
-				context,
-				generateScopedName,
-				filetypes: {
-					'.scss': {
-						syntax: 'postcss-scss'
-					}
-				}
-			}
-		]
+		['@babel/plugin-proposal-class-properties', { loose: false }]
 	];
 
 	const plugins = [
@@ -95,26 +82,6 @@ module.exports = (env, { mode }) => {
 						presets,
 						plugins: babelPlugins
 					}
-				},
-				{
-					test: /\.scss$/,
-					use: [
-						{
-							loader: 'style-loader'
-						},
-						{
-							loader: 'css-loader',
-							options: {
-								importLoaders: 1,
-								modules: true,
-								localIdentName: generateScopedName
-							}
-						},
-						{
-							loader: 'postcss-loader'
-						},
-						{ loader: 'sass-loader' }
-					]
 				},
 				{
 					test: /\.css$/,
