@@ -44,7 +44,7 @@ const icondir = libpath.join(__dirname, '../src/assets/icons');
 	const anyzakaPath = libpath.join(__dirname, '../src/assets/anyzaka.json');
 	const anyzaka = await fs.readJSON(anyzakaPath);
 
-	fs.writeJSON(
+	await fs.writeJSON(
 		anyzakaPath,
 		_.concat(_.filter(anyzaka, ({ name }) => name !== '欅坂46'), {
 			name: '欅坂46',
