@@ -10,12 +10,7 @@ const CopyPlugin = require('copy-webpack-plugin');
 module.exports = (env, { mode }) => {
 	const dst = 'app/dst';
 	const context = libpath.join(__dirname, 'src/');
-	const presets = ['@babel/react'];
 	const isProduction = mode === 'production';
-	const babelPlugins = [
-		['@babel/plugin-proposal-decorators', { legacy: true }],
-		['@babel/plugin-proposal-class-properties', { loose: false }]
-	];
 
 	const plugins = [
 		new CleanWebpackPlugin([dst], {
@@ -37,22 +32,7 @@ module.exports = (env, { mode }) => {
 		new CopyPlugin([{ from: 'assets/icons', to: 'assets/icons' }])
 	];
 
-	if (isProduction) {
-		presets.push([
-			'@babel/env',
-			{
-				targets: {
-					chrome: 59
-				}
-			}
-		]);
-		babelPlugins.push(
-			'@babel/plugin-syntax-dynamic-import',
-			'@babel/plugin-syntax-import-meta',
-			'@babel/plugin-proposal-json-strings'
-		);
-	} else {
-		babelPlugins.push('react-hot-loader/babel');
+	if (!isProduction) {
 		plugins.push(new HotModuleReplacementPlugin());
 	}
 
@@ -76,12 +56,7 @@ module.exports = (env, { mode }) => {
 				{
 					test: /\.js(x?)$/,
 					exclude: /node_modules/,
-					loader: 'babel-loader',
-					options: {
-						babelrc: false,
-						presets,
-						plugins: babelPlugins
-					}
+					loader: 'babel-loader'
 				},
 				{
 					test: /\.css$/,

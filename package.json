@@ -5,10 +5,10 @@
   "main": "app/index.js",
   "scripts": {
     "build:pug": "./node_modules/.bin/pug --hierarchy -o app/dst/ src/",
-    "build:js": "./node_modules/.bin/webpack --mode production",
+    "build:js": "NODE_ENV=production ./node_modules/.bin/webpack --mode production",
     "build": "npm-run-all build:*",
     "watch:pug": "npm run build:pug -- -w",
-    "watch:js": "./node_modules/.bin/webpack-dev-server --mode development",
+    "watch:js": "NODE_ENV=development ./node_modules/.bin/webpack-dev-server --mode development",
     "watch:start": "NODE_ENV=development yarn start",
     "watch": "npm-run-all --parallel watch:*",
     "start": "electron .",
