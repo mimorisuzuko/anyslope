@@ -4,16 +4,13 @@ import { shadowBaseStyle, pink } from '../styles';
 import { connect } from 'react-redux';
 import autobind from 'autobind-decorator';
 import fs from 'fs-extra';
-import os from 'os';
-import libpath from 'path';
 import AceEditor from 'react-ace';
 import { toast } from 'react-toastify';
 import 'brace';
 import 'brace/mode/json';
 import 'brace/theme/github';
 import actions from '../actions';
-
-const path = libpath.join(os.homedir(), '.anyzaka', 'other-blogs.json');
+import { EXTRA_BLOGS_CONFIG_PATH } from '../config';
 
 @connect(({ openPreferences, extraBlogs }) => {
 	return { openPreferences, extraBlogs };
@@ -28,7 +25,7 @@ export default class Preferences extends Component {
 		try {
 			const json = JSON.parse(extraBlogs);
 
-			fs.writeJsonSync(path, json);
+			fs.writeJsonSync(EXTRA_BLOGS_CONFIG_PATH, json);
 			location.reload();
 		} catch (e) {
 			toast.error(String(e), {

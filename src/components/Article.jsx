@@ -9,7 +9,6 @@ import { shadowBaseStyle } from '../styles';
 import { shell } from 'electron';
 import { connect } from 'react-redux';
 import actions from '../actions';
-import anyzaka from '../anyzaka';
 
 const headerIconSize = 43;
 const headerMarginRight = 8;
@@ -65,8 +64,8 @@ const ArticleHeader = ({ article: { date, author, title, url }, color }) => {
 	);
 };
 
-@connect(({ checked, following, searchState }) => {
-	return { checked, following, searchState };
+@connect(({ checked, following, searchState, anyzaka }) => {
+	return { checked, following, searchState, anyzaka };
 })
 class Article extends Component {
 	constructor() {
@@ -122,7 +121,8 @@ class Article extends Component {
 				checked,
 				following,
 				searchState,
-				css: baseStyle = ''
+				css: baseStyle = '',
+				anyzaka
 			}
 		} = this;
 		const { author, html, url, id } = article;

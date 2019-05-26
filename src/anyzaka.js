@@ -99,26 +99,8 @@ const fetchHinata = async ({ page }) => {
 	);
 };
 
-class Anyzaka {
-	constructor() {
-		_.find(anyzakaJSON, { name: '乃木坂46' }).fetcher = {
-			fetch: fetchNogi
-		};
-		_.find(anyzakaJSON, { name: '欅坂46' }).fetcher = {
-			fetch: fetchKeyaki
-		};
-		_.find(anyzakaJSON, { name: '日向坂46' }).fetcher = {
-			fetch: fetchHinata
-		};
-
-		this.entries = anyzakaJSON;
-	}
-
-	/**
-	 * @param {{}} extraBlogsJson
-	 */
-	async addExtraBlogs(extraBlogsJson) {
-		let { entries } = this;
+export default class Anyzaka {
+	static async convertExtraBlogs(extraBlogsJson) {
 		const extraBlogs = {};
 		const dic = {
 			line: {
@@ -170,6 +152,29 @@ class Anyzaka {
 			}
 		}
 
+		return extraBlogs;
+	}
+
+	constructor() {
+		_.find(anyzakaJSON, { name: '乃木坂46' }).fetcher = {
+			fetch: fetchNogi
+		};
+		_.find(anyzakaJSON, { name: '欅坂46' }).fetcher = {
+			fetch: fetchKeyaki
+		};
+		_.find(anyzakaJSON, { name: '日向坂46' }).fetcher = {
+			fetch: fetchHinata
+		};
+
+		this.entries = anyzakaJSON;
+	}
+
+	/**
+	 * @param {{}} extraBlogs
+	 */
+	addExtraBlogs(extraBlogs) {
+		let { entries } = this;
+
 		_.forEach(_.values(extraBlogs), (blogs) => {
 			entries = _.filter(entries, ({ name }) => name !== blogs.name);
 			entries.push(blogs);
@@ -212,5 +217,3 @@ class Anyzaka {
 		return path;
 	}
 }
-
-export default new Anyzaka();

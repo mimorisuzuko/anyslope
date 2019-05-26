@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import anyzaka from '../anyzaka';
 import _ from 'lodash';
 import { css } from 'emotion';
 import Icon from './Icon';
@@ -9,8 +8,8 @@ import autobind from 'autobind-decorator';
 import { connect } from 'react-redux';
 import actions from '../actions';
 
-@connect(({ openFilterIndex, following }) => {
-	return { openFilterIndex, following };
+@connect(({ openFilterIndex, following, anyzaka }) => {
+	return { openFilterIndex, following, anyzaka };
 })
 export default class Filter extends Component {
 	/**
@@ -50,7 +49,11 @@ export default class Filter extends Component {
 
 	render() {
 		const {
-			props: { following, openFilterIndex }
+			props: {
+				following,
+				openFilterIndex,
+				anyzaka: { entries }
+			}
 		} = this;
 
 		return (
@@ -64,7 +67,7 @@ export default class Filter extends Component {
 						marginBottom: 4
 					})}
 				>
-					{_.map(anyzaka.entries, ({ name, color, members }, i) => {
+					{_.map(entries, ({ name, color, members }, i) => {
 						return (
 							<span
 								onClick={this.onClickFilter}
@@ -120,7 +123,7 @@ export default class Filter extends Component {
 						flexWrap: 'wrap'
 					})}
 				>
-					{_.map(anyzaka.entries, ({ members }, i) => {
+					{_.map(entries, ({ members }, i) => {
 						return openFilterIndex === i
 							? _.map(members, (member) => {
 								return (

@@ -1,11 +1,14 @@
 import React, { Component } from 'react';
-import anyzaka from '../anyzaka';
 import { css } from 'emotion';
+import { connect } from 'react-redux';
 
+@connect(({ anyzaka }) => {
+	return { anyzaka };
+})
 class Icon extends Component {
 	render() {
 		const {
-			props: { name, size = 48, css: baseStyle }
+			props: { name, size = 48, css: baseStyle, anyzaka }
 		} = this;
 
 		return (

@@ -7,6 +7,7 @@ import following from './following';
 import openPreferences from './openPreferences';
 import extraBlogs from './extraBlogs';
 import searchState from './searchState';
+import anyzaka from './anyzaka';
 
 export default combineReducers({
 	articles,
@@ -16,5 +17,6 @@ export default combineReducers({
 	following,
 	openPreferences,
 	extraBlogs,
-	searchState
+	searchState,
+	anyzaka
 });

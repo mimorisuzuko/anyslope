@@ -9,8 +9,8 @@ import { connect } from 'react-redux';
 import actions from '../actions';
 import 'react-toastify/dist/ReactToastify.min.css';
 
-@connect(({ articles, loading }) => {
-	return { articles, loading };
+@connect(({ articles, loading, anyzaka }) => {
+	return { articles, loading, anyzaka };
 })
 export default class Body extends Component {
 	constructor() {
@@ -21,12 +21,40 @@ export default class Body extends Component {
 		this.prevloadingIsVisible = true;
 	}
 
+	async fetch() {
+		const {
+			props: {
+				anyzaka: { entries }
+			}
+		} = this;
+		let blogs = [];
+
+		for (const entry of entries) {
+			blogs.push(
+				...(await entry.fetcher
+					.fetch(entry)
+					.then((a) => {
+						entry.page += 1;
+
+						return a;
+					})
+					.catch((err) => {
+						console.error(`Failed to fetch (${entry.name})`, err);
+
+						return [];
+					}))
+			);
+		}
+
+		return blogs;
+	}
+
 	componentDidMount() {
 		const {
 			props: { dispatch }
 		} = this;
 
-		dispatch(actions.initExtraBlogs()).then(() => {
+		dispatch(actions.init()).then(() => {
 			this.loadAndAddArticles();
 			this.watchLoading();
 		});
@@ -38,7 +66,7 @@ export default class Body extends Component {
 		} = this;
 
 		dispatch(actions.startToLoadArticles());
-		dispatch(actions.loadArticles());
+		dispatch(actions.addArticles(this.fetch()));
 	}
 
 	@autobind
