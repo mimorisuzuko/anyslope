@@ -15,18 +15,18 @@ import actions from '../actions';
 
 const path = libpath.join(os.homedir(), '.anyzaka', 'other-blogs.json');
 
-@connect(({ openPreferences, otherBlogs }) => {
-	return { openPreferences, otherBlogs };
+@connect(({ openPreferences, extraBlogs }) => {
+	return { openPreferences, extraBlogs };
 })
 export default class Preferences extends Component {
 	@autobind
 	onClickSaveButton() {
 		const {
-			props: { otherBlogs }
+			props: { extraBlogs }
 		} = this;
 
 		try {
-			const json = JSON.parse(otherBlogs);
+			const json = JSON.parse(extraBlogs);
 
 			fs.writeJsonSync(path, json);
 			location.reload();
@@ -53,7 +53,7 @@ export default class Preferences extends Component {
 
 	render() {
 		const {
-			props: { openPreferences, otherBlogs }
+			props: { openPreferences, extraBlogs }
 		} = this;
 
 		return openPreferences ? (
@@ -101,7 +101,7 @@ export default class Preferences extends Component {
 						})}
 					>
 						<AceEditor
-							value={otherBlogs}
+							value={extraBlogs}
 							onChange={this.onChange}
 							mode='json'
 							theme='github'

@@ -3,8 +3,8 @@ import actions from '../actions';
 
 export default handleActions(
 	{
-		[actions.init]: (state, { payload: { otherBlogs } }) => {
-			return otherBlogs;
+		[actions.initExtraBlogs]: (state, { payload }) => {
+			return JSON.stringify(payload, null, 4);
 		},
 		[actions.updateOtherBlogs]: (state, { payload }) => {
 			return payload;

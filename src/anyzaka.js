@@ -7,6 +7,9 @@ import Article from './models/Article';
 import { convertHtmlToHtmlString } from './util';
 import liburl from 'url';
 import dayjs from 'dayjs';
+import lineblog from './lineblog';
+import ameblo from './ameblo';
+import fs from 'fs-extra';
 
 const dparser = new DOMParser();
 
@@ -112,12 +115,62 @@ class Anyzaka {
 	}
 
 	/**
-	 * @param {{}} otherBlogs
+	 * @param {{}} extraBlogsJson
 	 */
-	addOtherBlogs(otherBlogs) {
+	async addExtraBlogs(extraBlogsJson) {
 		let { entries } = this;
+		const extraBlogs = {};
+		const dic = {
+			line: {
+				name: 'LINE BLOG',
+				color: 'rgb(90, 196, 127)',
+				fetcher: lineblog,
+				page: 1
+			},
+			ameblo: {
+				name: 'Ameba Blog',
+				color: 'rgb(45, 140, 60)',
+				fetcher: ameblo,
+				page: 1
+			}
+		};
 
-		_.forEach(_.values(otherBlogs), (blogs) => {
+		for (const key of _.keys(extraBlogsJson)) {
+			if (!_.has(extraBlogs, key)) {
+				extraBlogs[key] = _.merge(
+					{
+						_ids: [],
+						_key: key,
+						_optionsList: [],
+						members: [],
+						extra: true
+					},
+					dic[key]
+				);
+
+				for (let value of extraBlogsJson[key]) {
+					if (typeof value === 'string') {
+						value = [value, { pages: 1 }];
+					}
+
+					const [id, options] = value;
+					const { url, name } = await dic[
+						key
+					].fetcher.idToImageUrlAndName(id);
+
+					await fs.writeFile(
+						libpath.join(EXTRA_ICONS_DIR, `${name}.jpg`),
+						await rp(url, { encoding: null })
+					);
+
+					extraBlogs[key]._optionsList.push(options);
+					extraBlogs[key]._ids.push(id);
+					extraBlogs[key].members.push(name);
+				}
+			}
+		}
+
+		_.forEach(_.values(extraBlogs), (blogs) => {
 			entries = _.filter(entries, ({ name }) => name !== blogs.name);
 			entries.push(blogs);
 		});

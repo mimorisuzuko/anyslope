@@ -26,7 +26,7 @@ export default class Body extends Component {
 			props: { dispatch }
 		} = this;
 
-		dispatch(actions.init()).then(() => {
+		dispatch(actions.initExtraBlogs()).then(() => {
 			this.loadAndAddArticles();
 			this.watchLoading();
 		});
