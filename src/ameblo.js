@@ -27,46 +27,47 @@ class Ameblo {
 		};
 	}
 
-	/**
-	 * @param {string} id
-	 * @param {number?} page
-	 * @param {{}} options
-	 */
-	async fetch(id, page, options) {
-		const { pages } = options;
+	async fetch({ _ids, page, _optionsList }) {
 		const ret = [];
+		const { length } = _ids;
 
-		for (let i = 0; i < pages; i += 1) {
-			const body = await rp(
-				urljoin(this.getURL(id), `/page-${page * pages + i + 1}.html`)
-			);
-			const $parsed = dparser.parseFromString(body, 'text/html');
-
-			for (const $article of $parsed.querySelectorAll(
-				'.skin-entry.js-entryWrapper'
-			)) {
-				const $title = $article.querySelector('a.skinArticleTitle');
-				const $content = $article.querySelector('.skin-entryBody');
-
-				ret.push(
-					new Article({
-						date: dayjs(
-							_.nth(
-								$article.querySelector('.skin-textQuiet')
-									.childNodes,
-								-1
-							)
-								.nodeValue.replace(/[年|月|日]/g, '/')
-								.replace(/[時|分|秒]/g, ':')
-						),
-						title: $title.innerText,
-						author: $parsed.querySelector('.skin-profileName')
-							.innerText,
-						content: $content.innerText,
-						html: convertHtmlToHtmlString($content),
-						url: $title.href
-					})
+		for (let i = 0; i < length; i += 1) {
+			const { pages } = _optionsList[i];
+			for (let j = 0; j < pages; j += 1) {
+				const body = await rp(
+					urljoin(
+						this.getURL(_ids[i]),
+						`/page-${page * pages + j}.html`
+					)
 				);
+				const $parsed = dparser.parseFromString(body, 'text/html');
+
+				for (const $article of $parsed.querySelectorAll(
+					'.skin-entry.js-entryWrapper'
+				)) {
+					const $title = $article.querySelector('a.skinArticleTitle');
+					const $content = $article.querySelector('.skin-entryBody');
+
+					ret.push(
+						new Article({
+							date: dayjs(
+								_.nth(
+									$article.querySelector('.skin-textQuiet')
+										.childNodes,
+									-1
+								)
+									.nodeValue.replace(/[年|月|日]/g, '/')
+									.replace(/[時|分|秒]/g, ':')
+							),
+							title: $title.innerText,
+							author: $parsed.querySelector('.skin-profileName')
+								.innerText,
+							content: $content.innerText,
+							html: convertHtmlToHtmlString($content),
+							url: $title.href
+						})
+					);
+				}
 			}
 		}
 

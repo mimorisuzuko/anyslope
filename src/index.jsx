@@ -5,12 +5,9 @@ import { Provider } from 'react-redux';
 import { createStore, applyMiddleware } from 'redux';
 import state from './reducers';
 import promiseMiddleware from 'redux-promise';
-import actions from './actions';
 
 const store = createStore(state, applyMiddleware(promiseMiddleware));
 const $main = document.querySelector('main');
-
-store.dispatch(actions.init());
 
 const render = () => {
 	const { default: App } = require('./components/App');

@@ -22,8 +22,14 @@ export default class Body extends Component {
 	}
 
 	componentDidMount() {
-		this.loadAndAddArticles();
-		this.watchLoading();
+		const {
+			props: { dispatch }
+		} = this;
+
+		dispatch(actions.init()).then(() => {
+			this.loadAndAddArticles();
+			this.watchLoading();
+		});
 	}
 
 	loadAndAddArticles() {

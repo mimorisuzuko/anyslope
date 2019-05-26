@@ -10,7 +10,6 @@ import anyzaka from '../anyzaka';
 import ameblo from '../ameblo';
 import { EXTRA_ICONS_DIR } from '../config';
 
-let page = -1;
 const dirname = libpath.join(os.homedir(), '.anyzaka');
 const checkedFile = libpath.join(dirname, 'checked.json');
 const followingFile = libpath.join(dirname, 'following.json');
@@ -22,12 +21,14 @@ const convertOtherBlogsForAnyzaka = async (otherBlogs) => {
 		line: {
 			name: 'LINE BLOG',
 			color: 'rgb(90, 196, 127)',
-			_fetcher: lineblog
+			fetcher: lineblog,
+			page: 1
 		},
 		ameblo: {
 			name: 'Ameba Blog',
 			color: 'rgb(45, 140, 60)',
-			_fetcher: ameblo
+			fetcher: ameblo,
+			page: 1
 		}
 	};
 
@@ -52,7 +53,7 @@ const convertOtherBlogsForAnyzaka = async (otherBlogs) => {
 				const [id, options] = value;
 				const { url, name } = await dic[
 					key
-				]._fetcher.idToImageUrlAndName(id);
+				].fetcher.idToImageUrlAndName(id);
 
 				await fs.writeFile(
 					libpath.join(EXTRA_ICONS_DIR, `${name}.jpg`),
@@ -72,9 +73,7 @@ const convertOtherBlogsForAnyzaka = async (otherBlogs) => {
 export default createActions(
 	{
 		LOAD_ARTICLES: async () => {
-			page += 1;
-
-			return await fetch(page);
+			return await fetch();
 		},
 		INIT: async () => {
 			if (!fs.existsSync(dirname)) {

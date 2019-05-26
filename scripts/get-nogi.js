@@ -57,7 +57,8 @@ import { ICONS_DIR } from '../src/config';
 				'運営スタッフ',
 				'４期生'
 			),
-			extra: false
+			extra: false,
+			page: 1
 		})
 	);
 

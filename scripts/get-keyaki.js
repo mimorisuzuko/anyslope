@@ -49,7 +49,8 @@ import { ICONS_DIR } from '../src/config';
 			name: '欅坂46',
 			color: 'rgb(84, 176, 74)',
 			members: _.map(members, ([, a]) => a),
-			extra: false
+			extra: false,
+			page: 0
 		})
 	);
 

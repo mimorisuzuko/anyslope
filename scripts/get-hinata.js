@@ -47,7 +47,8 @@ import { ICONS_DIR } from '../src/config';
 			name: '日向坂46',
 			color: 'rgb(81, 182, 224)',
 			members: _.map(members, ([, a]) => a),
-			extra: false
+			extra: false,
+			page: 0
 		})
 	);
 
