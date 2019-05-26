@@ -2,16 +2,17 @@ import { handleActions } from 'redux-actions';
 import actions from '../actions';
 import { List } from 'immutable';
 import fs from 'fs-extra';
-import os from 'os';
 import libpath from 'path';
+import { CONFIG_DIR } from '../config';
 
-const path = libpath.join(os.homedir(), '.anyzaka', 'following.json');
+const path = libpath.join(CONFIG_DIR, 'following.json');
+
+if (!fs.existsSync(path)) {
+	fs.writeJsonSync(path, []);
+}
 
 export default handleActions(
 	{
-		[actions.init]: (state, { payload: { following } }) => {
-			return List(following);
-		},
 		[actions.toggleFollowing]: (state, { payload }) => {
 			const i = state.indexOf(payload);
 			const next = i === -1 ? state.push(payload) : state.delete(i);
@@ -21,5 +22,5 @@ export default handleActions(
 			return next;
 		}
 	},
-	List()
+	List(fs.readJsonSync(path))
 );

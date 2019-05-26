@@ -5,6 +5,12 @@ import { Provider } from 'react-redux';
 import { createStore, applyMiddleware } from 'redux';
 import state from './reducers';
 import promiseMiddleware from 'redux-promise';
+import fs from 'fs-extra';
+import { CONFIG_DIR } from './config';
+
+if (!fs.existsSync(CONFIG_DIR)) {
+	fs.mkdirSync(CONFIG_DIR);
+}
 
 const store = createStore(state, applyMiddleware(promiseMiddleware));
 const $main = document.querySelector('main');

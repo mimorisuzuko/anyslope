@@ -2,18 +2,14 @@ import { createActions } from 'redux-actions';
 import fetch from '../fetch';
 import fs from 'fs-extra';
 import libpath from 'path';
-import os from 'os';
 import _ from 'lodash';
 import lineblog from '../lineblog';
 import rp from 'request-promise';
 import anyzaka from '../anyzaka';
 import ameblo from '../ameblo';
-import { EXTRA_ICONS_DIR } from '../config';
+import { EXTRA_ICONS_DIR, CONFIG_DIR } from '../config';
 
-const dirname = libpath.join(os.homedir(), '.anyzaka');
-const checkedFile = libpath.join(dirname, 'checked.json');
-const followingFile = libpath.join(dirname, 'following.json');
-const otherBlogsFile = libpath.join(dirname, 'other-blogs.json');
+const otherBlogsFile = libpath.join(CONFIG_DIR, 'other-blogs.json');
 
 const convertOtherBlogsForAnyzaka = async (otherBlogs) => {
 	const ret = {};
@@ -76,18 +72,6 @@ export default createActions(
 			return await fetch();
 		},
 		INIT: async () => {
-			if (!fs.existsSync(dirname)) {
-				fs.mkdirSync(dirname);
-			}
-
-			if (!fs.existsSync(checkedFile)) {
-				fs.writeJsonSync(checkedFile, []);
-			}
-
-			if (!fs.existsSync(followingFile)) {
-				fs.writeJsonSync(followingFile, []);
-			}
-
 			if (!fs.existsSync(otherBlogsFile)) {
 				fs.writeJsonSync(otherBlogsFile, {});
 			}
@@ -104,8 +88,6 @@ export default createActions(
 			);
 
 			return {
-				checked: fs.readJsonSync(checkedFile),
-				following: fs.readJsonSync(followingFile),
 				otherBlogs: JSON.stringify(otherBlogs, null, 4)
 			};
 		}
