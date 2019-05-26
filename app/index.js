@@ -12,7 +12,8 @@ const create = () => {
 	const w = new BrowserWindow({
 		width: 1220,
 		height: 1000,
-		titleBarStyle: 'hidden'
+		titleBarStyle: 'hidden',
+		webPreferences: { webSecurity: false }
 	});
 
 	w.loadURL(

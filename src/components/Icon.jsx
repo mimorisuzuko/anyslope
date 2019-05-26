@@ -15,11 +15,9 @@ class Icon extends Component {
 					borderRadius: '50%',
 					backgroundSize: 'cover',
 					backgroundRepeat: 'no-repeat',
-					backgroundImage: `url("${anyzaka.toMemberIconPath(
+					backgroundImage: `url("file://${anyzaka.toMemberIconPath(
 						name
-					)}"), url("${anyzaka.toExtraIconPath(
-						name
-					)}"), url(assets/icons/fallback.png)`,
+					)}")`,
 					width: size,
 					height: size
 				})}

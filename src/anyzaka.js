@@ -1,5 +1,7 @@
 import anyzakaJSON from './assets/anyzaka.json';
 import _ from 'lodash';
+import { ICONS_DIR, EXTRA_ICONS_DIR } from './config';
+import libpath from 'path';
 
 class Anyzaka {
 	constructor() {
@@ -37,14 +39,23 @@ class Anyzaka {
 	 * @param {string} name
 	 */
 	toMemberIconPath(name) {
-		return `assets/icons/${name}.jpg`;
-	}
+		const { entries } = this;
+		let path = libpath.join(ICONS_DIR, 'fallback.png');
 
-	/**
-	 * @param {string} name
-	 */
-	toExtraIconPath(name) {
-		return `assets/icons/extras/${name}.jpg`;
+		_.some(entries, ({ members, extra }) => {
+			if (_.includes(members, name)) {
+				path = libpath.join(
+					extra ? EXTRA_ICONS_DIR : ICONS_DIR,
+					`${name}.jpg`
+				);
+
+				return true;
+			}
+
+			return false;
+		});
+
+		return path;
 	}
 }
 

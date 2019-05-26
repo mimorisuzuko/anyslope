@@ -3,23 +3,18 @@ import fetch from '../fetch';
 import fs from 'fs-extra';
 import libpath from 'path';
 import os from 'os';
-import { remote } from 'electron';
 import _ from 'lodash';
 import lineblog from '../lineblog';
 import rp from 'request-promise';
 import anyzaka from '../anyzaka';
 import ameblo from '../ameblo';
+import { EXTRA_ICONS_DIR } from '../config';
 
 let page = -1;
-const { app } = remote;
 const dirname = libpath.join(os.homedir(), '.anyzaka');
 const checkedFile = libpath.join(dirname, 'checked.json');
 const followingFile = libpath.join(dirname, 'following.json');
 const otherBlogsFile = libpath.join(dirname, 'other-blogs.json');
-const extraIconsDirname = libpath.join(
-	app.getAppPath(),
-	'app/dst/assets/icons/extras'
-);
 
 const convertOtherBlogsForAnyzaka = async (otherBlogs) => {
 	const ret = {};
@@ -43,7 +38,8 @@ const convertOtherBlogsForAnyzaka = async (otherBlogs) => {
 					_ids: [],
 					_key: key,
 					_optionsList: [],
-					members: []
+					members: [],
+					extra: true
 				},
 				dic[key]
 			);
@@ -59,7 +55,7 @@ const convertOtherBlogsForAnyzaka = async (otherBlogs) => {
 				]._fetcher.idToImageUrlAndName(id);
 
 				await fs.writeFile(
-					libpath.join(extraIconsDirname, `${name}.jpg`),
+					libpath.join(EXTRA_ICONS_DIR, `${name}.jpg`),
 					await rp(url, { encoding: null })
 				);
 
@@ -97,11 +93,11 @@ export default createActions(
 				fs.writeJsonSync(otherBlogsFile, {});
 			}
 
-			if (fs.existsSync(extraIconsDirname)) {
-				fs.removeSync(extraIconsDirname);
+			if (fs.existsSync(EXTRA_ICONS_DIR)) {
+				fs.removeSync(EXTRA_ICONS_DIR);
 			}
 
-			fs.mkdirSync(extraIconsDirname);
+			fs.mkdirSync(EXTRA_ICONS_DIR);
 
 			const otherBlogs = fs.readJsonSync(otherBlogsFile);
 			anyzaka.addOtherBlogs(

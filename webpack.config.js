@@ -5,7 +5,6 @@ const {
 } = require('webpack');
 const libpath = require('path');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
-const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = (env, { mode }) => {
 	const dst = 'app/dst';
@@ -28,8 +27,7 @@ module.exports = (env, { mode }) => {
 			options: {
 				context
 			}
-		}),
-		new CopyPlugin([{ from: 'assets/icons', to: 'assets/icons' }])
+		})
 	];
 
 	if (!isProduction) {

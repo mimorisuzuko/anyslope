@@ -1,12 +1,11 @@
-#!/usr/bin/env node
+#!./node_modules/.bin/babel-node
 
-const fs = require('fs-extra');
-const rp = require('request-promise');
-const puppeteer = require('puppeteer');
-const libpath = require('path');
-const _ = require('lodash');
-
-const icondir = libpath.join(__dirname, '../src/assets/icons');
+import fs from 'fs-extra';
+import rp from 'request-promise';
+import puppeteer from 'puppeteer';
+import libpath from 'path';
+import _ from 'lodash';
+import { ICONS_DIR } from '../src/config';
 
 (async () => {
 	const browser = await puppeteer.launch({
@@ -39,7 +38,7 @@ const icondir = libpath.join(__dirname, '../src/assets/icons');
 
 	for (const [url, name] of members) {
 		await fs.writeFile(
-			libpath.join(icondir, `${name}.jpg`),
+			libpath.join(ICONS_DIR, `${name}.jpg`),
 			await rp({ method: 'GET', url, encoding: null }),
 			'binary'
 		);
@@ -57,7 +56,8 @@ const icondir = libpath.join(__dirname, '../src/assets/icons');
 				_.map(members, ([, a]) => a),
 				'運営スタッフ',
 				'４期生'
-			)
+			),
+			extra: false
 		})
 	);
 
