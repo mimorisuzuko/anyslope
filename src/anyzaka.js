@@ -26,11 +26,12 @@ class Anyzaka {
 		const { entries } = this;
 		let ret = null;
 
-		_.forEach(entries, ({ members, color }) => {
+		for (const { members, color } of entries) {
 			if (_.includes(members, name)) {
 				ret = color;
+				break;
 			}
-		});
+		}
 
 		return ret;
 	}
@@ -42,18 +43,15 @@ class Anyzaka {
 		const { entries } = this;
 		let path = libpath.join(ICONS_DIR, 'fallback.png');
 
-		_.some(entries, ({ members, extra }) => {
+		for (const { members, extra } of entries) {
 			if (_.includes(members, name)) {
 				path = libpath.join(
 					extra ? EXTRA_ICONS_DIR : ICONS_DIR,
 					`${name}.jpg`
 				);
-
-				return true;
+				break;
 			}
-
-			return false;
-		});
+		}
 
 		return path;
 	}
