@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import _ from 'lodash';
 import { css } from 'emotion';
 import Icon from './Icon';
 import { GoTriangleDown, GoTriangleRight } from 'react-icons/go';
@@ -49,12 +48,9 @@ export default class Filter extends Component {
 
 	render() {
 		const {
-			props: {
-				following,
-				openFilterIndex,
-				anyzaka: { entries }
-			}
+			props: { following, openFilterIndex, anyzaka }
 		} = this;
+		const slopes = anyzaka.get('slopes');
 
 		return (
 			<div
@@ -67,14 +63,14 @@ export default class Filter extends Component {
 						marginBottom: 4
 					})}
 				>
-					{_.map(entries, ({ name, color, members }, i) => {
+					{slopes.map((entry, i) => {
 						return (
 							<span
 								onClick={this.onClickFilter}
 								key={i}
 								data-strkey={i}
 								className={css({
-									color,
+									color: entry.get('color'),
 									cursor: 'pointer',
 									i: {
 										verticalAlign: 'middle'
@@ -101,9 +97,9 @@ export default class Filter extends Component {
 										verticalAlign: 'middle'
 									})}
 								>
-									{name}
+									{entry.get('name')}
 								</span>
-								{_.map(members, (member) => {
+								{entry.get('members').map((member) => {
 									return following.includes(member) &&
 										openFilterIndex !== i ? (
 											<Icon
@@ -123,9 +119,9 @@ export default class Filter extends Component {
 						flexWrap: 'wrap'
 					})}
 				>
-					{_.map(entries, ({ members }, i) => {
+					{slopes.map((entry, i) => {
 						return openFilterIndex === i
-							? _.map(members, (member) => {
+							? entry.get('members').map((member) => {
 								return (
 									<div
 										onClick={this.onClickFilterMember}

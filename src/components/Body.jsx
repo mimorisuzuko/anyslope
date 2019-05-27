@@ -23,26 +23,27 @@ export default class Body extends Component {
 
 	async fetch() {
 		const {
-			props: {
-				anyzaka: { entries }
-			}
+			props: { anyzaka }
 		} = this;
+		const slopes = anyzaka.get('slopes');
+		const { size } = slopes;
 		let blogs = [];
 
-		for (const entry of entries) {
+		for (let i = 0; i < size; i += 1) {
+			const slope = slopes.get(i);
+
 			blogs.push(
-				...(await entry.fetcher
-					.fetch(entry)
-					.then((a) => {
-						entry.page += 1;
+				await (slope.has('fetch')
+					? slope.get('fetch')(slope)
+					: slope.get('_fetcher').fetch(slope)
+				).catch((err) => {
+					console.error(
+						`Failed to fetch (${slope.get('name')})`,
+						err
+					);
 
-						return a;
-					})
-					.catch((err) => {
-						console.error(`Failed to fetch (${entry.name})`, err);
-
-						return [];
-					}))
+					return [];
+				})
 			);
 		}
 

@@ -27,16 +27,18 @@ class Ameblo {
 		};
 	}
 
-	async fetch({ _ids, page, _optionsList }) {
+	async fetch(entry) {
 		const ret = [];
-		const { length } = _ids;
+		const _ids = entry.get('_ids');
+		const { size } = _ids;
+		const page = entry.get('page');
 
-		for (let i = 0; i < length; i += 1) {
-			const { pages } = _optionsList[i];
+		for (let i = 0; i < size; i += 1) {
+			const pages = entry.getIn(['_optionsList', i, 'pages']);
 			for (let j = 0; j < pages; j += 1) {
 				const body = await rp(
 					urljoin(
-						this.getURL(_ids[i]),
+						this.getURL(_ids.get(i)),
 						`/page-${page * pages + j}.html`
 					)
 				);

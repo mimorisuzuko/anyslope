@@ -10,11 +10,12 @@ import dayjs from 'dayjs';
 import lineblog from './lineblog';
 import ameblo from './ameblo';
 import fs from 'fs-extra';
+import { Record, fromJS } from 'immutable';
 
 const dparser = new DOMParser();
 
-const fetchNogi = async ({ page }) => {
-	const body = await rp(`http://blog.nogizaka46.com/?p=${page}`);
+const fetchNogi = async (entry) => {
+	const body = await rp(`http://blog.nogizaka46.com/?p=${entry.get('page')}`);
 	const $parsed = dparser.parseFromString(body, 'text/html');
 	const names = $parsed.querySelectorAll('.author');
 	const titles = $parsed.querySelectorAll('h1 .entrytitle a');
@@ -41,8 +42,10 @@ const fetchNogi = async ({ page }) => {
 	return ret;
 };
 
-const fetchKeyaki = async ({ page }) => {
-	const baseUrl = `http://www.keyakizaka46.com/s/k46o/diary/member/list?page=${page}`;
+const fetchKeyaki = async (entry) => {
+	const baseUrl = `http://www.keyakizaka46.com/s/k46o/diary/member/list?page=${entry.get(
+		'page'
+	)}`;
 	const body = await rp(baseUrl);
 
 	return _.map(
@@ -67,8 +70,10 @@ const fetchKeyaki = async ({ page }) => {
 	);
 };
 
-const fetchHinata = async ({ page }) => {
-	const baseUrl = `https://www.hinatazaka46.com/s/official/diary/member/list?page=${page}`;
+const fetchHinata = async (entry) => {
+	const baseUrl = `https://www.hinatazaka46.com/s/official/diary/member/list?page=${entry.get(
+		'page'
+	)}`;
 	const body = await rp(baseUrl);
 
 	return _.map(
@@ -99,20 +104,24 @@ const fetchHinata = async ({ page }) => {
 	);
 };
 
-export default class Anyzaka {
+_.find(anyzakaJSON, { name: '乃木坂46' }).fetch = fetchNogi;
+_.find(anyzakaJSON, { name: '欅坂46' }).fetch = fetchKeyaki;
+_.find(anyzakaJSON, { name: '日向坂46' }).fetch = fetchHinata;
+
+export default class Anyzaka extends Record({ slopes: fromJS(anyzakaJSON) }) {
 	static async convertExtraBlogs(extraBlogsJson) {
 		const extraBlogs = {};
 		const dic = {
 			line: {
 				name: 'LINE BLOG',
 				color: 'rgb(90, 196, 127)',
-				fetcher: lineblog,
+				_fetcher: lineblog,
 				page: 1
 			},
 			ameblo: {
 				name: 'Ameba Blog',
 				color: 'rgb(45, 140, 60)',
-				fetcher: ameblo,
+				_fetcher: ameblo,
 				page: 1
 			}
 		};
@@ -138,7 +147,7 @@ export default class Anyzaka {
 					const [id, options] = value;
 					const { url, name } = await dic[
 						key
-					].fetcher.idToImageUrlAndName(id);
+					]._fetcher.idToImageUrlAndName(id);
 
 					await fs.writeFile(
 						libpath.join(EXTRA_ICONS_DIR, `${name}.jpg`),
@@ -152,44 +161,34 @@ export default class Anyzaka {
 			}
 		}
 
-		return extraBlogs;
-	}
-
-	constructor() {
-		_.find(anyzakaJSON, { name: '乃木坂46' }).fetcher = {
-			fetch: fetchNogi
-		};
-		_.find(anyzakaJSON, { name: '欅坂46' }).fetcher = {
-			fetch: fetchKeyaki
-		};
-		_.find(anyzakaJSON, { name: '日向坂46' }).fetcher = {
-			fetch: fetchHinata
-		};
-
-		this.entries = anyzakaJSON;
+		return fromJS(_.values(extraBlogs));
 	}
 
 	/**
 	 * @param {{}} extraBlogs
 	 */
 	addExtraBlogs(extraBlogs) {
-		let { entries } = this;
+		let { slopes } = this;
 
-		_.forEach(_.values(extraBlogs), (blogs) => {
-			entries = _.filter(entries, ({ name }) => name !== blogs.name);
-			entries.push(blogs);
+		extraBlogs.forEach((blogs) => {
+			slopes = slopes
+				.filter((a) => a.get('name') !== blogs.get('name'))
+				.push(blogs);
 		});
 
-		this.entries = entries;
+		return this.set('slopes', slopes);
 	}
 
 	getGroupColorFromMember(name) {
-		const { entries } = this;
+		const { slopes } = this;
+		const { size } = slopes;
 		let ret = null;
 
-		for (const { members, color } of entries) {
-			if (_.includes(members, name)) {
-				ret = color;
+		for (let i = 0; i < size; i += 1) {
+			const slope = slopes.get(i);
+
+			if (slope.get('members').includes(name)) {
+				ret = slope.get('color');
 				break;
 			}
 		}
@@ -201,13 +200,16 @@ export default class Anyzaka {
 	 * @param {string} name
 	 */
 	toMemberIconPath(name) {
-		const { entries } = this;
+		const { slopes } = this;
+		const { size } = slopes;
 		let path = libpath.join(ICONS_DIR, 'fallback.png');
 
-		for (const { members, extra } of entries) {
-			if (_.includes(members, name)) {
+		for (let i = 0; i < size; i += 1) {
+			const slope = slopes.get(i);
+
+			if (slope.get('members').includes(name)) {
 				path = libpath.join(
-					extra ? EXTRA_ICONS_DIR : ICONS_DIR,
+					slope.get('extra') ? EXTRA_ICONS_DIR : ICONS_DIR,
 					`${name}.jpg`
 				);
 				break;

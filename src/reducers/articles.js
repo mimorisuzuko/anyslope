@@ -1,13 +1,18 @@
 import { handleActions } from 'redux-actions';
 import actions from '../actions';
 import { List } from 'immutable';
+import _ from 'lodash';
 
 export default handleActions(
 	{
-		[actions.addArticles]: (state, action) => {
-			const { payload } = action;
+		[actions.addArticles]: (state, { payload }) => {
+			_.forEach(payload, (a) => {
+				_.forEach(a, (b) => {
+					state = state.push(b);
+				});
+			});
 
-			return state.push(...payload).sortBy(({ date }) => -date);
+			return state.sortBy(({ date }) => -date);
 		},
 		[actions.showArticle]: (state, { payload }) => {
 			return state.update(
