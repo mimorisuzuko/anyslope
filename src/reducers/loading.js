@@ -7,7 +7,7 @@ export default handleActions(
 		[actions.startToLoadArticles]: (state) => {
 			return state.set('_now', true);
 		},
-		[actions.loadArticles]: (state) => {
+		[actions.addArticles]: (state) => {
 			return state.set('_now', false);
 		},
 		[actions.canLoadArticles]: (state, { payload }) => {
