@@ -56,7 +56,7 @@ export default class Body extends Component {
 		} = this;
 
 		dispatch(actions.init()).then(() => {
-			this.loadAndAddArticles();
+			dispatch(actions.addArticles(this.fetch()));
 			this.watchLoading();
 		});
 	}

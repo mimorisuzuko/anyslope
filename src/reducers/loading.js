@@ -14,5 +14,5 @@ export default handleActions(
 			return state.set('_can', payload);
 		}
 	},
-	new Loading()
+	new Loading({ _now: true })
 );
