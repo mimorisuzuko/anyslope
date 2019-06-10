@@ -12,5 +12,5 @@ export const ICONS_DIR = libpath.join(APP_DIR, 'assets/icons');
 export const EXTRA_ICONS_DIR = libpath.join(ICONS_DIR, 'extra');
 export const EXTRA_BLOGS_CONFIG_PATH = libpath.join(
 	CONFIG_DIR,
-	'extra-blogs.json'
+	'extra-blogs.hjson'
 );

@@ -2,15 +2,20 @@ import { createActions } from 'redux-actions';
 import fs from 'fs-extra';
 import Anyzaka from '../anyzaka';
 import { EXTRA_BLOGS_CONFIG_PATH } from '../config';
+import hjson from 'hjson';
 
 export default createActions(
 	{
 		INIT: async () => {
-			const extraBlogsJson = await fs.readJson(EXTRA_BLOGS_CONFIG_PATH);
+			const extraBlogsText = await fs.readFile(EXTRA_BLOGS_CONFIG_PATH, {
+				encoding: 'utf-8'
+			});
 
 			return {
-				extraBlogsJson,
-				extraBlogs: await Anyzaka.convertExtraBlogs(extraBlogsJson)
+				extraBlogsText,
+				extraBlogs: await Anyzaka.convertExtraBlogs(
+					hjson.parse(extraBlogsText)
+				)
 			};
 		}
 	},

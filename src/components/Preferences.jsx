@@ -7,10 +7,11 @@ import fs from 'fs-extra';
 import AceEditor from 'react-ace';
 import { toast } from 'react-toastify';
 import 'brace';
-import 'brace/mode/json';
+import 'brace/mode/hjson';
 import 'brace/theme/github';
 import actions from '../actions';
 import { EXTRA_BLOGS_CONFIG_PATH } from '../config';
+import hjson from 'hjson';
 
 @connect(({ openPreferences, extraBlogs }) => {
 	return { openPreferences, extraBlogs };
@@ -23,9 +24,9 @@ export default class Preferences extends Component {
 		} = this;
 
 		try {
-			const json = JSON.parse(extraBlogs);
+			hjson.parse(extraBlogs);
 
-			fs.writeJsonSync(EXTRA_BLOGS_CONFIG_PATH, json);
+			fs.writeFileSync(EXTRA_BLOGS_CONFIG_PATH, extraBlogs);
 			location.reload();
 		} catch (e) {
 			toast.error(String(e), {
@@ -100,7 +101,7 @@ export default class Preferences extends Component {
 						<AceEditor
 							value={extraBlogs}
 							onChange={this.onChange}
-							mode='json'
+							mode='hjson'
 							theme='github'
 							showGutter={false}
 							style={{

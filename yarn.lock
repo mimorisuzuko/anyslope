@@ -3619,6 +3619,11 @@ hash.js@^1.0.0, hash.js@^1.0.3:
     inherits "^2.0.3"
     minimalistic-assert "^1.0.1"
 
+hjson@^3.1.2:
+  version "3.1.2"
+  resolved "https://registry.yarnpkg.com/hjson/-/hjson-3.1.2.tgz#1ae8a3a897a1fab8d45180f98e9abf9b56f95b55"
+  integrity sha512-2ILrho8eRl2Bniy61mDFiXRAloYqH2T6OwWkoF/8y55DPFgG2RcqQGNXIfBLp432dnAbLOpBJ4pJs63W3X27EA==
+
 hls.js@^0.12.4:
   version "0.12.4"
   resolved "https://registry.yarnpkg.com/hls.js/-/hls.js-0.12.4.tgz#c155b7b2825a11117c111b781973c0ffa759006b"
