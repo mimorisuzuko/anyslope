@@ -3,7 +3,7 @@ import rp from 'request-promise';
 import { convertHtmlToHtmlString } from './util';
 import Article from './models/Article';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { renderTweetCard, renderInstgramCard } from './util';
+import { renderTweetCard, renderInstgramCard, renderOgpCard } from './util';
 import dayjs from 'dayjs';
 import React from 'react';
 
@@ -92,6 +92,15 @@ class LineBlog {
 						$video.outerHTML = key;
 					}
 
+					for (const $ogp of $content.querySelectorAll('.ogpLink')) {
+						const key = `_ogp_${Date.now()}`;
+
+						mediaDic[key] = renderToStaticMarkup(
+							await renderOgpCard($ogp.href)
+						);
+						$ogp.outerHTML = key;
+					}
+
 					ret.push(
 						new Article({
 							date: dayjs(
@@ -109,7 +118,7 @@ class LineBlog {
 									}
 								)
 								.replace(
-									/<p>(_(video|instagram|tweet)_\d+)<\/p>/g,
+									/<p>(_(video|instagram|tweet|ogp)_\d+)<\/p>/g,
 									(match, key) => {
 										return mediaDic[key];
 									}

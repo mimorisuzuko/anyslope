@@ -296,3 +296,93 @@ export const renderInstgramCard = async (url) => {
 		</a>
 	);
 };
+
+/**
+ * @param {string} url
+ */
+export const renderOgpCard = async (url) => {
+	const body = await rp(url);
+	const [, imgUrl] = body.match(
+		/<meta\s+property="og:image"\s+content="(.+)">/
+	);
+	const [, siteName] = body.match(
+		/<meta\s+property="og:site_name"\s+content="(.+)">/
+	);
+	const [, description] = body.match(
+		/<meta\s+property="og:description"\s+content="(.+)">/
+	);
+	const width = 118;
+
+	return (
+		<a
+			href={url}
+			className={css({
+				textDecoration: 'none',
+				color: 'inherit'
+			})}
+		>
+			<div
+				className={css({
+					border: '1px solid rgb(229, 229, 229)',
+					display: 'flex'
+				})}
+			>
+				<div
+					className={css({
+						backgroundImage: `url(${imgUrl})`,
+						width,
+						height: width,
+						backgroundPosition: '50% 50%',
+						backgroundRepeat: 'no-repeat',
+						backgroundSize: 'cover'
+					})}
+				/>
+				<div
+					className={css({
+						padding: 22,
+						width: `calc(100% - ${width}px)`,
+						boxSizing: 'border-box'
+					})}
+				>
+					<div
+						className={css({
+							fontSize: 17,
+							fontWeight: 'bold',
+							marginBottom: 3,
+							wordBreak: 'break-all',
+							whiteSpace: 'nowrap',
+							overflow: 'hidden',
+							textOverflow: 'ellipsis'
+						})}
+					>
+						{siteName}
+					</div>
+					<div
+						className={css({
+							fontSize: 13,
+							color: 'rgb(115, 115, 115)',
+							wordBreak: 'break-all',
+							whiteSpace: 'nowrap',
+							overflow: 'hidden',
+							textOverflow: 'ellipsis'
+						})}
+					>
+						{description}
+					</div>
+					<div
+						className={css({
+							fontSize: 12,
+							color: 'rgb(200, 200, 200)',
+							wordBreak: 'break-all',
+							whiteSpace: 'nowrap',
+							overflow: 'hidden',
+							textOverflow: 'ellipsis'
+						})}
+					>
+						{new URL(url).hostname}
+					</div>
+				</div>
+			</div>
+		</a>
+	);
+};
