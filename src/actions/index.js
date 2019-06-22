@@ -2,7 +2,7 @@ import { createActions } from 'redux-actions';
 import fs from 'fs-extra';
 import Anyzaka from '../anyzaka';
 import { EXTRA_BLOGS_CONFIG_PATH } from '../config';
-import hjson from 'hjson';
+import yaml from 'js-yaml';
 
 export default createActions(
 	{
@@ -14,7 +14,7 @@ export default createActions(
 			return {
 				extraBlogsText,
 				extraBlogs: await Anyzaka.convertExtraBlogs(
-					hjson.parse(extraBlogsText)
+					yaml.safeLoad(extraBlogsText)
 				)
 			};
 		}
