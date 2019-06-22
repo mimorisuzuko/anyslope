@@ -66,7 +66,12 @@ class Ameblo {
 						author: $parsed.querySelector('.skin-profileName')
 							.innerText,
 						content: $content.innerText,
-						html: convertHtmlToHtmlString($content),
+						html: convertHtmlToHtmlString($content).replace(
+							/<img\s+src="(https:\/\/stat100.ameba.jp\/blog\/ucs\/img\/char\/\w+\/\w+\.png)".+>/g,
+							(match, p1) => {
+								return `<img src="${p1}" width="24" width="24" alt="emoji">`;
+							}
+						),
 						url: urljoin(url, _.last($title.href.split('/')))
 					};
 
