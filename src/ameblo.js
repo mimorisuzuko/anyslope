@@ -36,6 +36,7 @@ class Ameblo {
 		for (let i = 0; i < size; i += 1) {
 			const options = entry.getIn(['_optionsList', i]);
 			const multi = options.get('multi');
+			const filters = options.get('filters');
 
 			for (let j = 0; j < multi; j += 1) {
 				const body = await rp(
@@ -51,24 +52,34 @@ class Ameblo {
 				)) {
 					const $title = $article.querySelector('a.skinArticleTitle');
 					const $content = $article.querySelector('.skin-entryBody');
+					const origin = {
+						date: dayjs(
+							_.nth(
+								$article.querySelector('.skin-textQuiet')
+									.childNodes,
+								-1
+							)
+								.nodeValue.replace(/[年|月|日]/g, '/')
+								.replace(/[時|分|秒]/g, ':')
+						),
+						title: $title.innerText,
+						author: $parsed.querySelector('.skin-profileName')
+							.innerText,
+						content: $content.innerText,
+						html: convertHtmlToHtmlString($content),
+						url: $title.href
+					};
 
 					ret.push(
 						new Article({
-							date: dayjs(
-								_.nth(
-									$article.querySelector('.skin-textQuiet')
-										.childNodes,
-									-1
-								)
-									.nodeValue.replace(/[年|月|日]/g, '/')
-									.replace(/[時|分|秒]/g, ':')
-							),
-							title: $title.innerText,
-							author: $parsed.querySelector('.skin-profileName')
-								.innerText,
-							content: $content.innerText,
-							html: convertHtmlToHtmlString($content),
-							url: $title.href
+							...origin,
+							filtered: filters.some((filter) => {
+								return (
+									origin[filter.get(0)].match(
+										filter.get(1)
+									) === null
+								);
+							})
 						})
 					);
 				}

@@ -38,6 +38,7 @@ class LineBlog {
 		for (let i = 0; i < size; i += 1) {
 			const options = entry.getIn(['_optionsList', i]);
 			const multi = options.get('multi');
+			const filters = options.get('filters');
 
 			for (let j = 0; j < multi; j += 1) {
 				const body = await rp(
@@ -103,29 +104,39 @@ class LineBlog {
 						$ogp.outerHTML = key;
 					}
 
+					const origin = {
+						date: dayjs(
+							$article.querySelector('.article-date').innerText
+						),
+						title: $title.innerText,
+						author: $parsed.querySelector('h2').innerText,
+						content: $content.innerText,
+						html: convertHtmlToHtmlString($content)
+							.replace(
+								/<img\s+src="(https:\/\/parts\.lineblog\.me\/img\/emoji\/line\/\d+\/\d+\.png)"\s+alt="lineemoji">/g,
+								(match, p1) => {
+									return `<img src="${p1}" style="width:1.3em;height:1.3em;position:relative;top:0.2em;" alt="lineemoji">`;
+								}
+							)
+							.replace(
+								/<p>(_(video|instagram|tweet|ogp)_\d+)<\/p>/g,
+								(match, key) => {
+									return mediaDic[key];
+								}
+							),
+						url: $title.href
+					};
+
 					ret.push(
 						new Article({
-							date: dayjs(
-								$article.querySelector('.article-date')
-									.innerText
-							),
-							title: $title.innerText,
-							author: $parsed.querySelector('h2').innerText,
-							content: $content.innerText,
-							html: convertHtmlToHtmlString($content)
-								.replace(
-									/<img\s+src="(https:\/\/parts\.lineblog\.me\/img\/emoji\/line\/\d+\/\d+\.png)"\s+alt="lineemoji">/g,
-									(match, p1) => {
-										return `<img src="${p1}" style="width:1.3em;height:1.3em;position:relative;top:0.2em;" alt="lineemoji">`;
-									}
-								)
-								.replace(
-									/<p>(_(video|instagram|tweet|ogp)_\d+)<\/p>/g,
-									(match, key) => {
-										return mediaDic[key];
-									}
-								),
-							url: $title.href
+							...origin,
+							filtered: filters.some((filter) => {
+								return (
+									origin[filter.get(0)].match(
+										filter.get(1)
+									) === null
+								);
+							})
 						})
 					);
 				}

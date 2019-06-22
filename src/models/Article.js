@@ -10,7 +10,8 @@ export default class Article extends Record({
 	html: '',
 	content: '',
 	temporaryVisible: false,
-	url: ''
+	url: '',
+	filtered: false
 }) {
 	constructor(...args) {
 		super(_.merge(...args, { id: uuid() }));
@@ -22,14 +23,18 @@ export default class Article extends Record({
 	 * @returns {boolean}
 	 */
 	visible(following, searchState) {
-		const { author, temporaryVisible } = this;
+		const { author, temporaryVisible, filtered } = this;
 
 		if (!searchState.searched()) {
-			return following.includes(author) || temporaryVisible;
+			return (
+				(following.includes(author) && !filtered) || temporaryVisible
+			);
 		}
 
 		return (
-			(searchState.test(this) && following.includes(author)) ||
+			(searchState.test(this) &&
+				following.includes(author) &&
+				!filtered) ||
 			temporaryVisible
 		);
 	}
