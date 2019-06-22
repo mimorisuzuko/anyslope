@@ -141,7 +141,7 @@ export default class Anyzaka extends Record({ slopes: fromJS(anyzakaJSON) }) {
 
 				for (let value of extraBlogsJson[key]) {
 					if (typeof value === 'string') {
-						value = [value, { pages: 1 }];
+						value = [value, {}];
 					}
 
 					const [id, options] = value;
@@ -154,7 +154,18 @@ export default class Anyzaka extends Record({ slopes: fromJS(anyzakaJSON) }) {
 						await rp(url, { encoding: null })
 					);
 
-					extraBlogs[key]._optionsList.push(options);
+					extraBlogs[key]._optionsList.push(
+						_.update(
+							_.merge({ multi: 1, filters: [] }, options),
+							'filters',
+							(filters) => {
+								return _.map(filters, ([a, b]) => [
+									a,
+									new RegExp(b)
+								]);
+							}
+						)
+					);
 					extraBlogs[key]._ids.push(id);
 					extraBlogs[key].members.push(name);
 				}

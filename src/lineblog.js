@@ -36,10 +36,12 @@ class LineBlog {
 		const page = entry.get('page');
 
 		for (let i = 0; i < size; i += 1) {
-			const pages = entry.getIn(['_optionsList', i, 'pages']);
-			for (let j = 0; j < pages; j += 1) {
+			const options = entry.getIn(['_optionsList', i]);
+			const multi = options.get('multi');
+
+			for (let j = 0; j < multi; j += 1) {
 				const body = await rp(
-					urljoin(this.getURL(_ids.get(i)), `?p=${page * pages + j}`)
+					urljoin(this.getURL(_ids.get(i)), `?p=${page * multi + j}`)
 				);
 				const $parsed = dparser.parseFromString(body, 'text/html');
 
