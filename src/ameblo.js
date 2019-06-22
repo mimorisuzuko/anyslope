@@ -8,17 +8,19 @@ import _ from 'lodash';
 const dparser = new DOMParser();
 
 class Ameblo {
-	constructor() {}
+	static get URL_ORIGIN() {
+		return 'https://ameblo.jp';
+	}
 
 	/**
 	 * @param {string}
 	 */
-	getURL(id) {
-		return `https://ameblo.jp/${id}/`;
+	static getURL(id) {
+		return urljoin(Ameblo.URL_ORIGIN, id);
 	}
 
 	async idToImageUrlAndName(id) {
-		const body = await rp(this.getURL(id));
+		const body = await rp(Ameblo.getURL(id));
 		const $parsed = dparser.parseFromString(body, 'text/html');
 
 		return {
@@ -39,11 +41,9 @@ class Ameblo {
 			const filters = options.get('filters');
 
 			for (let j = 0; j < multi; j += 1) {
+				const url = Ameblo.getURL(_ids.get(i));
 				const body = await rp(
-					urljoin(
-						this.getURL(_ids.get(i)),
-						`/page-${page * multi + j}.html`
-					)
+					urljoin(url, `/page-${page * multi + j}.html`)
 				);
 				const $parsed = dparser.parseFromString(body, 'text/html');
 
@@ -67,7 +67,7 @@ class Ameblo {
 							.innerText,
 						content: $content.innerText,
 						html: convertHtmlToHtmlString($content),
-						url: $title.href
+						url: urljoin(url, _.last($title.href.split('/')))
 					};
 
 					ret.push(
