@@ -57,7 +57,7 @@ class Ameblo {
 		return ret;
 	}
 
-	async idToImageUrlAndName(id) {
+	static async idToImageUrlAndName(id) {
 		const body = await rp(Ameblo.getURL(id));
 		const $parsed = dparser.parseFromString(body, 'text/html');
 
@@ -67,7 +67,7 @@ class Ameblo {
 		};
 	}
 
-	async fetch(entry) {
+	static async fetch(entry) {
 		const ret = [];
 		const _ids = entry.get('_ids');
 		const { size } = _ids;
@@ -110,4 +110,4 @@ class Ameblo {
 	}
 }
 
-export default new Ameblo();
+export default Ameblo;

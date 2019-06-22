@@ -11,7 +11,8 @@ export default class Article extends Record({
 	content: '',
 	temporaryVisible: false,
 	url: '',
-	filtered: false
+	filtered: false,
+	debug: false
 }) {
 	constructor(...args) {
 		super(_.merge(...args, { id: uuid() }));

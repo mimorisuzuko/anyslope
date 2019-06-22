@@ -2,6 +2,9 @@ import { remote } from 'electron';
 import libpath from 'path';
 import os from 'os';
 
+const {
+	env: { NODE_ENV }
+} = process;
 const APP_DIR = libpath.join(
 	remote === undefined ? process.cwd() : remote.app.getAppPath(),
 	'app/dst'
@@ -14,3 +17,4 @@ export const EXTRA_BLOGS_CONFIG_PATH = libpath.join(
 	CONFIG_DIR,
 	'extra-blogs.json'
 );
+export const isDevelopment = NODE_ENV === 'development';

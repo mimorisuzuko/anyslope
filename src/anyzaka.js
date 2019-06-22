@@ -8,39 +8,50 @@ import { convertHtmlToHtmlString } from './util';
 import liburl from 'url';
 import dayjs from 'dayjs';
 import lineblog from './lineblog';
-import ameblo from './ameblo';
+import Ameblo from './ameblo';
 import fs from 'fs-extra';
 import { Record, fromJS } from 'immutable';
 
 const dparser = new DOMParser();
 
-const fetchNogi = async (entry) => {
-	const body = await rp(`http://blog.nogizaka46.com/?p=${entry.get('page')}`);
-	const $parsed = dparser.parseFromString(body, 'text/html');
-	const names = $parsed.querySelectorAll('.author');
-	const titles = $parsed.querySelectorAll('h1 .entrytitle a');
-	const contents = $parsed.querySelectorAll('.entrybody');
-	const dates = $parsed.querySelectorAll('.entrybottom');
-	const { length } = dates;
-	const ret = [];
+export class Nogi {
+	static parse(body) {
+		const $parsed = dparser.parseFromString(body, 'text/html');
+		const names = $parsed.querySelectorAll('.author');
+		const titles = $parsed.querySelectorAll('h1 .entrytitle');
+		const contents = $parsed.querySelectorAll('.entrybody');
+		const dates = $parsed.querySelectorAll('.entrybottom');
+		const urls = $parsed.querySelectorAll(
+			'#siderecententry .inner li:not(.last) a'
+		);
+		const { length } = dates;
+		const ret = [];
 
-	for (let i = 0; i < length; i += 1) {
-		const $content = contents[i];
+		for (let i = 0; i < length; i += 1) {
+			const $content = contents[i];
 
-		ret.push(
-			new Article({
+			ret.push({
 				date: dayjs(dates[i].childNodes[0].nodeValue.slice(0, -1)),
 				title: titles[i].innerText,
 				author: names[i].innerText.replace(/\s/g, ''),
 				html: convertHtmlToHtmlString($content),
 				content: $content.innerText,
-				url: titles[i].href
-			})
-		);
+				url: (urls[i] ? urls[i] : titles[i].querySelector('a')).href
+			});
+		}
+
+		return ret;
 	}
 
-	return ret;
-};
+	static async fetch(entry) {
+		return _.map(
+			Nogi.parse(
+				await rp(`http://blog.nogizaka46.com/?p=${entry.get('page')}`)
+			),
+			(a) => new Article(a)
+		);
+	}
+}
 
 const fetchKeyaki = async (entry) => {
 	const baseUrl = `http://www.keyakizaka46.com/s/k46o/diary/member/list?page=${entry.get(
@@ -104,7 +115,7 @@ const fetchHinata = async (entry) => {
 	);
 };
 
-_.find(anyzakaJSON, { name: '乃木坂46' }).fetch = fetchNogi;
+_.find(anyzakaJSON, { name: '乃木坂46' })._fetcher = Nogi;
 _.find(anyzakaJSON, { name: '欅坂46' }).fetch = fetchKeyaki;
 _.find(anyzakaJSON, { name: '日向坂46' }).fetch = fetchHinata;
 
@@ -121,7 +132,7 @@ export default class Anyzaka extends Record({ slopes: fromJS(anyzakaJSON) }) {
 			ameblo: {
 				name: 'Ameba Blog',
 				color: 'rgb(45, 140, 60)',
-				_fetcher: ameblo,
+				_fetcher: Ameblo,
 				page: 1
 			}
 		};

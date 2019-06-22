@@ -125,16 +125,16 @@ class Article extends Component {
 				anyzaka
 			}
 		} = this;
-		const { author, html, url, id } = article;
-		const color = anyzaka.getGroupColorFromMember(author);
-		const contentIsVisible = checked.includes(url);
+		const { author, html, url, id, debug } = article;
+		const color = debug ? 'gray' : anyzaka.getGroupColorFromMember(author);
+		const contentIsVisible = debug || !checked.includes(url);
 
 		return (
 			<div
 				className={css(
 					baseStyle,
 					shadowBaseStyle,
-					article.visible(following, searchState)
+					debug || article.visible(following, searchState)
 						? null
 						: {
 							height: 0,
@@ -159,7 +159,7 @@ class Article extends Component {
 							maxWidth: '100%',
 							display: 'block'
 						},
-						display: contentIsVisible ? 'none' : 'block'
+						display: contentIsVisible ? 'block' : 'none'
 					})}
 				>
 					<div
