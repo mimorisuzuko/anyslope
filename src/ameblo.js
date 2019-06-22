@@ -19,6 +19,44 @@ class Ameblo {
 		return urljoin(Ameblo.URL_ORIGIN, id);
 	}
 
+	static parse(body) {
+		const $parsed = dparser.parseFromString(body, 'text/html');
+		const ret = [];
+
+		for (const $article of $parsed.querySelectorAll(
+			'.skin-entry.js-entryWrapper'
+		)) {
+			const $title = $article.querySelector('a.skinArticleTitle');
+			const $content = $article.querySelector('.skin-entryBody');
+
+			ret.push({
+				date: dayjs(
+					_.nth(
+						$article.querySelector('.skin-textQuiet').childNodes,
+						-1
+					)
+						.nodeValue.replace(/[年|月|日]/g, '/')
+						.replace(/[時|分|秒]/g, ':')
+				),
+				title: $title.innerText,
+				author: $parsed.querySelector('.skin-profileName').innerText,
+				content: $content.innerText,
+				html: convertHtmlToHtmlString($content).replace(
+					/<img\s+src="(https:\/\/stat100.ameba.jp\/blog\/ucs\/img\/char\/\w+\/\w+\.png)".+>/g,
+					(match, p1) => {
+						return `<img src="${p1}" width="24" width="24" alt="emoji">`;
+					}
+				),
+				url: urljoin(
+					Ameblo.URL_ORIGIN,
+					...$title.href.split('/').slice(-2)
+				)
+			});
+		}
+
+		return ret;
+	}
+
 	async idToImageUrlAndName(id) {
 		const body = await rp(Ameblo.getURL(id));
 		const $parsed = dparser.parseFromString(body, 'text/html');
@@ -41,53 +79,30 @@ class Ameblo {
 			const filters = options.get('filters');
 
 			for (let j = 0; j < multi; j += 1) {
-				const url = Ameblo.getURL(_ids.get(i));
-				const body = await rp(
-					urljoin(url, `/page-${page * multi + j}.html`)
-				);
-				const $parsed = dparser.parseFromString(body, 'text/html');
-
-				for (const $article of $parsed.querySelectorAll(
-					'.skin-entry.js-entryWrapper'
-				)) {
-					const $title = $article.querySelector('a.skinArticleTitle');
-					const $content = $article.querySelector('.skin-entryBody');
-					const origin = {
-						date: dayjs(
-							_.nth(
-								$article.querySelector('.skin-textQuiet')
-									.childNodes,
-								-1
+				ret.push(
+					..._.map(
+						Ameblo.parse(
+							await rp(
+								urljoin(
+									Ameblo.getURL(_ids.get(i)),
+									`/page-${(page - 1) * multi + j + 1}.html`
+								)
 							)
-								.nodeValue.replace(/[年|月|日]/g, '/')
-								.replace(/[時|分|秒]/g, ':')
 						),
-						title: $title.innerText,
-						author: $parsed.querySelector('.skin-profileName')
-							.innerText,
-						content: $content.innerText,
-						html: convertHtmlToHtmlString($content).replace(
-							/<img\s+src="(https:\/\/stat100.ameba.jp\/blog\/ucs\/img\/char\/\w+\/\w+\.png)".+>/g,
-							(match, p1) => {
-								return `<img src="${p1}" width="24" width="24" alt="emoji">`;
-							}
-						),
-						url: urljoin(url, _.last($title.href.split('/')))
-					};
-
-					ret.push(
-						new Article({
-							...origin,
-							filtered: filters.some((filter) => {
-								return (
-									origin[filter.get(0)].match(
-										filter.get(1)
-									) === null
-								);
-							})
-						})
-					);
-				}
+						(origin) => {
+							return new Article({
+								...origin,
+								filtered: filters.some((filter) => {
+									return (
+										origin[filter.get(0)].match(
+											filter.get(1)
+										) === null
+									);
+								})
+							});
+						}
+					)
+				);
 			}
 		}
 
