@@ -185,13 +185,13 @@ class Article extends Component {
 						},
 						contentIsVisible
 							? {
-								fill: 'white'
-							  }
-							: {
 								fill: 'lightgray',
 								'&:hover': {
 									fill: color
 								}
+							  }
+							: {
+								fill: 'white'
 							  }
 					)}
 				/>
