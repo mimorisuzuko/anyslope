@@ -7,7 +7,7 @@ import Article from './models/Article';
 import { convertHtmlToHtmlString } from './util';
 import liburl from 'url';
 import dayjs from 'dayjs';
-import lineblog from './lineblog';
+import LineBlog from './lineblog';
 import Ameblo from './ameblo';
 import fs from 'fs-extra';
 import { Record, fromJS } from 'immutable';
@@ -126,7 +126,7 @@ export default class Anyzaka extends Record({ slopes: fromJS(anyzakaJSON) }) {
 			line: {
 				name: 'LINE BLOG',
 				color: 'rgb(90, 196, 127)',
-				_fetcher: lineblog,
+				_fetcher: LineBlog,
 				page: 1
 			},
 			ameblo: {

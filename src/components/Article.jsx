@@ -151,9 +151,8 @@ class Article extends Component {
 					className={css({
 						padding: `0 ${articlePadding}px ${articlePadding}px`,
 						position: 'relative',
-						'img:not([alt="emoji"])': {
-							maxWidth: '100%',
-							display: 'block'
+						img: {
+							maxWidth: '100%'
 						},
 						video: {
 							maxWidth: '100%',
