@@ -4,7 +4,9 @@ import { convertHtmlToHtmlString } from './util';
 import Article from './models/Article';
 import dayjs from 'dayjs';
 import _ from 'lodash';
+import { remote } from 'electron';
 
+const puppeteer = remote.require('puppeteer');
 const dparser = new DOMParser();
 
 class Ameblo {
@@ -58,13 +60,26 @@ class Ameblo {
 	}
 
 	static async idToImageUrlAndName(id) {
-		const body = await rp(Ameblo.getURL(id));
-		const $parsed = dparser.parseFromString(body, 'text/html');
+		const browser = await puppeteer.launch({
+			args: ['--lang=ja,en-US,en']
+		});
+		const page = await browser.newPage();
 
-		return {
-			name: $parsed.querySelector('.skin-profileName').innerText,
-			url: $parsed.querySelector('.skin-profileAvatar img').src
-		};
+		await page.goto(Ameblo.getURL(id));
+		await page.waitForSelector('.skin-profileName', { visible: true });
+		await page.waitForSelector('.skin-profileAvatar img', {
+			visible: true
+		});
+		const ret = await page.evaluate(`(async() => {
+				return {
+					name: document.querySelector('.skin-profileName').innerText,
+					url: document.querySelector('.skin-profileAvatar img').src
+				};
+			})()`);
+
+		browser.close();
+
+		return ret;
 	}
 
 	static async fetch(entry) {
