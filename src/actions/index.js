@@ -3,9 +3,7 @@ import fs from 'fs-extra';
 import Anyzaka from '../anyzaka';
 import { EXTRA_BLOGS_CONFIG_PATH, isDevelopment } from '../config';
 import libpath from 'path';
-import LineBlog from '../lineblog';
-import Ameblo from '../ameblo';
-import { Nogi } from '../anyzaka';
+import * as fetchers from '../fetchers';
 import _ from 'lodash';
 import Aritcle from '../models/Article';
 import dayjs from 'dayjs';
@@ -20,16 +18,11 @@ export default createActions(
 
 			if (isDevelopment) {
 				const testdir = libpath.join(process.cwd(), 'src/test-htmls');
-				const parser = {
-					lineblog: LineBlog,
-					ameblo: Ameblo,
-					nogi: Nogi
-				};
 
 				for (const filename of await fs.readdir(testdir)) {
 					debugArticles.push(
 						..._.map(
-							await parser[_.split(filename, '.')[0]].parse(
+							await fetchers[_.split(filename, '.')[0]].parse(
 								await fs.readFile(
 									libpath.join(testdir, filename),
 									{

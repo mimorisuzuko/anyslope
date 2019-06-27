@@ -7,6 +7,7 @@ import { bodyBaseStyle, titlebarBaseStyle } from '../styles';
 import Filter from './Filter';
 import { connect } from 'react-redux';
 import actions from '../actions';
+import * as fetchers from '../fetchers';
 import 'react-toastify/dist/ReactToastify.min.css';
 
 @connect(({ articles, loading, anyzaka }) => {
@@ -33,8 +34,7 @@ export default class Body extends Component {
 			const slope = slopes.get(i);
 
 			blogs.push(
-				await slope
-					.get('_fetcher')
+				await fetchers[slope.get('fetcher')]
 					.fetch(slope)
 					.catch((err) => {
 						console.error(

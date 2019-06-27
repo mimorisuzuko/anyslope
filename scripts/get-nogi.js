@@ -58,7 +58,8 @@ import { ICONS_DIR } from '../src/config';
 				'４期生'
 			),
 			extra: false,
-			page: 1
+			page: 1,
+			fetcher: 'Nogi'
 		})
 	);
 

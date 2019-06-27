@@ -50,7 +50,8 @@ import { ICONS_DIR } from '../src/config';
 			color: 'rgb(84, 176, 74)',
 			members: _.map(members, ([, a]) => a),
 			extra: false,
-			page: 0
+			page: 0,
+			fetcher: 'Keyaki'
 		})
 	);
 
