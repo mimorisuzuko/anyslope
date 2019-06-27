@@ -33,17 +33,17 @@ export default class Body extends Component {
 			const slope = slopes.get(i);
 
 			blogs.push(
-				await (slope.has('fetch')
-					? slope.get('fetch')(slope)
-					: slope.get('_fetcher').fetch(slope)
-				).catch((err) => {
-					console.error(
-						`Failed to fetch (${slope.get('name')})`,
-						err
-					);
+				await slope
+					.get('_fetcher')
+					.fetch(slope)
+					.catch((err) => {
+						console.error(
+							`Failed to fetch (${slope.get('name')})`,
+							err
+						);
 
-					return [];
-				})
+						return [];
+					})
 			);
 		}
 

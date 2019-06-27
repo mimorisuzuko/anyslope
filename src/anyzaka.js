@@ -53,71 +53,108 @@ export class Nogi {
 	}
 }
 
-const fetchKeyaki = async (entry) => {
-	const baseUrl = `http://www.keyakizaka46.com/s/k46o/diary/member/list?page=${entry.get(
-		'page'
-	)}`;
-	const body = await rp(baseUrl);
+export class Keyaki {
+	static get BASE_URL() {
+		return 'http://www.keyakizaka46.com';
+	}
 
-	return _.map(
-		dparser.parseFromString(body, 'text/html').querySelectorAll('article'),
-		($article) => {
-			const { innerText: datestr } = $article.querySelector(
-				'.box-bottom li'
-			);
-			const $title = $article.querySelector('h3 a');
-			const { innerText: name } = $article.querySelector('.name');
-			const $content = $article.querySelector('.box-article');
+	static parse(body) {
+		return _.map(
+			dparser
+				.parseFromString(body, 'text/html')
+				.querySelectorAll('article'),
+			($article) => {
+				const { innerText: datestr } = $article.querySelector(
+					'.box-bottom li'
+				);
+				const $title = $article.querySelector('h3 a');
+				const { innerText: name } = $article.querySelector('.name');
+				const $content = $article.querySelector('.box-article');
 
-			return new Article({
-				date: dayjs(datestr),
-				title: $title.innerText.trim(),
-				author: name.replace(/\s/g, ''),
-				html: convertHtmlToHtmlString($content),
-				content: $content.innerText,
-				url: liburl.resolve(baseUrl, $title.pathname)
-			});
-		}
-	);
-};
+				return {
+					date: dayjs(datestr),
+					title: $title.innerText.trim(),
+					author: name.replace(/\s/g, ''),
+					html: convertHtmlToHtmlString($content),
+					content: $content.innerText,
+					url: liburl.resolve(Keyaki.BASE_URL, $title.pathname)
+				};
+			}
+		);
+	}
 
-const fetchHinata = async (entry) => {
-	const baseUrl = `https://www.hinatazaka46.com/s/official/diary/member/list?page=${entry.get(
-		'page'
-	)}`;
-	const body = await rp(baseUrl);
-
-	return _.map(
-		dparser
-			.parseFromString(body, 'text/html')
-			.querySelectorAll('.p-blog-article'),
-		($article) => {
-			const $content = $article.querySelector('.c-blog-article__text');
-
-			return new Article({
-				date: dayjs(
-					$article.querySelector('.c-blog-article__date').innerText
-				),
-				title: $article
-					.querySelector('.c-blog-article__title')
-					.innerText.trim(),
-				author: $article
-					.querySelector('.c-blog-article__name')
-					.innerText.replace(/\s/g, ''),
-				html: convertHtmlToHtmlString($content),
-				content: $content.innerText,
-				url: liburl.resolve(
-					baseUrl,
-					$article.querySelector('.c-button-blog-detail').pathname
+	static async fetch(entry) {
+		return _.map(
+			Keyaki.parse(
+				await rp(
+					liburl.resolve(
+						Keyaki.BASE_URL,
+						`/s/k46o/diary/member/list?page=${entry.get('page')}`
+					)
 				)
-			});
-		}
-	);
-};
+			),
+			(a) => new Article(a)
+		);
+	}
+}
+
+export class Hinata {
+	static get BASE_URL() {
+		return 'https://www.hinatazaka46.com';
+	}
+
+	static parse(body) {
+		return _.map(
+			dparser
+				.parseFromString(body, 'text/html')
+				.querySelectorAll('.p-blog-article'),
+			($article) => {
+				const $content = $article.querySelector(
+					'.c-blog-article__text'
+				);
+
+				return {
+					date: dayjs(
+						$article.querySelector('.c-blog-article__date')
+							.innerText
+					),
+					title: $article
+						.querySelector('.c-blog-article__title')
+						.innerText.trim(),
+					author: $article
+						.querySelector('.c-blog-article__name')
+						.innerText.replace(/\s/g, ''),
+					html: convertHtmlToHtmlString($content),
+					content: $content.innerText,
+					url: liburl.resolve(
+						Hinata.BASE_URL,
+						$article.querySelector('.c-button-blog-detail').pathname
+					)
+				};
+			}
+		);
+	}
+
+	static async fetch(entry) {
+		return _.map(
+			Hinata.parse(
+				await rp(
+					liburl.resolve(
+						Hinata.BASE_URL,
+						`/s/official/diary/member/list?page=${entry.get(
+							'page'
+						)}`
+					)
+				)
+			),
+			(a) => new Article(a)
+		);
+	}
+}
 
 _.find(anyzakaJSON, { name: '乃木坂46' })._fetcher = Nogi;
-_.find(anyzakaJSON, { name: '欅坂46' }).fetch = fetchKeyaki;
-_.find(anyzakaJSON, { name: '日向坂46' }).fetch = fetchHinata;
+_.find(anyzakaJSON, { name: '欅坂46' })._fetcher = Keyaki;
+_.find(anyzakaJSON, { name: '日向坂46' })._fetcher = Hinata;
 
 export default class Anyzaka extends Record({ slopes: fromJS(anyzakaJSON) }) {
 	static async convertExtraBlogs(extraBlogsJson) {
