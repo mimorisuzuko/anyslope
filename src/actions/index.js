@@ -1,12 +1,19 @@
 import { createActions } from 'redux-actions';
 import fs from 'fs-extra';
 import AnySlope from '../models/AnySlope';
-import { EXTRA_BLOGS_CONFIG_PATH, isDevelopment } from '../config';
+import {
+	EXTRA_BLOGS_CONFIG_PATH,
+	isDevelopment,
+	CACHED_EXTRA_BLOGS_CONFIG_PATH,
+	EXTRA_ICONS_DIR,
+	CACHED_ANY_SLOPE_VALUE_PATH
+} from '../config';
 import libpath from 'path';
 import * as fetchers from '../fetchers';
 import _ from 'lodash';
 import Aritcle from '../models/Article';
 import dayjs from 'dayjs';
+import defaultSlopes from '../models/anyslope.json';
 
 export default createActions(
 	{
@@ -14,6 +21,33 @@ export default createActions(
 			const extraBlogsText = await fs.readFile(EXTRA_BLOGS_CONFIG_PATH, {
 				encoding: 'utf-8'
 			});
+			const extraBlogs = JSON.parse(extraBlogsText);
+			const cachedExtraBlogs = await fs.readJson(
+				CACHED_EXTRA_BLOGS_CONFIG_PATH,
+				{
+					encoding: 'utf-8'
+				}
+			);
+			let initSlopes = null;
+
+			if (!_.isEqual(extraBlogs, cachedExtraBlogs)) {
+				if (await fs.exists(EXTRA_ICONS_DIR)) {
+					await fs.remove(EXTRA_ICONS_DIR);
+				}
+
+				await fs.mkdir(EXTRA_ICONS_DIR);
+				await fs.writeJson(CACHED_EXTRA_BLOGS_CONFIG_PATH, extraBlogs);
+
+				initSlopes = await AnySlope.mergeExtraBlogs(
+					defaultSlopes,
+					extraBlogs
+				);
+
+				await fs.writeJSON(CACHED_ANY_SLOPE_VALUE_PATH, initSlopes);
+			} else {
+				initSlopes = await fs.readJson(CACHED_ANY_SLOPE_VALUE_PATH);
+			}
+
 			const debugArticles = [];
 
 			if (isDevelopment) {
@@ -44,9 +78,7 @@ export default createActions(
 
 			return {
 				extraBlogsText,
-				extraBlogs: await AnySlope.convertExtraBlogs(
-					JSON.parse(extraBlogsText)
-				),
+				initSlopes,
 				debugArticles
 			};
 		}

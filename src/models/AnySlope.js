@@ -1,14 +1,13 @@
-import anySlopeJson from './anyslope.json';
 import _ from 'lodash';
 import { ICONS_DIR, EXTRA_ICONS_DIR } from '../config';
 import libpath from 'path';
 import rp from 'request-promise';
 import fs from 'fs-extra';
-import { Record, fromJS } from 'immutable';
+import { Record, List } from 'immutable';
 import * as fetchers from '../fetchers';
 
-export default class AnySlope extends Record({ slopes: fromJS(anySlopeJson) }) {
-	static async convertExtraBlogs(extraBlogsJson) {
+export default class AnySlope extends Record({ slopes: List() }) {
+	static async mergeExtraBlogs(json, extraBlogsJson) {
 		const extraBlogs = {};
 		const dic = {
 			line: {
@@ -71,22 +70,12 @@ export default class AnySlope extends Record({ slopes: fromJS(anySlopeJson) }) {
 			}
 		}
 
-		return fromJS(_.values(extraBlogs));
-	}
-
-	/**
-	 * @param {{}} extraBlogs
-	 */
-	addExtraBlogs(extraBlogs) {
-		let { slopes } = this;
-
-		extraBlogs.forEach((blogs) => {
-			slopes = slopes
-				.filter((a) => a.get('name') !== blogs.get('name'))
-				.push(blogs);
+		_.forEach(_.values(extraBlogs), (extraBlog) => {
+			json = _.filter(json, ({ name }) => name !== extraBlog);
+			json.push(extraBlog);
 		});
 
-		return this.set('slopes', slopes);
+		return json;
 	}
 
 	getGroupColorFromMember(name) {

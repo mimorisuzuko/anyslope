@@ -22,3 +22,11 @@ export const ANY_SLOPE_DEFAULT_VALUE_PATH = libpath.join(
 	APP_DIR,
 	'../../src/models/anyslope.json'
 );
+export const CACHED_EXTRA_BLOGS_CONFIG_PATH = libpath.join(
+	CONFIG_DIR,
+	'extra-blogs.cache.json'
+);
+export const CACHED_ANY_SLOPE_VALUE_PATH = libpath.join(
+	os.homedir(),
+	'anyslope.cache.json'
+);
