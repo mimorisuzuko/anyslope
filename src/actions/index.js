@@ -1,6 +1,6 @@
 import { createActions } from 'redux-actions';
 import fs from 'fs-extra';
-import Anyzaka from '../anyzaka';
+import AnySlope from '../models/AnySlope';
 import { EXTRA_BLOGS_CONFIG_PATH, isDevelopment } from '../config';
 import libpath from 'path';
 import * as fetchers from '../fetchers';
@@ -44,7 +44,7 @@ export default createActions(
 
 			return {
 				extraBlogsText,
-				extraBlogs: await Anyzaka.convertExtraBlogs(
+				extraBlogs: await AnySlope.convertExtraBlogs(
 					JSON.parse(extraBlogsText)
 				),
 				debugArticles

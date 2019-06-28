@@ -1,6 +1,6 @@
 import { handleActions } from 'redux-actions';
 import actions from '../actions';
-import Anyzaka from '../anyzaka';
+import AnySlope from '../models/AnySlope';
 import _ from 'lodash';
 
 export default handleActions(
@@ -24,5 +24,5 @@ export default handleActions(
 			return state;
 		}
 	},
-	new Anyzaka()
+	new AnySlope()
 );

@@ -1,13 +1,13 @@
-import anyzakaJSON from './assets/anyzaka.json';
+import anySlopeJson from './anyslope.json';
 import _ from 'lodash';
-import { ICONS_DIR, EXTRA_ICONS_DIR } from './config';
+import { ICONS_DIR, EXTRA_ICONS_DIR } from '../config';
 import libpath from 'path';
 import rp from 'request-promise';
 import fs from 'fs-extra';
 import { Record, fromJS } from 'immutable';
-import * as fetchers from './fetchers';
+import * as fetchers from '../fetchers';
 
-export default class Anyzaka extends Record({ slopes: fromJS(anyzakaJSON) }) {
+export default class AnySlope extends Record({ slopes: fromJS(anySlopeJson) }) {
 	static async convertExtraBlogs(extraBlogsJson) {
 		const extraBlogs = {};
 		const dic = {
