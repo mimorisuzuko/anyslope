@@ -14,6 +14,7 @@ import _ from 'lodash';
 import Aritcle from '../models/Article';
 import dayjs from 'dayjs';
 import defaultSlopes from '../models/anyslope.json';
+import { List } from 'immutable';
 
 export default createActions(
 	{
@@ -45,7 +46,28 @@ export default createActions(
 
 				await fs.writeJSON(CACHED_ANY_SLOPE_VALUE_PATH, initSlopes);
 			} else {
-				initSlopes = await fs.readJson(CACHED_ANY_SLOPE_VALUE_PATH);
+				initSlopes = _.map(
+					await fs.readJson(CACHED_ANY_SLOPE_VALUE_PATH),
+					(a) => {
+						if (!a.extra) {
+							return a;
+						}
+
+						return _.update(a, '_optionsList', (_optionsList) => {
+							return _.map(_optionsList, (options) => {
+								return _.update(
+									options,
+									'filters',
+									(filters) => {
+										return _.map(filters, ([a, b]) =>
+											List([a, new RegExp(b)])
+										);
+									}
+								);
+							});
+						});
+					}
+				);
 			}
 
 			const debugArticles = [];

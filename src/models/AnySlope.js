@@ -57,10 +57,9 @@ export default class AnySlope extends Record({ slopes: List() }) {
 							_.merge({ multi: 1, filters: [] }, options),
 							'filters',
 							(filters) => {
-								return _.map(filters, ([a, b]) => [
-									a,
-									new RegExp(b)
-								]);
+								return _.map(filters, ([a, b]) =>
+									List([a, new RegExp(b)])
+								);
 							}
 						)
 					);

@@ -249,7 +249,7 @@ export class LineBlog {
 								...a,
 								filtered: filters.some((filter) => {
 									return (
-										origin[filter.get(0)].match(
+										a[filter.get(0)].match(
 											filter.get(1)
 										) === null
 									);
