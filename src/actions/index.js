@@ -1,14 +1,20 @@
 import { createActions } from 'redux-actions';
 import fs from 'fs-extra';
-import Anyzaka from '../anyzaka';
-import { EXTRA_BLOGS_CONFIG_PATH, isDevelopment } from '../config';
+import AnySlope from '../models/AnySlope';
+import {
+	EXTRA_BLOGS_CONFIG_PATH,
+	isDevelopment,
+	CACHED_EXTRA_BLOGS_CONFIG_PATH,
+	EXTRA_ICONS_DIR,
+	CACHED_ANY_SLOPE_VALUE_PATH
+} from '../config';
 import libpath from 'path';
-import LineBlog from '../lineblog';
-import Ameblo from '../ameblo';
-import { Nogi } from '../anyzaka';
+import * as fetchers from '../fetchers';
 import _ from 'lodash';
 import Aritcle from '../models/Article';
 import dayjs from 'dayjs';
+import defaultSlopes from '../models/anyslope.json';
+import { List } from 'immutable';
 
 export default createActions(
 	{
@@ -16,20 +22,63 @@ export default createActions(
 			const extraBlogsText = await fs.readFile(EXTRA_BLOGS_CONFIG_PATH, {
 				encoding: 'utf-8'
 			});
+			const extraBlogs = JSON.parse(extraBlogsText);
+			const cachedExtraBlogs = await fs.readJson(
+				CACHED_EXTRA_BLOGS_CONFIG_PATH,
+				{
+					encoding: 'utf-8'
+				}
+			);
+			let initSlopes = null;
+
+			if (!_.isEqual(extraBlogs, cachedExtraBlogs)) {
+				if (await fs.exists(EXTRA_ICONS_DIR)) {
+					await fs.remove(EXTRA_ICONS_DIR);
+				}
+
+				await fs.mkdir(EXTRA_ICONS_DIR);
+				await fs.writeJson(CACHED_EXTRA_BLOGS_CONFIG_PATH, extraBlogs);
+
+				initSlopes = await AnySlope.mergeExtraBlogs(
+					defaultSlopes,
+					extraBlogs
+				);
+
+				await fs.writeJSON(CACHED_ANY_SLOPE_VALUE_PATH, initSlopes);
+			} else {
+				initSlopes = _.map(
+					await fs.readJson(CACHED_ANY_SLOPE_VALUE_PATH),
+					(a) => {
+						if (!a.extra) {
+							return a;
+						}
+
+						return _.update(a, '_optionsList', (_optionsList) => {
+							return _.map(_optionsList, (options) => {
+								return _.update(
+									options,
+									'filters',
+									(filters) => {
+										return _.map(filters, ([a, b]) =>
+											List([a, new RegExp(b)])
+										);
+									}
+								);
+							});
+						});
+					}
+				);
+			}
+
 			const debugArticles = [];
 
 			if (isDevelopment) {
 				const testdir = libpath.join(process.cwd(), 'src/test-htmls');
-				const parser = {
-					lineblog: LineBlog,
-					ameblo: Ameblo,
-					nogi: Nogi
-				};
 
 				for (const filename of await fs.readdir(testdir)) {
 					debugArticles.push(
 						..._.map(
-							await parser[_.split(filename, '.')[0]].parse(
+							await fetchers[_.split(filename, '.')[0]].parse(
 								await fs.readFile(
 									libpath.join(testdir, filename),
 									{
@@ -51,9 +100,7 @@ export default createActions(
 
 			return {
 				extraBlogsText,
-				extraBlogs: await Anyzaka.convertExtraBlogs(
-					JSON.parse(extraBlogsText)
-				),
+				initSlopes,
 				debugArticles
 			};
 		}

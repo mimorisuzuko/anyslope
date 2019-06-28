@@ -5,7 +5,7 @@ import rp from 'request-promise';
 import puppeteer from 'puppeteer';
 import libpath from 'path';
 import _ from 'lodash';
-import { ICONS_DIR } from '../src/config';
+import { ICONS_DIR, ANY_SLOPE_DEFAULT_VALUE_PATH } from '../src/config';
 
 (async () => {
 	const browser = await puppeteer.launch({
@@ -38,17 +38,17 @@ import { ICONS_DIR } from '../src/config';
 		);
 	}
 
-	const anyzakaPath = libpath.join(__dirname, '../src/assets/anyzaka.json');
-	const anyzaka = await fs.readJSON(anyzakaPath);
+	const anyzaka = await fs.readJSON(ANY_SLOPE_DEFAULT_VALUE_PATH);
 
 	await fs.writeJSON(
-		anyzakaPath,
+		ANY_SLOPE_DEFAULT_VALUE_PATH,
 		_.concat(_.filter(anyzaka, ({ name }) => name !== '日向坂46'), {
 			name: '日向坂46',
 			color: 'rgb(81, 182, 224)',
 			members: _.map(members, ([, a]) => a),
 			extra: false,
-			page: 0
+			page: 0,
+			fetcher: 'Hinata'
 		})
 	);
 
