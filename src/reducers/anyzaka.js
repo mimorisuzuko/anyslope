@@ -5,10 +5,8 @@ import _ from 'lodash';
 
 export default handleActions(
 	{
-		[actions.init]: (state, { payload }) => {
-			console.error(payload);
-
-			return state.addExtraBlogs(payload.extraBlogs);
+		[actions.init]: (state, { payload: { extraBlogs } }) => {
+			return state.addExtraBlogs(extraBlogs);
 		},
 		[actions.addArticles]: (state, { payload }) => {
 			_.forEach(payload, ({ length }, i) => {
