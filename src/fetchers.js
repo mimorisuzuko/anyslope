@@ -8,10 +8,8 @@ import urljoin from 'url-join';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { renderTweetCard, renderInstgramCard, renderOgpCard } from './util';
 import React from 'react';
-import { remote } from 'electron';
 
 const dparser = new DOMParser();
-const puppeteer = remote.require('puppeteer');
 
 export class Ameblo {
 	static get BASE_URL() {
@@ -28,62 +26,62 @@ export class Ameblo {
 	static parse(body) {
 		const $parsed = dparser.parseFromString(body, 'text/html');
 		const ret = [];
+		const {
+			bloggerState: { bloggerMap },
+			entryState: { entryMap }
+		} = JSON.parse(
+			body.match(
+				/<script>window.INIT_DATA\s?=\s?(\{.+\});\s?window.RESOURCE_BASE_URL/
+			)[1]
+		);
+		const entries = _.values(entryMap);
+		const {
+			profile: { nickname }
+		} = _.values(bloggerMap)[0];
 
-		for (const $article of $parsed.querySelectorAll(
-			'.skin-entry.js-entryWrapper'
-		)) {
-			const $title = $article.querySelector('a.skinArticleTitle');
-			const $content = $article.querySelector('.skin-entryBody');
+		_.forEach(
+			$parsed.querySelectorAll('.skin-entry.js-entryWrapper'),
+			($article, i) => {
+				const $title = $article.querySelector('a.skinArticleTitle');
+				const $content = $article.querySelector('.skin-entryBody');
 
-			ret.push({
-				date: dayjs(
-					_.nth(
-						$article.querySelector('.skin-textQuiet').childNodes,
-						-1
+				ret.push({
+					date: dayjs(entries[i].entry_created_datetime),
+					title: $title.innerText,
+					author: nickname,
+					content: $content.innerText,
+					html: convertHtmlToHtmlString($content).replace(
+						/<img\s+src="(https:\/\/stat100.ameba.jp\/blog\/ucs\/img\/char\/\w+\/\w+\.png)".+>/g,
+						(match, p1) => {
+							return `<img src="${p1}" width="24" width="24" alt="emoji">`;
+						}
+					),
+					url: urljoin(
+						Ameblo.BASE_URL,
+						...$title.href.split('/').slice(-2)
 					)
-						.nodeValue.replace(/[年|月|日]/g, '/')
-						.replace(/[時|分|秒]/g, ':')
-				),
-				title: $title.innerText,
-				author: $parsed.querySelector('.skin-profileName').innerText,
-				content: $content.innerText,
-				html: convertHtmlToHtmlString($content).replace(
-					/<img\s+src="(https:\/\/stat100.ameba.jp\/blog\/ucs\/img\/char\/\w+\/\w+\.png)".+>/g,
-					(match, p1) => {
-						return `<img src="${p1}" width="24" width="24" alt="emoji">`;
-					}
-				),
-				url: urljoin(
-					Ameblo.BASE_URL,
-					...$title.href.split('/').slice(-2)
-				)
-			});
-		}
+				});
+			}
+		);
 
 		return ret;
 	}
 
 	static async idToImageUrlAndName(id) {
-		const browser = await puppeteer.launch({
-			args: ['--lang=ja,en-US,en']
-		});
-		const page = await browser.newPage();
+		const body = await rp(Ameblo.getURL(id));
 
-		await page.goto(Ameblo.getURL(id));
-		await page.waitForSelector('.skin-profileName', { visible: true });
-		await page.waitForSelector('.skin-profileAvatar img', {
-			visible: true
-		});
-		const ret = await page.evaluate(`(async() => {
-				return {
-					name: document.querySelector('.skin-profileName').innerText,
-					url: document.querySelector('.skin-profileAvatar img').src
-				};
-			})()`);
+		const {
+			bloggerState: { bloggerMap }
+		} = JSON.parse(
+			body.match(
+				/<script>window.INIT_DATA\s?=\s?(\{.+\});\s?window.RESOURCE_BASE_URL/
+			)[1]
+		);
+		const {
+			profile: { nickname, image_filepath }
+		} = _.values(bloggerMap)[0];
 
-		browser.close();
-
-		return ret;
+		return { name: nickname, url: image_filepath };
 	}
 
 	static async fetch(entry) {
