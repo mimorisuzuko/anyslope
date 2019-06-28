@@ -202,7 +202,7 @@ export class LineBlog {
 			ret.push({
 				date: dayjs($article.querySelector('.article-date').innerText),
 				title: $title.innerText,
-				author: $parsed.querySelector('h2').innerText,
+				author: $parsed.querySelector('.profile-photo h2').innerText,
 				content: $content.innerText,
 				html: convertHtmlToHtmlString($content)
 					.replace(
