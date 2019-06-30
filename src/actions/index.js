@@ -44,7 +44,29 @@ export default createActions(
 					extraBlogs
 				);
 
-				await fs.writeJSON(CACHED_ANY_SLOPE_VALUE_PATH, initSlopes);
+				await fs.writeJson(
+					CACHED_ANY_SLOPE_VALUE_PATH,
+					_.map(initSlopes, (slope) => {
+						return _.update(
+							slope,
+							'_optionsList',
+							(_optionsList) => {
+								return _.map(_optionsList, (options) => {
+									return _.update(
+										options,
+										'filters',
+										(filters) => {
+											return _.map(filters, ([a, b]) => [
+												a,
+												b.source
+											]);
+										}
+									);
+								});
+							}
+						);
+					})
+				);
 			} else {
 				initSlopes = _.map(
 					await fs.readJson(CACHED_ANY_SLOPE_VALUE_PATH),

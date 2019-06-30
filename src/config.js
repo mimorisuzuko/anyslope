@@ -27,6 +27,6 @@ export const CACHED_EXTRA_BLOGS_CONFIG_PATH = libpath.join(
 	'extra-blogs.cache.json'
 );
 export const CACHED_ANY_SLOPE_VALUE_PATH = libpath.join(
-	os.homedir(),
+	CONFIG_DIR,
 	'anyslope.cache.json'
 );
