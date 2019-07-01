@@ -14,7 +14,6 @@ import _ from 'lodash';
 import Aritcle from '../models/Article';
 import dayjs from 'dayjs';
 import defaultSlopes from '../models/anyslope.json';
-import { List } from 'immutable';
 
 export default createActions(
 	{
@@ -44,53 +43,27 @@ export default createActions(
 					extraBlogs
 				);
 
-				await fs.writeJson(
-					CACHED_ANY_SLOPE_VALUE_PATH,
-					_.map(initSlopes, (slope) => {
-						return _.update(
-							slope,
-							'_optionsList',
-							(_optionsList) => {
-								return _.map(_optionsList, (options) => {
-									return _.update(
-										options,
-										'filters',
-										(filters) => {
-											return _.map(filters, ([a, b]) => [
-												a,
-												b.source
-											]);
-										}
-									);
-								});
-							}
-						);
-					})
-				);
+				await fs.writeJson(CACHED_ANY_SLOPE_VALUE_PATH, initSlopes);
 			} else {
-				initSlopes = _.map(
-					await fs.readJson(CACHED_ANY_SLOPE_VALUE_PATH),
-					(a) => {
-						if (!a.extra) {
-							return a;
-						}
-
-						return _.update(a, '_optionsList', (_optionsList) => {
-							return _.map(_optionsList, (options) => {
-								return _.update(
-									options,
-									'filters',
-									(filters) => {
-										return _.map(filters, ([a, b]) =>
-											List([a, new RegExp(b)])
-										);
-									}
-								);
-							});
-						});
-					}
-				);
+				initSlopes = await fs.readJson(CACHED_ANY_SLOPE_VALUE_PATH);
 			}
+
+			initSlopes = _.map(initSlopes, (a) => {
+				if (!a.extra) {
+					return a;
+				}
+
+				return _.update(a, '_optionsList', (_optionsList) => {
+					return _.map(_optionsList, (options) => {
+						return _.update(options, 'filters', (filters) => {
+							return _.map(filters, ([a, b]) => [
+								a,
+								new RegExp(b)
+							]);
+						});
+					});
+				});
+			});
 
 			const debugArticles = [];
 

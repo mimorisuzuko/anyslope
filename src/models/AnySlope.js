@@ -53,15 +53,7 @@ export default class AnySlope extends Record({ slopes: List() }) {
 					);
 
 					extraBlogs[key]._optionsList.push(
-						_.update(
-							_.merge({ multi: 1, filters: [] }, options),
-							'filters',
-							(filters) => {
-								return _.map(filters, ([a, b]) =>
-									List([a, new RegExp(b)])
-								);
-							}
-						)
+						_.merge({ multi: 1, filters: [] }, options)
 					);
 					extraBlogs[key]._ids.push(id);
 					extraBlogs[key].members.push(name);
