@@ -14,8 +14,12 @@ export default class Article extends Record({
 	filtered: false,
 	debug: false
 }) {
-	constructor(...args) {
-		super(_.merge(...args, { id: uuid() }));
+	constructor(args) {
+		if (!args.title) {
+			args.title = '(No title)';
+		}
+
+		super(_.merge(args, { id: uuid() }));
 	}
 
 	/**
