@@ -240,7 +240,7 @@ export class LineBlog {
 							await rp(
 								urljoin(
 									LineBlog.getURL(_ids.get(i)),
-									`?p=${page * multi + j}`
+									`?p=${page + (page - 1) * multi + j}`
 								)
 							)
 						),
