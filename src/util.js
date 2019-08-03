@@ -7,6 +7,7 @@ import _ from 'lodash';
 import dayjs from 'dayjs';
 import liburl from 'url';
 import Hls from 'hls.js';
+import matchAll from 'string.prototype.matchall';
 
 const turndownService = new TurndownService();
 const cardWidth = 500;
@@ -91,6 +92,139 @@ const renderVideoInTweet = async (src) => {
 	return <video id={id} controls />;
 };
 
+const BackgroundImage = ({ css: base }) => {
+	return (
+		<div
+			className={css(base, {
+				backgroundRepeat: 'no-repeat',
+				backgroundSize: 'cover',
+				backgroundPosition: 'center center'
+			})}
+		/>
+	);
+};
+
+const renderImagesInTweet = (matches) => {
+	const { length } = matches;
+	const fullWidth = 466;
+	const halfWidth = 231;
+	const halfHeight = 231;
+
+	return (
+		<div
+			className={css({
+				display: 'flex',
+				marginTop: 8
+			})}
+		>
+			{length === 1 ? (
+				<BackgroundImage
+					css={css({
+						width: fullWidth,
+						height: fullWidth,
+						borderRadius: 4,
+						backgroundImage: `url(${matches[0][1]})`
+					})}
+				/>
+			) : length === 2 ? (
+				<>
+					<BackgroundImage
+						css={css({
+							width: halfWidth,
+							height: halfHeight,
+							marginRight: 4,
+							borderTopLeftRadius: 4,
+							borderBottomLeftRadius: 4,
+							backgroundImage: `url(${matches[0][1]})`
+						})}
+					/>
+					<BackgroundImage
+						css={css({
+							width: halfWidth,
+							height: halfHeight,
+							marginRight: 4,
+							borderTopRightRadius: 4,
+							borderBottomRightRadius: 4,
+							backgroundImage: `url(${matches[1][1]})`
+						})}
+					/>
+				</>
+			) : length === 3 ? (
+				<>
+					<BackgroundImage
+						css={css({
+							width: fullWidth,
+							height: halfHeight,
+							borderTopRadius: 4,
+							marginBottom: 4,
+							backgroundImage: `url(${matches[0][1]})`
+						})}
+					/>
+					<BackgroundImage
+						css={css({
+							width: halfWidth,
+							height: halfHeight,
+							marginRight: 4,
+							borderBottomLeftRadius: 4,
+							backgroundImage: `url(${matches[1][1]})`
+						})}
+					/>
+					<BackgroundImage
+						css={css({
+							width: halfWidth,
+							height: halfHeight,
+							marginRight: 4,
+							borderBottomRightRadius: 4,
+							backgroundImage: `url(${matches[2][1]})`
+						})}
+					/>
+				</>
+			) : length === 4 ? (
+				<>
+					<BackgroundImage
+						css={css({
+							width: halfWidth,
+							height: halfHeight,
+							marginRight: 4,
+							marginBottom: 4,
+							borderTopLeftRadius: 4,
+							backgroundImage: `url(${matches[0][1]})`
+						})}
+					/>
+					<BackgroundImage
+						css={css({
+							width: halfWidth,
+							height: halfHeight,
+							marginRight: 4,
+							marginBottom: 4,
+							borderTopRightRadius: 4,
+							backgroundImage: `url(${matches[1][1]})`
+						})}
+					/>
+					<BackgroundImage
+						css={css({
+							width: halfWidth,
+							height: halfHeight,
+							marginRight: 4,
+							borderBottomLeftRadius: 4,
+							backgroundImage: `url(${matches[2][1]})`
+						})}
+					/>
+					<BackgroundImage
+						css={css({
+							width: halfWidth,
+							height: halfHeight,
+							marginRight: 4,
+							borderBottomRightRadius: 4,
+							backgroundImage: `url(${matches[3][1]})`
+						})}
+					/>
+				</>
+			) : null}
+		</div>
+	);
+};
+
 /**
  * @param {string} url
  */
@@ -100,9 +234,12 @@ export const renderTweetCard = async (url) => {
 	const [, username] = body.match(
 		/<meta\s+property="og:title"\s+content="(.+)\s+on Twitter">/
 	);
-	const picMatced = body.match(
-		/<meta\s+property="og:image"\s+content="(.+):large">/
-	);
+	const picMatches = [
+		...matchAll(
+			body,
+			/<meta\s+property="og:image"\s+content="(.+):large">/g
+		)
+	];
 	const videoMatched = body.match(
 		/<meta\s+property="og:video:url"\s+content="(.+)">/
 	);
@@ -198,19 +335,11 @@ export const renderTweetCard = async (url) => {
 						>
 							{date}
 						</div>
-						{picMatced ? (
-							<img
-								src={picMatced[1]}
-								className={css({
-									width: '100%',
-									display: 'block',
-									borderRadius: 12,
-									marginTop: 8
-								})}
-							/>
-						) : videoMatched ? (
-							await renderVideoInTweet(videoMatched[1])
-						) : null}
+						{!_.isEmpty(picMatches)
+							? renderImagesInTweet(picMatches)
+							: videoMatched
+								? await renderVideoInTweet(videoMatched[1])
+								: null}
 					</div>
 				</div>
 			</div>

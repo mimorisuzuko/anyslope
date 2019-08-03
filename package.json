@@ -66,6 +66,7 @@
     "request": "^2.88.0",
     "request-promise": "^4.2.4",
     "search-query-parser": "^1.4.2",
+    "string.prototype.matchall": "^3.0.1",
     "style-loader": "^0.23.1",
     "turndown": "^5.0.3",
     "url-join": "^4.0.0",
