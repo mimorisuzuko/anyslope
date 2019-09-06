@@ -197,6 +197,22 @@ export class LineBlog {
 				$ogp.outerHTML = key;
 			}
 
+			for (const $iframe of $parsed.querySelectorAll('iframe')) {
+				const key = `_youtube_${Date.now()}`;
+
+				mediaDic[key] = renderToStaticMarkup(
+					<iframe
+						width='480'
+						height='270'
+						src={$iframe.src}
+						frameBorder='0'
+						allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture'
+						allowFullScreen
+					/>
+				);
+				$iframe.outerHTML = key;
+			}
+
 			ret.push({
 				date: dayjs($article.querySelector('.article-date').innerText),
 				title: $title.innerText,
@@ -210,7 +226,7 @@ export class LineBlog {
 						}
 					)
 					.replace(
-						/<p>(_(video|instagram|tweet|ogp)_\d+)<\/p>/g,
+						/<p>(_(video|instagram|tweet|ogp|youtube)_\d+)<\/p>/g,
 						(match, key) => {
 							return mediaDic[key];
 						}
