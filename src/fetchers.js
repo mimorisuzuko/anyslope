@@ -8,6 +8,7 @@ import urljoin from 'url-join';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { renderTweetCard, renderInstgramCard, renderOgpCard } from './util';
 import React from 'react';
+import uuid from 'uuid/v4';
 
 const dparser = new DOMParser();
 
@@ -155,7 +156,7 @@ export class LineBlog {
 			let $content = $article.querySelector('.article-body');
 
 			for (const $tweet of $content.querySelectorAll('.twitter-tweet')) {
-				const key = `_tweet_${Date.now()}`;
+				const key = `_tweet_${uuid()}`;
 
 				mediaDic[key] = renderToStaticMarkup(
 					await renderTweetCard($tweet.children[1].href)
@@ -166,7 +167,7 @@ export class LineBlog {
 			for (const $instagram of $content.querySelectorAll(
 				'.instagram-media'
 			)) {
-				const key = `_instagram_${Date.now()}`;
+				const key = `_instagram_${uuid()}`;
 
 				mediaDic[key] = renderToStaticMarkup(
 					await renderInstgramCard(
@@ -178,7 +179,7 @@ export class LineBlog {
 
 			for (const $video of $content.querySelectorAll('.uploaded-video')) {
 				const { src } = $video.querySelector('source');
-				const key = `_video_${Date.now()}`;
+				const key = `_video_${uuid()}`;
 
 				mediaDic[key] = renderToStaticMarkup(
 					<p>
@@ -189,7 +190,7 @@ export class LineBlog {
 			}
 
 			for (const $ogp of $content.querySelectorAll('.ogpLink')) {
-				const key = `_ogp_${Date.now()}`;
+				const key = `_ogp_${uuid()}`;
 
 				mediaDic[key] = renderToStaticMarkup(
 					await renderOgpCard($ogp.href)
@@ -198,7 +199,7 @@ export class LineBlog {
 			}
 
 			for (const $iframe of $parsed.querySelectorAll('iframe')) {
-				const key = `_youtube_${Date.now()}`;
+				const key = `_youtube_${uuid()}`;
 
 				mediaDic[key] = renderToStaticMarkup(
 					<iframe
@@ -226,7 +227,7 @@ export class LineBlog {
 						}
 					)
 					.replace(
-						/<p>(_(video|instagram|tweet|ogp|youtube)_\d+)<\/p>/g,
+						/<p>(_(video|instagram|tweet|ogp|youtube)_[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12})<\/p>/gi,
 						(match, key) => {
 							return mediaDic[key];
 						}
