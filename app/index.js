@@ -1,5 +1,6 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, Menu } = require('electron');
 const libpath = require('path');
+const menu = require('./menu');
 const {
 	env: { NODE_ENV }
 } = process;
@@ -11,7 +12,8 @@ const create = () => {
 	const w = new BrowserWindow({
 		width: 1220,
 		height: 1000,
-		titleBarStyle: 'hidden'
+		titleBarStyle: 'hidden',
+		webPreferences: { webSecurity: false }
 	});
 
 	w.loadURL(
@@ -27,6 +29,7 @@ const create = () => {
 };
 
 app.on('ready', () => {
+	Menu.setApplicationMenu(Menu.buildFromTemplate(menu));
 	create();
 
 	if (NODE_ENV === 'development') {

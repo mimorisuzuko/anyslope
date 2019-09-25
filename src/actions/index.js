@@ -1,44 +1,116 @@
 import { createActions } from 'redux-actions';
-import { fetchAll } from '../util';
 import fs from 'fs-extra';
+import AnySlope from '../models/AnySlope';
+import {
+	EXTRA_BLOGS_CONFIG_PATH,
+	isDevelopment,
+	CACHED_EXTRA_BLOGS_CONFIG_PATH,
+	EXTRA_ICONS_DIR,
+	CACHED_ANY_SLOPE_VALUE_PATH
+} from '../config';
 import libpath from 'path';
-import os from 'os';
-
-let page = -1;
+import * as fetchers from '../fetchers';
+import _ from 'lodash';
+import Aritcle from '../models/Article';
+import dayjs from 'dayjs';
+import defaultSlopes from '../models/anyslope.json';
 
 export default createActions(
 	{
-		LOAD_ARTICLES: async () => {
-			page += 1;
+		INIT: async () => {
+			const extraBlogsText = await fs.readFile(EXTRA_BLOGS_CONFIG_PATH, {
+				encoding: 'utf-8'
+			});
+			const extraBlogs = JSON.parse(extraBlogsText);
+			const cachedExtraBlogs = await fs.readJson(
+				CACHED_EXTRA_BLOGS_CONFIG_PATH,
+				{
+					encoding: 'utf-8'
+				}
+			);
+			let initSlopes = null;
 
-			return await fetchAll(page);
-		},
-		INIT: () => {
-			const dirname = libpath.join(os.homedir(), '.anyzaka');
-			const checkedFile = libpath.join(dirname, 'checked.json');
-			const followingFile = libpath.join(dirname, 'following.json');
+			if (!_.isEqual(extraBlogs, cachedExtraBlogs)) {
+				if (await fs.exists(EXTRA_ICONS_DIR)) {
+					await fs.remove(EXTRA_ICONS_DIR);
+				}
 
-			if (!fs.existsSync(dirname)) {
-				fs.mkdirSync(dirname);
+				await fs.mkdir(EXTRA_ICONS_DIR);
+				await fs.writeJson(CACHED_EXTRA_BLOGS_CONFIG_PATH, extraBlogs);
+
+				initSlopes = await AnySlope.mergeExtraBlogs(
+					defaultSlopes,
+					extraBlogs
+				);
+
+				await fs.writeJson(CACHED_ANY_SLOPE_VALUE_PATH, initSlopes);
+			} else {
+				initSlopes = await fs.readJson(CACHED_ANY_SLOPE_VALUE_PATH);
 			}
 
-			if (!fs.existsSync(checkedFile)) {
-				fs.writeJsonSync(checkedFile, []);
-			}
+			initSlopes = _.map(initSlopes, (a) => {
+				if (!a.extra) {
+					return a;
+				}
 
-			if (!fs.existsSync(followingFile)) {
-				fs.writeJsonSync(followingFile, []);
+				return _.update(a, '_optionsList', (_optionsList) => {
+					return _.map(_optionsList, (options) => {
+						return _.update(options, 'filters', (filters) => {
+							return _.map(filters, ([a, b]) => [
+								a,
+								new RegExp(b)
+							]);
+						});
+					});
+				});
+			});
+
+			const debugArticles = [];
+
+			if (isDevelopment) {
+				const testdir = libpath.join(process.cwd(), 'src/test-htmls');
+
+				for (const filename of await fs.readdir(testdir)) {
+					debugArticles.push(
+						..._.map(
+							await fetchers[_.split(filename, '.')[0]].parse(
+								await fs.readFile(
+									libpath.join(testdir, filename),
+									{
+										encoding: 'utf-8'
+									}
+								)
+							),
+							(a) => {
+								return new Aritcle({
+									...a,
+									debug: true,
+									date: dayjs()
+								});
+							}
+						)
+					);
+				}
 			}
 
 			return {
-				checked: fs.readJsonSync(checkedFile),
-				following: fs.readJsonSync(followingFile)
+				extraBlogsText,
+				initSlopes,
+				debugArticles
 			};
 		}
 	},
+	'ADD_ARTICLES',
 	'START_TO_LOAD_ARTICLES',
 	'SET_FILTER',
 	'TOGGLE_CHECKED',
 	'TOGGLE_FOLLOWING',
-	'SHOW_ARTICLE'
+	'SHOW_ARTICLE',
+	'SET_PREFERENCES_STATE',
+	'UPDATE_PREFERENCES',
+	'SET_SEARCH_VISIBLE',
+	'UPDATE_SEARCH_QUERY',
+	'UPDATE_PARSED_QUERY',
+	'CAN_LOAD_ARTICLES',
+	'UPDATE_OTHER_BLOGS'
 );

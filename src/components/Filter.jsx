@@ -1,6 +1,4 @@
 import React, { Component } from 'react';
-import { anyzaka } from '../util';
-import _ from 'lodash';
 import { css } from 'emotion';
 import Icon from './Icon';
 import { GoTriangleDown, GoTriangleRight } from 'react-icons/go';
@@ -9,10 +7,8 @@ import autobind from 'autobind-decorator';
 import { connect } from 'react-redux';
 import actions from '../actions';
 
-const json = anyzaka.json();
-
-@connect(({ openFilterIndex, following }) => {
-	return { openFilterIndex, following };
+@connect(({ openFilterIndex, following, anyzaka }) => {
+	return { openFilterIndex, following, anyzaka };
 })
 export default class Filter extends Component {
 	/**
@@ -43,17 +39,18 @@ export default class Filter extends Component {
 		} = this;
 		const {
 			currentTarget: {
-				dataset: { name }
+				dataset: { member }
 			}
 		} = e;
 
-		dispatch(actions.toggleFollowing(name));
+		dispatch(actions.toggleFollowing(member));
 	}
 
 	render() {
 		const {
-			props: { following, openFilterIndex }
+			props: { following, openFilterIndex, anyzaka }
 		} = this;
+		const slopes = anyzaka.get('slopes');
 
 		return (
 			<div
@@ -66,14 +63,14 @@ export default class Filter extends Component {
 						marginBottom: 4
 					})}
 				>
-					{_.map(json, ({ name, color, members }, i) => {
+					{slopes.map((entry, i) => {
 						return (
 							<span
 								onClick={this.onClickFilter}
 								key={i}
 								data-strkey={i}
 								className={css({
-									color,
+									color: entry.get('color'),
 									cursor: 'pointer',
 									i: {
 										verticalAlign: 'middle'
@@ -81,19 +78,28 @@ export default class Filter extends Component {
 								})}
 							>
 								{openFilterIndex === i ? (
-									<GoTriangleDown />
+									<GoTriangleDown
+										className={css({
+											verticalAlign: 'middle'
+										})}
+									/>
 								) : (
-									<GoTriangleRight />
+									<GoTriangleRight
+										className={css({
+											verticalAlign: 'middle'
+										})}
+									/>
 								)}
 								<span
 									className={css({
 										fontWeight: 'bold',
-										marginRight: 2
+										marginRight: 2,
+										verticalAlign: 'middle'
 									})}
 								>
-									{name}
+									{entry.get('name')}
 								</span>
-								{_.map(members, (member) => {
+								{entry.get('members').map((member) => {
 									return following.includes(member) &&
 										openFilterIndex !== i ? (
 											<Icon
@@ -113,14 +119,14 @@ export default class Filter extends Component {
 						flexWrap: 'wrap'
 					})}
 				>
-					{_.map(json, ({ members }, i) => {
+					{slopes.map((entry, i) => {
 						return openFilterIndex === i
-							? _.map(members, (member) => {
+							? entry.get('members').map((member) => {
 								return (
 									<div
 										onClick={this.onClickFilterMember}
 										key={member}
-										data-name={member}
+										data-member={member}
 										className={css(shadowBaseStyle, {
 											display: 'flex',
 											alignItems: 'center',
