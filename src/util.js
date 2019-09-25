@@ -434,9 +434,9 @@ export const renderOgpCard = async (url) => {
 	const [, imgUrl] = body.match(
 		/<meta\s+property="og:image"\s+content="(.+)">/
 	);
-	const [, siteName] = body.match(
-		/<meta\s+property="og:site_name"\s+content="(.+)">/
-	);
+	const [, siteName] =
+		body.match(/<meta\s+property="og:site_name"\s+content="(.+)">/) ||
+		body.match(/<meta\s+property="og:title"\s+content="(.+)">/);
 	const [, description] = body.match(
 		/<meta\s+property="og:description"\s+content="(.+)">/
 	);
