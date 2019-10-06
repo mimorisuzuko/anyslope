@@ -52,7 +52,7 @@ export class Ameblo {
 					author: nickname,
 					content: $content.innerText,
 					html: convertHtmlToHtmlString($content).replace(
-						/<img\s+src="(https:\/\/stat100.ameba.jp\/blog\/ucs\/img\/char\/\w+\/\w+\.png)".+>/g,
+						/<img\s+src="(https:\/\/stat100.ameba.jp\/blog\/ucs\/img\/char\/\w+\/\w+\.png)">/g,
 						(match, p1) => {
 							return `<img src="${p1}" width="24" width="24" alt="emoji">`;
 						}
@@ -227,7 +227,7 @@ export class LineBlog {
 						}
 					)
 					.replace(
-						/<p>(_(video|instagram|tweet|ogp|youtube)_[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12})<\/p>/gi,
+						/(_(video|instagram|tweet|ogp|youtube)_[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12})/gi,
 						(match, key) => {
 							return mediaDic[key];
 						}

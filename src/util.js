@@ -1,5 +1,3 @@
-import TurndownService from 'turndown';
-import marked from 'marked';
 import React from 'react';
 import rp from 'request-promise';
 import { css } from 'emotion';
@@ -9,15 +7,185 @@ import liburl from 'url';
 import Hls from 'hls.js';
 import matchAll from 'string.prototype.matchall';
 
-const turndownService = new TurndownService();
 const cardWidth = 500;
+
+class HTMLSimplifier {
+	/**
+	 * @param {Element} $html
+	 * @returns {string}
+	 */
+	simplify($html) {
+		_.forEach($html.querySelectorAll('img'), ($img) => {
+			this._replace($img, this._img2text($img));
+		});
+
+		_.forEach($html.querySelectorAll('a'), ($a) => {
+			this._replace($a, this._simplifyA($a));
+		});
+
+		_.forEach($html.querySelectorAll('div'), ($div) => {
+			this._replace($div, this._simplifyDiv($div));
+		});
+
+		return $html.innerText;
+	}
+
+	/**
+	 * @param {Element} $e
+	 */
+	_replace($e, $new) {
+		const { parentElement } = $e;
+
+		parentElement.replaceChild($new, $e);
+	}
+
+	/**
+	 * @param {HTMLImageElement} $img
+	 */
+	_img2text($img) {
+		const { src } = $img;
+
+		return new Text(`<img src="${src}">`);
+	}
+
+	/**
+	 * @param {HTMLAnchorElement} $a
+	 */
+	_simplifyA($a) {
+		const { childNodes, href } = $a;
+		const $ret = document.createDocumentFragment();
+
+		$ret.appendChild(new Text(`<a href="${href}">`));
+		$ret.appendChild(this._processChildNodes(childNodes));
+		$ret.appendChild(new Text('</a>'));
+
+		return $ret;
+	}
+
+	/**
+	 * @param {HTMLDivElement} $div
+	 */
+	_simplifyDiv($div) {
+		const { childNodes } = $div;
+		const $ret = document.createElement('div');
+
+		if ($div.hasAttribute('style')) {
+			$ret.appendChild(
+				new Text(`<div style="${$div.getAttribute('style')}">`)
+			);
+			$ret.appendChild(this._processChildNodes(childNodes));
+			$ret.appendChild(new Text('</div>'));
+			return $ret;
+		} else {
+			const $div = document.createElement('div');
+
+			$div.appendChild(this._processChildNodes(childNodes));
+
+			return $div;
+		}
+	}
+
+	/**
+	 * @param {HTMLDivElement} $span
+	 */
+	_simplifySpan($span) {
+		const { childNodes } = $span;
+
+		if ($span.hasAttribute('style')) {
+			const $ret = document.createDocumentFragment();
+
+			$ret.appendChild(
+				new Text(`<span style="${$span.getAttribute('style')}">`)
+			);
+			$ret.appendChild(this._processChildNodes(childNodes));
+			$ret.appendChild(new Text('</span>'));
+
+			return $ret;
+		}
+
+		return this._processChildNodes(childNodes);
+	}
+
+	/**
+	 * @param {HTMLElement} $b
+	 */
+	_simplifyB($b) {
+		const { childNodes } = $b;
+		const $ret = document.createDocumentFragment();
+
+		if ($b.hasAttribute('style')) {
+			$ret.appendChild(
+				new Text(`<b style="${$b.getAttribute('style')}">`)
+			);
+		} else {
+			$ret.appendChild(new Text('<b>'));
+		}
+
+		$ret.appendChild(this._processChildNodes(childNodes));
+		$ret.appendChild(new Text('</b>'));
+
+		return $ret;
+	}
+
+	_processChildNodes($nodes) {
+		const $fragment = document.createDocumentFragment();
+
+		_.forEach($nodes, ($node) => {
+			const { nodeName } = $node;
+
+			if (nodeName === '#text') {
+				const { nodeValue } = $node;
+
+				$fragment.appendChild(
+					new Text(nodeValue === '\u00A0' ? '<br>' : nodeValue)
+				);
+			} else if (nodeName === 'IMG') {
+				$fragment.appendChild(this._img2text($node));
+			} else if (nodeName === 'A') {
+				$fragment.appendChild(this._simplifyA($node));
+			} else if (nodeName === 'BR') {
+				$fragment.appendChild(new Text('<br>'));
+			} else if (nodeName === 'DIV') {
+				$fragment.appendChild(this._simplifyDiv($node));
+			} else if (nodeName === 'SPAN') {
+				$fragment.appendChild(this._simplifySpan($node));
+			} else if (nodeName === 'B') {
+				$fragment.appendChild(this._simplifyB($node));
+			}
+		});
+
+		return $fragment;
+	}
+}
+
+const simplifyer = new HTMLSimplifier();
 
 /**
  * @param {Element} $html
  * @returns {string}
  */
 export const convertHtmlToHtmlString = ($html) => {
-	return marked(turndownService.turndown($html.innerHTML).trim());
+	let s = simplifyer.simplify($html).trim();
+
+	for (;;) {
+		if (s.indexOf('<br>') === 0) {
+			s = s.slice(4).trim();
+		} else {
+			break;
+		}
+	}
+
+	for (;;) {
+		const { length } = s;
+
+		if (s.lastIndexOf('<br>') === length - 4) {
+			s = s.slice(0, -4).trim();
+		} else {
+			break;
+		}
+	}
+
+	return s.replace(/\n\n/g, '<br>');
 };
 
 /**
