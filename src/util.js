@@ -165,11 +165,31 @@ const simplifyer = new HTMLSimplifier();
  * @returns {string}
  */
 export const convertHtmlToHtmlString = ($html) => {
-	let s = simplifyer.simplify($html).trim();
+	const splited = simplifyer
+		.simplify($html)
+		.trim()
+		.split(/\n/);
+	const { length: splitedLength } = splited;
+	const mapper = (a) => {
+		const b = a.trim();
+
+		if (b !== '<br>' && b) {
+			return /^<div/.test(b) ? b : `<div>${b}</div>`;
+		}
+
+		return '<br>';
+	};
+
+	let s =
+		splitedLength === 1
+			? _.join(_.map(_.split(splited[0], '<br>'), mapper), '<br>')
+			: _.join(_.map(splited, mapper), '');
+	const nl = '<br>';
+	const { length: nlLength } = nl;
 
 	for (;;) {
-		if (s.indexOf('<br>') === 0) {
-			s = s.slice(4).trim();
+		if (s.indexOf(nl) === 0) {
+			s = s.slice(nlLength);
 		} else {
 			break;
 		}
@@ -178,14 +198,14 @@ export const convertHtmlToHtmlString = ($html) => {
 	for (;;) {
 		const { length } = s;
 
-		if (s.lastIndexOf('<br>') === length - 4) {
-			s = s.slice(0, -4).trim();
+		if (s.lastIndexOf(nl) === length - nlLength) {
+			s = s.slice(0, -nlLength);
 		} else {
 			break;
 		}
 	}
 
-	return s.replace(/\n\n/g, '<br>');
+	return s;
 };
 
 /**
