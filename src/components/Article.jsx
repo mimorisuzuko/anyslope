@@ -149,7 +149,7 @@ class Article extends Component {
 				<ArticleHeader article={article} color={color} />
 				<div
 					className={css({
-						padding: `0 ${articlePadding}px ${articlePadding}px`,
+						padding: articlePadding,
 						position: 'relative',
 						img: {
 							maxWidth: '100%'
