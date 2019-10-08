@@ -688,16 +688,18 @@ export const renderInstgramCard = async (url) => {
  */
 export const renderOgpCard = async (url) => {
 	const body = await rp(url);
-	const [, imgUrl] = body.match(
+	const matchedImg = body.match(
 		/<meta\s+property="og:image"\s+content="(.+)">/
 	);
 	const [, siteName] =
 		body.match(/<meta\s+property="og:site_name"\s+content="(.+)">/) ||
-		body.match(/<meta\s+property="og:title"\s+content="(.+)">/);
-	const [, description] = body.match(
-		/<meta\s+property="og:description"\s+content="(.+)">/
-	);
-	const width = 118;
+		body.match(/<meta\s+property="og:title"\s+content="(.+)">/) ||
+		body.match(/<title>(.+)<\/title>/);
+
+	const [, description] =
+		body.match(/<meta\s+property="og:description"\s+content="(.+)">/) ||
+		body.match(/<meta\s+name="description"\s+content="(.+)">/);
+	const width = matchedImg ? 118 : 0;
 
 	return (
 		<a
@@ -713,16 +715,18 @@ export const renderOgpCard = async (url) => {
 					display: 'flex'
 				})}
 			>
-				<div
-					className={css({
-						backgroundImage: `url(${imgUrl})`,
-						width,
-						height: width,
-						backgroundPosition: '50% 50%',
-						backgroundRepeat: 'no-repeat',
-						backgroundSize: 'cover'
-					})}
-				/>
+				{matchedImg ? (
+					<div
+						className={css({
+							backgroundImage: `url(${matchedImg[1]})`,
+							width,
+							height: width,
+							backgroundPosition: '50% 50%',
+							backgroundRepeat: 'no-repeat',
+							backgroundSize: 'cover'
+						})}
+					/>
+				) : null}
 				<div
 					className={css({
 						padding: 22,

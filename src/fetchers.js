@@ -182,9 +182,9 @@ export class LineBlog {
 				const key = `_video_${uuid()}`;
 
 				mediaDic[key] = renderToStaticMarkup(
-					<p>
+					<div>
 						<video controls src={src} />
-					</p>
+					</div>
 				);
 				$video.outerHTML = key;
 			}
@@ -202,14 +202,16 @@ export class LineBlog {
 				const key = `_youtube_${uuid()}`;
 
 				mediaDic[key] = renderToStaticMarkup(
-					<iframe
-						width='480'
-						height='270'
-						src={$iframe.src}
-						frameBorder='0'
-						allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture'
-						allowFullScreen
-					/>
+					<div>
+						<iframe
+							width='480'
+							height='270'
+							src={$iframe.src}
+							frameBorder='0'
+							allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture'
+							allowFullScreen
+						/>
+					</div>
 				);
 				$iframe.outerHTML = key;
 			}
