@@ -23,9 +23,15 @@ class HTMLSimplifier {
 			this._replace($a, this._simplifyA($a));
 		});
 
-		_.forEach($html.querySelectorAll('div'), ($div) => {
-			this._replace($div, this._simplifyDiv($div));
-		});
+		for (;;) {
+			const $div = $html.querySelectorAll('div:not(.searched)')[0];
+
+			if ($div) {
+				this._replace($div, this._simplifyDiv($div));
+			} else {
+				break;
+			}
+		}
 
 		return $html.innerText;
 	}
@@ -79,6 +85,7 @@ class HTMLSimplifier {
 		} else {
 			const $div = document.createElement('div');
 
+			$div.classList.add('searched');
 			$div.appendChild(this._processChildNodes(childNodes));
 
 			return $div;
@@ -200,7 +207,11 @@ class HTMLSimplifier {
 				const { nodeValue } = $node;
 
 				$fragment.appendChild(
-					new Text(nodeValue === '\u00A0' ? '<br>' : nodeValue)
+					new Text(
+						nodeValue === '\u00A0' || nodeValue === '　'
+							? '<br>'
+							: nodeValue
+					)
 				);
 			} else if (nodeName === 'IMG') {
 				$fragment.appendChild(this._img2text($node));
