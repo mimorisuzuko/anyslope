@@ -127,6 +127,69 @@ class HTMLSimplifier {
 		return $ret;
 	}
 
+	/**
+	 * @param {HTMLParagraphElement} $p
+	 */
+	_simplifyP($p) {
+		const { childNodes } = $p;
+		const $ret = document.createDocumentFragment();
+
+		if ($p.hasAttribute('style')) {
+			$ret.appendChild(
+				new Text(`<p style="${$p.getAttribute('style')}">`)
+			);
+		} else {
+			$ret.appendChild(new Text('<p>'));
+		}
+
+		$ret.appendChild(this._processChildNodes(childNodes));
+		$ret.appendChild(new Text('</p>'));
+
+		return $ret;
+	}
+
+	/**
+	 * @param {HTMLElement} $i
+	 */
+	_simplifyI($i) {
+		const { childNodes } = $i;
+		const $ret = document.createDocumentFragment();
+
+		if ($i.hasAttribute('style')) {
+			$ret.appendChild(
+				new Text(`<i style="${$i.getAttribute('style')}">`)
+			);
+		} else {
+			$ret.appendChild(new Text('<i>'));
+		}
+
+		$ret.appendChild(this._processChildNodes(childNodes));
+		$ret.appendChild(new Text('</i>'));
+
+		return $ret;
+	}
+
+	/**
+	 * @param {HTMLElement} $font
+	 */
+	_simplifyFont($font) {
+		const { childNodes } = $font;
+		const $ret = document.createDocumentFragment();
+		let style = '';
+
+		if ($font.hasAttribute('face')) {
+			style += `font-family: "${$font.getAttribute('face')}";`;
+		}
+
+		$ret.appendChild(
+			new Text(`<span ${style ? ` style="${style}"` : ''}>`)
+		);
+		$ret.appendChild(this._processChildNodes(childNodes));
+		$ret.appendChild(new Text('</span>'));
+
+		return $ret;
+	}
+
 	_processChildNodes($nodes) {
 		const $fragment = document.createDocumentFragment();
 
@@ -149,8 +212,14 @@ class HTMLSimplifier {
 				$fragment.appendChild(this._simplifyDiv($node));
 			} else if (nodeName === 'SPAN') {
 				$fragment.appendChild(this._simplifySpan($node));
-			} else if (nodeName === 'B') {
+			} else if (nodeName === 'B' || nodeName === 'STRONG') {
 				$fragment.appendChild(this._simplifyB($node));
+			} else if (nodeName === 'P') {
+				$fragment.appendChild(this._simplifyP($node));
+			} else if (nodeName === 'I') {
+				$fragment.appendChild(this._simplifyI($node));
+			} else if (nodeName === 'FONT') {
+				$fragment.appendChild(this._simplifyFont($node));
 			}
 		});
 
