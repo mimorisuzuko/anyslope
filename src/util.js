@@ -249,37 +249,33 @@ export const convertHtmlToHtmlString = ($html) => {
 		.simplify($html)
 		.trim()
 		.split(/\n/);
-	const { length: splitedLength } = splited;
 	const mapper = (a) => {
-		const b = a.trim();
-
-		if (b !== '<br>' && b) {
-			return /^<div/.test(b) ? b : `<div>${b}</div>`;
+		if (!a) {
+			return '<br>';
 		}
 
-		return '<br>';
+		const b = a.trim();
+
+		return /^<div/.test(b) ? b : b && b !== '<br>' ? `<div>${b}</div>` : b;
 	};
 
 	let s =
-		splitedLength === 1
+		splited.length === 1
 			? _.join(_.map(_.split(splited[0], '<br>'), mapper), '<br>')
 			: _.join(_.map(splited, mapper), '');
 	const nl = '<br>';
-	const { length: nlLength } = nl;
 
 	for (;;) {
 		if (s.indexOf(nl) === 0) {
-			s = s.slice(nlLength);
+			s = s.slice(nl.length);
 		} else {
 			break;
 		}
 	}
 
 	for (;;) {
-		const { length } = s;
-
-		if (s.lastIndexOf(nl) === length - nlLength) {
-			s = s.slice(0, -nlLength);
+		if (s.lastIndexOf(nl) === s.length - nl.length) {
+			s = s.slice(0, -nl.length);
 		} else {
 			break;
 		}
