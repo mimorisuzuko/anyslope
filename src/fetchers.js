@@ -223,7 +223,7 @@ export class LineBlog {
 				content: $content.innerText,
 				html: convertHtmlToHtmlString($content)
 					.replace(
-						/<img\s+src="(https:\/\/parts\.lineblog\.me\/img\/emoji\/line\/\d+\/\d+\.png)".+>/g,
+						/<img\s+src="(https:\/\/parts\.lineblog\.me\/img\/emoji\/line\/\d+\/\d+\.png)">/g,
 						(match, p1) => {
 							return `<img src="${p1}" style="width:1.3em;height:1.3em;position:relative;top:0.2em;" alt="emoji">`;
 						}
