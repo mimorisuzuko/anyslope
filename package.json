@@ -1,7 +1,7 @@
 {
   "name": "anyslope",
-  "version": "0.0.1",
-  "description": "AnySlope allows users to read any sakamichi's blogs in one application",
+  "version": "0.1.0",
+  "description": "AnySlope allows users to read sakamichi's blogs, LINE BLOG, and, Ameba Blog in one application",
   "main": "app/index.js",
   "scripts": {
     "build:pug": "./node_modules/.bin/pug --hierarchy -o app/dst/ src/",
