@@ -6,27 +6,41 @@ export default class Article extends Record({
 	id: '',
 	date: new Date(),
 	title: '',
-	name: '',
+	author: '',
+	html: '',
 	content: '',
-	temporaryVisible: false
+	temporaryVisible: false,
+	url: '',
+	filtered: false,
+	debug: false
 }) {
-	constructor(...args) {
-		super(_.merge(...args, { id: uuid() }));
+	constructor(args) {
+		if (!args.title) {
+			args.title = '(No title)';
+		}
+
+		super(_.merge(args, { id: uuid() }));
 	}
 
 	/**
 	 * @param {} following
+	 * @param {} searchState
 	 * @returns {boolean}
 	 */
-	visible(following) {
-		const { name, temporaryVisible } = this;
+	visible(following, searchState) {
+		const { author, temporaryVisible, filtered } = this;
 
-		return following.includes(name) || temporaryVisible;
-	}
+		if (!searchState.searched()) {
+			return (
+				(following.includes(author) && !filtered) || temporaryVisible
+			);
+		}
 
-	get key() {
-		const { title, name } = this;
-
-		return `${name}-${title}`;
+		return (
+			(searchState.test(this) &&
+				following.includes(author) &&
+				!filtered) ||
+			temporaryVisible
+		);
 	}
 }

@@ -1,7 +1,6 @@
 import React, { Component, createRef } from 'react';
-import fecha from 'fecha';
 import Icon from './Icon';
-import { anyzaka, scrollToArticleTop } from '../util';
+import { scrollToArticleTop } from '../util';
 import { GoCheck } from 'react-icons/go';
 import autobind from 'autobind-decorator';
 import _ from 'lodash';
@@ -15,7 +14,7 @@ const headerIconSize = 43;
 const headerMarginRight = 8;
 const articlePadding = 16;
 
-const ArticleHeader = ({ article: { date, name, title }, color }) => {
+const ArticleHeader = ({ article: { date, author, title, url }, color }) => {
 	return (
 		<div
 			className={css({
@@ -28,7 +27,7 @@ const ArticleHeader = ({ article: { date, name, title }, color }) => {
 			})}
 		>
 			<Icon
-				name={name}
+				name={author}
 				size={headerIconSize}
 				css={css({
 					position: 'absolute',
@@ -37,7 +36,7 @@ const ArticleHeader = ({ article: { date, name, title }, color }) => {
 				})}
 			/>
 			<div>
-				<div>{fecha.format(date, 'YY/MM/DD HH:mm:ss')}</div>
+				<div>{date.format('YYYY/MM/DD HH:mm:ss')}</div>
 				<div
 					className={css({
 						fontSize: 20,
@@ -47,22 +46,32 @@ const ArticleHeader = ({ article: { date, name, title }, color }) => {
 						textOverflow: 'ellipsis'
 					})}
 				>
-					{title}
+					<a
+						href={url}
+						className={css({
+							color: 'white',
+							textDecoration: 'none',
+							':hover': {
+								textDecoration: 'underline'
+							}
+						})}
+					>
+						{title}
+					</a>
 				</div>
 			</div>
 		</div>
 	);
 };
 
-@connect(({ checked, following }) => {
-	return { checked, following };
+@connect(({ checked, following, searchState, anyzaka }) => {
+	return { checked, following, searchState, anyzaka };
 })
 class Article extends Component {
 	constructor() {
 		super();
 
 		this.$base = createRef();
-		this.$content = createRef();
 	}
 
 	@autobind
@@ -70,20 +79,21 @@ class Article extends Component {
 		const {
 			props: {
 				dispatch,
-				article: { key }
+				article: { url }
 			}
 		} = this;
 		const {
 			$base: { current: $base }
 		} = this;
 
-		dispatch(actions.toggleChecked(key));
+		dispatch(actions.toggleChecked(url));
 		scrollToArticleTop($base);
 	}
 
 	/**
 	 * @param {Event} e
 	 */
+	@autobind
 	onClickLink(e) {
 		e.preventDefault();
 
@@ -96,28 +106,35 @@ class Article extends Component {
 
 	componentDidMount() {
 		const {
-			$content: { current: $content }
+			$base: { current: $base }
 		} = this;
 
-		_.forEach($content.querySelectorAll('a'), ($a) => {
+		_.forEach($base.querySelectorAll('a'), ($a) => {
 			$a.addEventListener('click', this.onClickLink);
 		});
 	}
 
 	render() {
 		const {
-			props: { article, checked, following, css: baseStyle = '' }
+			props: {
+				article,
+				checked,
+				following,
+				searchState,
+				css: baseStyle = '',
+				anyzaka
+			}
 		} = this;
-		const { name, content, key, id } = article;
-		const color = anyzaka.getGroupColorFromMember(name);
-		const isChecked = checked.includes(key);
+		const { author, html, url, id, debug } = article;
+		const color = debug ? 'gray' : anyzaka.getGroupColorFromMember(author);
+		const contentIsVisible = debug || !checked.includes(url);
 
 		return (
 			<div
 				className={css(
 					baseStyle,
 					shadowBaseStyle,
-					article.visible(following)
+					debug || article.visible(following, searchState)
 						? null
 						: {
 							height: 0,
@@ -132,19 +149,27 @@ class Article extends Component {
 				<ArticleHeader article={article} color={color} />
 				<div
 					className={css({
+						marginTop: articlePadding,
 						padding: `0 ${articlePadding}px ${articlePadding}px`,
 						position: 'relative',
 						img: {
+							maxWidth: '100%'
+						},
+						video: {
 							maxWidth: '100%',
 							display: 'block'
 						},
-						display: isChecked ? 'none' : 'block'
+						display: contentIsVisible ? 'block' : 'none'
 					})}
 				>
 					<div
-						ref={this.$content}
+						className={css({
+							'p:last-child': {
+								marginBottom: 0
+							}
+						})}
 						dangerouslySetInnerHTML={{
-							__html: content
+							__html: html
 						}}
 					/>
 				</div>
@@ -158,15 +183,15 @@ class Article extends Component {
 							bottom: articlePadding,
 							cursor: 'pointer'
 						},
-						isChecked
+						contentIsVisible
 							? {
-								fill: 'white'
-							  }
-							: {
 								fill: 'lightgray',
 								'&:hover': {
 									fill: color
 								}
+							  }
+							: {
+								fill: 'white'
 							  }
 					)}
 				/>

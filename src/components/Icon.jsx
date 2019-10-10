@@ -1,11 +1,14 @@
 import React, { Component } from 'react';
-import { anyzaka } from '../util';
 import { css } from 'emotion';
+import { connect } from 'react-redux';
 
+@connect(({ anyzaka }) => {
+	return { anyzaka };
+})
 class Icon extends Component {
 	render() {
 		const {
-			props: { name, size = 48, css: baseStyle }
+			props: { name, size = 48, css: baseStyle, anyzaka }
 		} = this;
 
 		return (
@@ -15,9 +18,9 @@ class Icon extends Component {
 					borderRadius: '50%',
 					backgroundSize: 'cover',
 					backgroundRepeat: 'no-repeat',
-					backgroundImage: `url("${anyzaka.toMemberIconPath(
+					backgroundImage: `url("file://${anyzaka.toMemberIconPath(
 						name
-					)}"), url(assets/icons/fallback.png)`,
+					)}")`,
 					width: size,
 					height: size
 				})}
