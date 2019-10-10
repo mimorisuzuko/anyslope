@@ -33,7 +33,49 @@ class HTMLSimplifier {
 			}
 		}
 
+		_.forEach($html.querySelectorAll('div'), ({ previousSibling }) => {
+			if (previousSibling && previousSibling.nodeName === 'DIV') {
+				previousSibling.appendChild(new Text('\n'));
+			}
+		});
+
 		return $html.innerText;
+	}
+
+	trim(s) {
+		const nls = ['<br>', '\n', ' '];
+
+		for (;;) {
+			if (
+				!_.some(nls, (nl) => {
+					if (s.indexOf(nl) === 0) {
+						s = s.slice(nl.length);
+						return true;
+					} else {
+						return false;
+					}
+				})
+			) {
+				break;
+			}
+		}
+
+		for (;;) {
+			if (
+				!_.some(nls, (nl) => {
+					if (s.lastIndexOf(nl) === s.length - nl.length) {
+						s = s.slice(0, -nl.length);
+						return true;
+					} else {
+						return false;
+					}
+				})
+			) {
+				break;
+			}
+		}
+
+		return s;
 	}
 
 	/**
@@ -81,15 +123,12 @@ class HTMLSimplifier {
 			);
 			$ret.appendChild(this._processChildNodes(childNodes));
 			$ret.appendChild(new Text('</div>'));
-			return $ret;
 		} else {
-			const $div = document.createElement('div');
-
-			$div.classList.add('searched');
-			$div.appendChild(this._processChildNodes(childNodes));
-
-			return $div;
+			$ret.classList.add('searched');
+			$ret.appendChild(this._processChildNodes(childNodes));
 		}
+
+		return $ret;
 	}
 
 	/**
@@ -245,10 +284,7 @@ const simplifyer = new HTMLSimplifier();
  * @returns {string}
  */
 export const convertHtmlToHtmlString = ($html) => {
-	const splited = simplifyer
-		.simplify($html)
-		.trim()
-		.split(/\n/);
+	const splited = simplifyer.trim(simplifyer.simplify($html)).split(/\n/);
 	const mapper = (a) => {
 		if (!a) {
 			return '<br>';
@@ -263,25 +299,8 @@ export const convertHtmlToHtmlString = ($html) => {
 		splited.length === 1
 			? _.join(_.map(_.split(splited[0], '<br>'), mapper), '<br>')
 			: _.join(_.map(splited, mapper), '');
-	const nl = '<br>';
 
-	for (;;) {
-		if (s.indexOf(nl) === 0) {
-			s = s.slice(nl.length);
-		} else {
-			break;
-		}
-	}
-
-	for (;;) {
-		if (s.lastIndexOf(nl) === s.length - nl.length) {
-			s = s.slice(0, -nl.length);
-		} else {
-			break;
-		}
-	}
-
-	return s;
+	return simplifyer.trim(s);
 };
 
 /**
