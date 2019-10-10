@@ -149,6 +149,7 @@ class Article extends Component {
 				<ArticleHeader article={article} color={color} />
 				<div
 					className={css({
+						marginTop: articlePadding,
 						padding: `0 ${articlePadding}px ${articlePadding}px`,
 						position: 'relative',
 						img: {

@@ -54,7 +54,6 @@ export default class Body extends Component {
 		const {
 			props: { dispatch }
 		} = this;
-
 		dispatch(actions.init()).then(() => {
 			dispatch(actions.addArticles(this.fetch()));
 			this.watchLoading();

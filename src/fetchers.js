@@ -52,7 +52,7 @@ export class Ameblo {
 					author: nickname,
 					content: $content.innerText,
 					html: convertHtmlToHtmlString($content).replace(
-						/<img\s+src="(https:\/\/stat100.ameba.jp\/blog\/ucs\/img\/char\/\w+\/\w+\.png)".+>/g,
+						/<img\s+src="(https:\/\/stat100.ameba.jp\/blog\/ucs\/img\/char\/\w+\/\w+\.png)">/g,
 						(match, p1) => {
 							return `<img src="${p1}" width="24" width="24" alt="emoji">`;
 						}
@@ -182,9 +182,9 @@ export class LineBlog {
 				const key = `_video_${uuid()}`;
 
 				mediaDic[key] = renderToStaticMarkup(
-					<p>
+					<div>
 						<video controls src={src} />
-					</p>
+					</div>
 				);
 				$video.outerHTML = key;
 			}
@@ -202,14 +202,16 @@ export class LineBlog {
 				const key = `_youtube_${uuid()}`;
 
 				mediaDic[key] = renderToStaticMarkup(
-					<iframe
-						width='480'
-						height='270'
-						src={$iframe.src}
-						frameBorder='0'
-						allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture'
-						allowFullScreen
-					/>
+					<div>
+						<iframe
+							width='480'
+							height='270'
+							src={$iframe.src}
+							frameBorder='0'
+							allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture'
+							allowFullScreen
+						/>
+					</div>
 				);
 				$iframe.outerHTML = key;
 			}
@@ -221,13 +223,13 @@ export class LineBlog {
 				content: $content.innerText,
 				html: convertHtmlToHtmlString($content)
 					.replace(
-						/<img\s+src="(https:\/\/parts\.lineblog\.me\/img\/emoji\/line\/\d+\/\d+\.png)".+>/g,
+						/<img\s+src="(https:\/\/parts\.lineblog\.me\/img\/emoji\/line\/\d+\/\d+\.png)">/g,
 						(match, p1) => {
 							return `<img src="${p1}" style="width:1.3em;height:1.3em;position:relative;top:0.2em;" alt="emoji">`;
 						}
 					)
 					.replace(
-						/<p>(_(video|instagram|tweet|ogp|youtube)_[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12})<\/p>/gi,
+						/(_(video|instagram|tweet|ogp|youtube)_[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12})/gi,
 						(match, key) => {
 							return mediaDic[key];
 						}
