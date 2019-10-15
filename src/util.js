@@ -88,6 +88,30 @@ class HTMLSimplifier {
 	}
 
 	/**
+	 * @param {HTMLElement} $fragment
+	 */
+	_isNewLines($fragment) {
+		const { childNodes } = $fragment;
+		const selfClosedTags = ['IMG'];
+
+		return _.every(childNodes, ($e) => {
+			const { nodeName } = $e;
+
+			if (_.includes(selfClosedTags, nodeName)) {
+				return false;
+			} else if (nodeName === 'BR') {
+				return true;
+			} else if (nodeName === '#text') {
+				const { nodeValue } = $e;
+
+				return nodeValue === '<br>';
+			}
+
+			return this._isNewLines($e);
+		});
+	}
+
+	/**
 	 * @param {HTMLImageElement} $img
 	 */
 	_img2text($img) {
@@ -101,10 +125,16 @@ class HTMLSimplifier {
 	 */
 	_simplifyA($a) {
 		const { childNodes, href } = $a;
+		const $fragment = this._processChildNodes(childNodes);
+
+		if (this._isNewLines($fragment)) {
+			return $fragment;
+		}
+
 		const $ret = document.createDocumentFragment();
 
 		$ret.appendChild(new Text(`<a href="${href}">`));
-		$ret.appendChild(this._processChildNodes(childNodes));
+		$ret.appendChild($fragment);
 		$ret.appendChild(new Text('</a>'));
 
 		return $ret;
@@ -136,6 +166,11 @@ class HTMLSimplifier {
 	 */
 	_simplifySpan($span) {
 		const { childNodes } = $span;
+		const $fragment = this._processChildNodes(childNodes);
+
+		if (this._isNewLines($fragment)) {
+			return $fragment;
+		}
 
 		if ($span.hasAttribute('style')) {
 			const $ret = document.createDocumentFragment();
@@ -143,13 +178,13 @@ class HTMLSimplifier {
 			$ret.appendChild(
 				new Text(`<span style="${$span.getAttribute('style')}">`)
 			);
-			$ret.appendChild(this._processChildNodes(childNodes));
+			$ret.appendChild($fragment);
 			$ret.appendChild(new Text('</span>'));
 
 			return $ret;
 		}
 
-		return this._processChildNodes(childNodes);
+		return $fragment;
 	}
 
 	/**
@@ -157,6 +192,12 @@ class HTMLSimplifier {
 	 */
 	_simplifyB($b) {
 		const { childNodes } = $b;
+		const $fragment = this._processChildNodes(childNodes);
+
+		if (this._isNewLines($fragment)) {
+			return $fragment;
+		}
+
 		const $ret = document.createDocumentFragment();
 
 		if ($b.hasAttribute('style')) {
@@ -167,7 +208,7 @@ class HTMLSimplifier {
 			$ret.appendChild(new Text('<b>'));
 		}
 
-		$ret.appendChild(this._processChildNodes(childNodes));
+		$ret.appendChild($fragment);
 		$ret.appendChild(new Text('</b>'));
 
 		return $ret;
@@ -178,6 +219,12 @@ class HTMLSimplifier {
 	 */
 	_simplifyP($p) {
 		const { childNodes } = $p;
+		const $fragment = this._processChildNodes(childNodes);
+
+		if (this._isNewLines($fragment)) {
+			return $fragment;
+		}
+
 		const $ret = document.createDocumentFragment();
 
 		if ($p.hasAttribute('style')) {
@@ -188,7 +235,7 @@ class HTMLSimplifier {
 			$ret.appendChild(new Text('<p>'));
 		}
 
-		$ret.appendChild(this._processChildNodes(childNodes));
+		$ret.appendChild($fragment);
 		$ret.appendChild(new Text('</p>'));
 
 		return $ret;
@@ -199,6 +246,12 @@ class HTMLSimplifier {
 	 */
 	_simplifyI($i) {
 		const { childNodes } = $i;
+		const $fragment = this._processChildNodes(childNodes);
+
+		if (this._isNewLines($fragment)) {
+			return $fragment;
+		}
+
 		const $ret = document.createDocumentFragment();
 
 		if ($i.hasAttribute('style')) {
@@ -209,7 +262,7 @@ class HTMLSimplifier {
 			$ret.appendChild(new Text('<i>'));
 		}
 
-		$ret.appendChild(this._processChildNodes(childNodes));
+		$ret.appendChild($fragment);
 		$ret.appendChild(new Text('</i>'));
 
 		return $ret;
@@ -220,6 +273,12 @@ class HTMLSimplifier {
 	 */
 	_simplifyFont($font) {
 		const { childNodes } = $font;
+		const $fragment = this._processChildNodes(childNodes);
+
+		if (this._isNewLines($fragment)) {
+			return $fragment;
+		}
+
 		const $ret = document.createDocumentFragment();
 		let style = '';
 
@@ -230,7 +289,7 @@ class HTMLSimplifier {
 		$ret.appendChild(
 			new Text(`<span ${style ? ` style="${style}"` : ''}>`)
 		);
-		$ret.appendChild(this._processChildNodes(childNodes));
+		$ret.appendChild($fragment);
 		$ret.appendChild(new Text('</span>'));
 
 		return $ret;
