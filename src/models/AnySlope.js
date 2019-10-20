@@ -98,10 +98,15 @@ export default class AnySlope extends Record({ slopes: List() }) {
 			const slope = slopes.get(i);
 
 			if (slope.get('members').includes(name)) {
-				path = libpath.join(
+				const temp = libpath.join(
 					slope.get('extra') ? EXTRA_ICONS_DIR : ICONS_DIR,
 					`${name}.jpg`
 				);
+
+				if (fs.existsSync(temp)) {
+					path = temp;
+				}
+
 				break;
 			}
 		}
