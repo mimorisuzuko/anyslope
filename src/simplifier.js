@@ -34,7 +34,7 @@ class HTMLSimplifier {
 	}
 
 	trim(s) {
-		const nls = ['<br>', '\n', ' '];
+		const nls = ['<br>', '\n', ' ', '<div><br></div>'];
 
 		for (;;) {
 			if (
@@ -136,23 +136,33 @@ class HTMLSimplifier {
 	 */
 	_simplifyDiv($div) {
 		const { childNodes } = $div;
-		const $ret = document.createElement('div');
 		const $fragment = this._processChildNodes(childNodes);
 
 		if (this._isNewLines($fragment)) {
-			return $fragment;
+			const $ret = document.createDocumentFragment();
+
+			$ret.appendChild(new Text('<div>'));
+			$ret.appendChild($fragment);
+			$ret.appendChild(new Text('</div>'));
+
+			return $ret;
 		}
 
 		if ($div.hasAttribute('style')) {
+			const $ret = document.createDocumentFragment();
+
 			$ret.appendChild(
 				new Text(`<div style="${$div.getAttribute('style')}">`)
 			);
 			$ret.appendChild($fragment);
 			$ret.appendChild(new Text('</div>'));
-		} else {
-			$ret.classList.add('searched');
-			$ret.appendChild($fragment);
+
+			return $ret;
 		}
+
+		const $ret = document.createElement('div');
+		$ret.classList.add('searched');
+		$ret.appendChild($fragment);
 
 		return $ret;
 	}
