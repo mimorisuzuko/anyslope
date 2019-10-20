@@ -30,6 +30,27 @@ class HTMLSimplifier {
 			}
 		});
 
+		const walker = document.createTreeWalker(
+			$html,
+			NodeFilter.SHOW_TEXT,
+			null,
+			false
+		);
+
+		while (walker.nextNode()) {
+			const {
+				currentNode: { previousSibling, nodeValue }
+			} = walker;
+
+			if (
+				(nodeValue || '').trim() &&
+				previousSibling &&
+				previousSibling.nodeName === 'DIV'
+			) {
+				previousSibling.appendChild(new Text('\n'));
+			}
+		}
+
 		return $html.innerText;
 	}
 
@@ -137,6 +158,10 @@ class HTMLSimplifier {
 	_simplifyDiv($div) {
 		const { childNodes } = $div;
 		const $fragment = this._processChildNodes(childNodes);
+
+		if (!$fragment.hasChildNodes()) {
+			return $fragment;
+		}
 
 		if (this._isNewLines($fragment)) {
 			const $ret = document.createDocumentFragment();
