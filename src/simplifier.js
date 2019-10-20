@@ -137,16 +137,21 @@ class HTMLSimplifier {
 	_simplifyDiv($div) {
 		const { childNodes } = $div;
 		const $ret = document.createElement('div');
+		const $fragment = this._processChildNodes(childNodes);
+
+		if (this._isNewLines($fragment)) {
+			return $fragment;
+		}
 
 		if ($div.hasAttribute('style')) {
 			$ret.appendChild(
 				new Text(`<div style="${$div.getAttribute('style')}">`)
 			);
-			$ret.appendChild(this._processChildNodes(childNodes));
+			$ret.appendChild($fragment);
 			$ret.appendChild(new Text('</div>'));
 		} else {
 			$ret.classList.add('searched');
-			$ret.appendChild(this._processChildNodes(childNodes));
+			$ret.appendChild($fragment);
 		}
 
 		return $ret;
