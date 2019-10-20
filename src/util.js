@@ -23,7 +23,13 @@ export const convertHtmlToHtmlString = ($html) => {
 
 		const b = a.trim();
 
-		return /^<div/.test(b) ? b : b && b !== '<br>' ? `<div>${b}</div>` : b;
+		return /^<div/.test(b)
+			? b
+			: !b
+				? '<br>'
+				: b !== '<br>'
+					? `<div>${b}</div>`
+					: b;
 	};
 
 	let s =
