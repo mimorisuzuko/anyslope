@@ -10,13 +10,13 @@ import searchState from './searchState';
 import anyzaka from './anyzaka';
 
 export default combineReducers({
-	articles,
-	loading,
-	openFilterIndex,
-	checked,
-	following,
-	openPreferences,
-	extraBlogs,
-	searchState,
-	anyzaka
+    articles,
+    loading,
+    openFilterIndex,
+    checked,
+    following,
+    openPreferences,
+    extraBlogs,
+    searchState,
+    anyzaka
 });

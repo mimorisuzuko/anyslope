@@ -1,18 +1,18 @@
 import { Record } from 'immutable';
 
 export default class Loading extends Record({
-	_now: false,
-	_can: true
+    _now: false,
+    _can: true
 }) {
-	can() {
-		const { _now, _can } = this;
+    can() {
+        const { _now, _can } = this;
 
-		return !_now && _can;
-	}
+        return !_now && _can;
+    }
 
-	now() {
-		const { _now } = this;
+    now() {
+        const { _now } = this;
 
-		return _now;
-	}
+        return _now;
+    }
 }

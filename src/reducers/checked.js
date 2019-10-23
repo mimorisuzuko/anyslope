@@ -8,19 +8,19 @@ import { CONFIG_DIR } from '../config';
 const path = libpath.join(CONFIG_DIR, 'checked.json');
 
 if (!fs.existsSync(path)) {
-	fs.writeJsonSync(path, []);
+    fs.writeJsonSync(path, []);
 }
 
 export default handleActions(
-	{
-		[actions.toggleChecked]: (state, { payload }) => {
-			const i = state.indexOf(payload);
-			const next = i === -1 ? state.push(payload) : state.delete(i);
+    {
+        [actions.toggleChecked]: (state, { payload }) => {
+            const i = state.indexOf(payload);
+            const next = i === -1 ? state.push(payload) : state.delete(i);
 
-			fs.writeJsonSync(path, next.toJS());
+            fs.writeJsonSync(path, next.toJS());
 
-			return next;
-		}
-	},
-	List(fs.readJsonSync(path))
+            return next;
+        }
+    },
+    List(fs.readJsonSync(path))
 );

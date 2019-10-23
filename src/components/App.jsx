@@ -12,48 +12,48 @@ import { connect } from 'react-redux';
 
 @connect()
 class App extends PureComponent {
-	constructor() {
-		super();
+    constructor() {
+        super();
 
-		ipcRenderer.on('menu:preferences', this.onClickPreferencesOfMenuItem);
-	}
+        ipcRenderer.on('menu:preferences', this.onClickPreferencesOfMenuItem);
+    }
 
-	@autobind
-	onClickPreferencesOfMenuItem() {
-		const {
-			props: { dispatch }
-		} = this;
+    @autobind
+    onClickPreferencesOfMenuItem() {
+        const {
+            props: { dispatch }
+        } = this;
 
-		dispatch(actions.setPreferencesState(true));
-	}
+        dispatch(actions.setPreferencesState(true));
+    }
 
-	render() {
-		return (
-			<div
-				className={css({
-					width: '100%',
-					height: '100%',
-					display: 'flex',
-					flexDirection: 'row'
-				})}
-			>
-				<Sidebar />
-				<Body />
-				<Preferences />
-				<ToastContainer
-					position='top-center'
-					autoClose={5000}
-					hideProgressBar={false}
-					newestOnTop={false}
-					closeOnClick
-					rtl={false}
-					pauseOnVisibilityChange
-					draggable={false}
-					pauseOnHover
-				/>
-			</div>
-		);
-	}
+    render() {
+        return (
+            <div
+                className={css({
+                    width: '100%',
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'row'
+                })}
+            >
+                <Sidebar />
+                <Body />
+                <Preferences />
+                <ToastContainer
+                    position='top-center'
+                    autoClose={5000}
+                    hideProgressBar={false}
+                    newestOnTop={false}
+                    closeOnClick
+                    rtl={false}
+                    pauseOnVisibilityChange
+                    draggable={false}
+                    pauseOnHover
+                />
+            </div>
+        );
+    }
 }
 
 export default App;
