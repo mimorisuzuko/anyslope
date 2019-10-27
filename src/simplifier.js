@@ -14,42 +14,32 @@ class HTMLSimplifier {
             this._replace($a, this._simplifyA($a));
         });
 
-        for (;;) {
-            const $div = $html.querySelectorAll('div:not(.searched)')[0];
+        $html = this._simplifyDiv($html);
 
-            if ($div) {
-                this._replace($div, this._simplifyDiv($div));
-            } else {
-                break;
+        // Remove blank texts
+        _.forEach(this._textWalker($html), (a) => {
+            if (!a.nodeValue) {
+                a.remove();
             }
-        }
+        });
 
+        // Convert `<div>Text 0</div><div>Text 1</div>` to `Text 0\nText 1`
         _.forEach($html.querySelectorAll('div'), ({ previousSibling }) => {
             if (previousSibling && previousSibling.nodeName === 'DIV') {
                 previousSibling.appendChild(new Text('\n'));
             }
         });
 
-        const walker = document.createTreeWalker(
-            $html,
-            NodeFilter.SHOW_TEXT,
-            null,
-            false
-        );
-
-        while (walker.nextNode()) {
-            const {
-                currentNode: { previousSibling, nodeValue }
-            } = walker;
-
+        // Convert `<div>Text 0</div>Text 1` to Text 0\nText 1
+        _.forEach(this._textWalker($html), ({ previousSibling, nodeValue }) => {
             if (
-                (nodeValue || '').trim() &&
+                nodeValue &&
                 previousSibling &&
                 previousSibling.nodeName === 'DIV'
             ) {
                 previousSibling.appendChild(new Text('\n'));
             }
-        }
+        });
 
         return $html.innerText;
     }
@@ -97,6 +87,22 @@ class HTMLSimplifier {
         const { parentElement } = $e;
 
         parentElement.replaceChild($new, $e);
+    }
+
+    /**
+     * @param {Node} $node
+     * @returns {Text[]}
+     */
+    _textWalker($node) {
+        let s = [];
+
+        if ($node.nodeName === '#text') {
+            s.push($node);
+        } else {
+            _.forEach($node.childNodes, (a) => s.push(...this._textWalker(a)));
+        }
+
+        return s;
     }
 
     /**
@@ -339,7 +345,7 @@ class HTMLSimplifier {
                     new Text(
                         nodeValue === '\u00A0' || nodeValue === '　'
                             ? '<br>'
-                            : nodeValue
+                            : nodeValue.trim()
                     )
                 );
             } else if (nodeName === 'IMG') {

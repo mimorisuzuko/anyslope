@@ -16,26 +16,35 @@ const cardWidth = 500;
  */
 export const convertHtmlToHtmlString = ($html) => {
     const splited = simplifyer.trim(simplifyer.simplify($html)).split(/\n/);
-    const mapper = (a) => {
-        if (!a) {
-            return '<br>';
-        }
-
-        const b = a.trim();
-
-        return /^<div/.test(b)
-            ? b
-            : !b
-            ? '<br>'
-            : b !== '<br>'
-            ? `<div>${b}</div>`
-            : b;
-    };
 
     let s =
         splited.length === 1
-            ? _.join(_.map(_.split(splited[0], '<br>'), mapper), '<br>')
-            : _.join(_.map(splited, mapper), '');
+            ? _.join(
+                  _.map(_.split(splited[0], '<br>'), (a) => {
+                      return !a
+                          ? ''
+                          : /^<div/.test(a)
+                          ? a
+                          : a !== '<br>'
+                          ? `<div>${a}</div>`
+                          : a;
+                  }),
+                  '<br>'
+              )
+            : _.join(
+                  _.map(splited, (a) => {
+                      if (!a) {
+                          return '<br>';
+                      }
+
+                      return /^<div/.test(a)
+                          ? a
+                          : a !== '<br>'
+                          ? `<div>${a}</div>`
+                          : a;
+                  }),
+                  ''
+              );
 
     return simplifyer.trim(s);
 };
