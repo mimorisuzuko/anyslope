@@ -153,7 +153,7 @@ export class LineBlog {
         for (const $article of $parsed.querySelectorAll('.article')) {
             const $title = $article.querySelector('.article-title a');
             const mediaDic = {};
-            let $content = $article.querySelector('.article-body');
+            const $content = $article.querySelector('.article-body');
 
             for (const $tweet of $content.querySelectorAll('.twitter-tweet')) {
                 const key = `_tweet_${uuid()}`;

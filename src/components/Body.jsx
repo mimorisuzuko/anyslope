@@ -28,7 +28,7 @@ export default class Body extends Component {
         } = this;
         const slopes = anyzaka.get('slopes');
         const { size } = slopes;
-        let blogs = [];
+        const blogs = [];
 
         for (let i = 0; i < size; i += 1) {
             const slope = slopes.get(i);

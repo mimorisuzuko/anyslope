@@ -16,8 +16,7 @@ const cardWidth = 500;
  */
 export const convertHtmlToHtmlString = ($html) => {
     const splited = simplifyer.trim(simplifyer.simplify($html)).split(/\n/);
-
-    let s =
+    const s =
         splited.length === 1
             ? _.join(
                   _.map(_.split(splited[0], '<br>'), (a) => {

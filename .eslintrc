@@ -41,6 +41,7 @@
 			"error",
 			"always"
 		],
+		"prefer-const": "error",
 		"react/prop-types": "off",
 		"jsx-quotes": [
 			"error",
