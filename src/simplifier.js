@@ -94,7 +94,7 @@ class HTMLSimplifier {
      * @returns {Text[]}
      */
     _textWalker($node) {
-        let s = [];
+        const s = [];
 
         if ($node.nodeName === '#text') {
             s.push($node);
