@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import matchAll from 'string.prototype.matchall';
 
 class HTMLSimplifier {
     /**
@@ -44,34 +45,32 @@ class HTMLSimplifier {
         return $html.innerText;
     }
 
+    /**
+     * @param {string} s
+     */
     trim(s) {
-        const nls = ['<br>', '\n', ' ', '<div><br></div>'];
+        const nls = [/<br>/g, /\n/g, / /g, /<div>(<br>)+<\/div>/g];
 
         for (;;) {
             if (
-                !_.some(nls, (nl) => {
-                    if (s.indexOf(nl) === 0) {
-                        s = s.slice(nl.length);
-                        return true;
-                    } else {
-                        return false;
-                    }
-                })
-            ) {
-                break;
-            }
-        }
+                !_.some(nls, (nl) =>
+                    _.some([...matchAll(s, nl)], (matched) => {
+                        if (matched.index === 0) {
+                            s = s.slice(matched[0].length);
 
-        for (;;) {
-            if (
-                !_.some(nls, (nl) => {
-                    if (s.lastIndexOf(nl) === s.length - nl.length) {
-                        s = s.slice(0, -nl.length);
-                        return true;
-                    } else {
+                            return true;
+                        } else if (
+                            matched.index + matched[0].length ===
+                            s.length
+                        ) {
+                            s = s.slice(0, -matched[0].length);
+
+                            return true;
+                        }
+
                         return false;
-                    }
-                })
+                    })
+                )
             ) {
                 break;
             }
