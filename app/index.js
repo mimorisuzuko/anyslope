@@ -13,7 +13,7 @@ const create = () => {
         width: 1220,
         height: 1000,
         titleBarStyle: 'hidden',
-        webPreferences: { webSecurity: false }
+        webPreferences: { webSecurity: false, nodeIntegration: true }
     });
 
     w.loadURL(
