@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const { shell, app } = require('electron');
+const { shell } = require('electron');
 
 const template = [
     {
@@ -105,9 +105,8 @@ const template = [
 ];
 
 if (process.platform === 'darwin') {
-    const name = app.getName();
     template.unshift({
-        label: name,
+        label: 'AnySlope',
         submenu: [
             {
                 role: 'about'
