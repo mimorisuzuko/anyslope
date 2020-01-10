@@ -2,38 +2,44 @@
 
 import fs from 'fs-extra';
 import rp from 'request-promise';
-import puppeteer from 'puppeteer';
 import libpath from 'path';
 import _ from 'lodash';
 import { ICONS_DIR, ANY_SLOPE_DEFAULT_VALUE_PATH } from '../src/config';
+import { JSDOM } from 'jsdom';
+import urlJoin from 'url-join';
 
 (async () => {
-    const browser = await puppeteer.launch({
-        args: ['--lang=ja,en-US,en']
-    });
-    const page = await browser.newPage();
+    const baseUrl = 'http://www.nogizaka46.com/member/';
+    const {
+        window: { document }
+    } = new JSDOM(await rp(baseUrl));
     const members = [];
 
-    await page.goto('http://www.nogizaka46.com/member/');
-    for (const href of await page.evaluate(() => {
-        return Array.from(document.querySelectorAll('.unit'), ($unit) => {
-            const { href } = $unit.querySelector('a');
-
-            return href;
-        });
-    })) {
-        await page.goto(href);
-        members.push(
-            await page.evaluate(() => {
-                const { childNodes } = document.querySelector('h2');
-                const { nodeValue } = childNodes[1];
-                const { src } = document
-                    .getElementById('profile')
-                    .querySelector('img');
-
-                return [src, nodeValue.replace(/\s/g, '')];
-            })
+    for (const $unit of document.querySelectorAll('.unit')) {
+        const {
+            window: { document }
+        } = new JSDOM(
+            await rp(urlJoin(baseUrl, $unit.querySelector('a').href))
         );
+        const name = document
+            .querySelector('h2')
+            .childNodes[1].nodeValue.replace(/\s/g, '');
+        const { body, headers } = await rp({
+            url: document.getElementById('profile').querySelector('img').src,
+            encoding: null,
+            resolveWithFullResponse: true
+        });
+
+        await fs.writeFile(
+            libpath.join(ICONS_DIR, `${name}.jpg`),
+            body,
+            'binary'
+        );
+
+        members.push({
+            name,
+            lastModified: headers['last-modified']
+        });
     }
 
     const anyzaka = await fs.readJSON(ANY_SLOPE_DEFAULT_VALUE_PATH);
@@ -45,36 +51,15 @@ import { ICONS_DIR, ANY_SLOPE_DEFAULT_VALUE_PATH } from '../src/config';
             {
                 name: '乃木坂46',
                 color: 'rgb(118, 37, 133)',
-                members: _.concat(
-                    await Promise.all(
-                        _.map(members, async ([url, name]) => {
-                            const { body, headers } = await rp({
-                                url,
-                                encoding: null,
-                                resolveWithFullResponse: true
-                            });
-
-                            await fs.writeFile(
-                                libpath.join(ICONS_DIR, `${name}.jpg`),
-                                body,
-                                'binary'
-                            );
-
-                            return {
-                                name,
-                                lastModified: headers['last-modified']
-                            };
-                        })
-                    ),
+                members: [
+                    ...members,
                     { name: '運営スタッフ', lastModified: 0 },
                     { name: '４期生', lastModified: 0 }
-                ),
+                ],
                 extra: false,
                 page: 1,
                 fetcher: 'Nogi'
             }
         )
     );
-
-    browser.close();
 })().catch(console.error);
