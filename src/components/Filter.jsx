@@ -100,12 +100,14 @@ export default class Filter extends Component {
                                     {entry.get('name')}
                                 </span>
                                 {entry.get('members').map((member) => {
-                                    return following.includes(member) &&
+                                    const name = member.get('name');
+
+                                    return following.includes(name) &&
                                         openFilterIndex !== i ? (
                                         <Icon
-                                            name={member}
+                                            name={name}
                                             size={24}
-                                            key={member}
+                                            key={name}
                                         />
                                     ) : null;
                                 })}
@@ -122,11 +124,13 @@ export default class Filter extends Component {
                     {slopes.map((entry, i) => {
                         return openFilterIndex === i
                             ? entry.get('members').map((member) => {
+                                  const name = member.get('name');
+
                                   return (
                                       <div
                                           onClick={this.onClickFilterMember}
-                                          key={member}
-                                          data-member={member}
+                                          key={name}
+                                          data-member={name}
                                           className={css(shadowBaseStyle, {
                                               display: 'flex',
                                               alignItems: 'center',
@@ -135,9 +139,7 @@ export default class Filter extends Component {
                                               padding: 4,
                                               borderRadius: 4,
                                               cursor: 'pointer',
-                                              opacity: following.includes(
-                                                  member
-                                              )
+                                              opacity: following.includes(name)
                                                   ? 1
                                                   : 0.5,
                                               '> :first-of-type': {
@@ -145,8 +147,8 @@ export default class Filter extends Component {
                                               }
                                           })}
                                       >
-                                          <Icon name={member} size={36} />
-                                          <span>{member}</span>
+                                          <Icon name={name} size={36} />
+                                          <span>{name}</span>
                                       </div>
                                   );
                               })

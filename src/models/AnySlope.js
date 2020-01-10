@@ -46,17 +46,25 @@ export default class AnySlope extends Record({ slopes: List() }) {
                     const { url, name } = await fetchers[
                         dic[key].fetcher
                     ].idToImageUrlAndName(id);
+                    const { body, headers } = await rp({
+                        url,
+                        encoding: null,
+                        resolveWithFullResponse: true
+                    });
 
                     await fs.writeFile(
                         libpath.join(EXTRA_ICONS_DIR, `${name}.jpg`),
-                        await rp(url, { encoding: null })
+                        body
                     );
 
                     extraBlogs[key]._optionsList.push(
                         _.merge({ multi: 1, filters: [] }, options)
                     );
                     extraBlogs[key]._ids.push(id);
-                    extraBlogs[key].members.push(name);
+                    extraBlogs[key].members.push({
+                        name,
+                        lastModified: headers['last-modified']
+                    });
                 }
             }
         }
@@ -76,8 +84,11 @@ export default class AnySlope extends Record({ slopes: List() }) {
 
         for (let i = 0; i < size; i += 1) {
             const slope = slopes.get(i);
+            const exist = slope
+                .get('members')
+                .find((a) => a.get('name') === name);
 
-            if (slope.get('members').includes(name)) {
+            if (exist) {
                 ret = slope.get('color');
                 break;
             }
@@ -96,8 +107,11 @@ export default class AnySlope extends Record({ slopes: List() }) {
 
         for (let i = 0; i < size; i += 1) {
             const slope = slopes.get(i);
+            const exist = slope
+                .get('members')
+                .find((a) => a.get('name') === name);
 
-            if (slope.get('members').includes(name)) {
+            if (exist) {
                 const temp = libpath.join(
                     slope.get('extra') ? EXTRA_ICONS_DIR : ICONS_DIR,
                     `${name}.jpg`

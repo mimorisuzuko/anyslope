@@ -32,26 +32,40 @@ import { ICONS_DIR, ANY_SLOPE_DEFAULT_VALUE_PATH } from '../src/config';
         return ret;
     });
 
-    for (const [url, name] of members) {
-        await fs.writeFile(
-            libpath.join(ICONS_DIR, `${name}.jpg`),
-            await rp({ method: 'GET', url, encoding: null }),
-            'binary'
-        );
-    }
-
     const anyzaka = await fs.readJSON(ANY_SLOPE_DEFAULT_VALUE_PATH);
 
     await fs.writeJSON(
         ANY_SLOPE_DEFAULT_VALUE_PATH,
-        _.concat(_.filter(anyzaka, ({ name }) => name !== '欅坂46'), {
-            name: '欅坂46',
-            color: 'rgb(84, 176, 74)',
-            members: _.map(members, ([, a]) => a),
-            extra: false,
-            page: 0,
-            fetcher: 'Keyaki'
-        })
+        _.concat(
+            _.filter(anyzaka, ({ name }) => name !== '欅坂46'),
+            {
+                name: '欅坂46',
+                color: 'rgb(84, 176, 74)',
+                members: await Promise.all(
+                    _.map(members, async ([url, name]) => {
+                        const { body, headers } = await rp({
+                            url,
+                            encoding: null,
+                            resolveWithFullResponse: true
+                        });
+
+                        await fs.writeFile(
+                            libpath.join(ICONS_DIR, `${name}.jpg`),
+                            body,
+                            'binary'
+                        );
+
+                        return {
+                            name,
+                            lastModified: headers['last-modified']
+                        };
+                    })
+                ),
+                extra: false,
+                page: 0,
+                fetcher: 'Keyaki'
+            }
+        )
     );
 
     browser.close();

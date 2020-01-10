@@ -36,30 +36,44 @@ import { ICONS_DIR, ANY_SLOPE_DEFAULT_VALUE_PATH } from '../src/config';
         );
     }
 
-    for (const [url, name] of members) {
-        await fs.writeFile(
-            libpath.join(ICONS_DIR, `${name}.jpg`),
-            await rp({ method: 'GET', url, encoding: null }),
-            'binary'
-        );
-    }
-
     const anyzaka = await fs.readJSON(ANY_SLOPE_DEFAULT_VALUE_PATH);
 
     await fs.writeJSON(
         ANY_SLOPE_DEFAULT_VALUE_PATH,
-        _.concat(_.filter(anyzaka, ({ name }) => name !== '乃木坂46'), {
-            name: '乃木坂46',
-            color: 'rgb(118, 37, 133)',
-            members: _.concat(
-                _.map(members, ([, a]) => a),
-                '運営スタッフ',
-                '４期生'
-            ),
-            extra: false,
-            page: 1,
-            fetcher: 'Nogi'
-        })
+        _.concat(
+            _.filter(anyzaka, ({ name }) => name !== '乃木坂46'),
+            {
+                name: '乃木坂46',
+                color: 'rgb(118, 37, 133)',
+                members: _.concat(
+                    await Promise.all(
+                        _.map(members, async ([url, name]) => {
+                            const { body, headers } = await rp({
+                                url,
+                                encoding: null,
+                                resolveWithFullResponse: true
+                            });
+
+                            await fs.writeFile(
+                                libpath.join(ICONS_DIR, `${name}.jpg`),
+                                body,
+                                'binary'
+                            );
+
+                            return {
+                                name,
+                                lastModified: headers['last-modified']
+                            };
+                        })
+                    ),
+                    { name: '運営スタッフ', lastModified: 0 },
+                    { name: '４期生', lastModified: 0 }
+                ),
+                extra: false,
+                page: 1,
+                fetcher: 'Nogi'
+            }
+        )
     );
 
     browser.close();
