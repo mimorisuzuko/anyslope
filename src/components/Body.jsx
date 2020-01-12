@@ -126,7 +126,7 @@ export default class Body extends Component {
                     <div
                         className={css({
                             minWidth: 960,
-                            padding: 16,
+                            padding: '0 16px',
                             marginLeft: 'auto',
                             marginRight: 'auto'
                         })}
