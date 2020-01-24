@@ -9,6 +9,7 @@ import matchAll from 'string.prototype.matchall';
 import simplifyer from './simplifier';
 
 const cardWidth = 500;
+const domparser = new DOMParser();
 
 /**
  * @param {Element} $html
@@ -454,96 +455,158 @@ export const renderInstgramCard = async (url) => {
     );
 };
 
-/**
- * @param {string} url
- */
-export const renderOgpCard = async (url) => {
-    const body = await rp(url);
-    const matchedImg = body.match(
-        /<meta\s+property="og:image"\s+content="(.+)">/
-    );
-    const [, siteName] =
-        body.match(/<meta\s+property="og:site_name"\s+content="(.+)">/) ||
-        body.match(/<meta\s+property="og:title"\s+content="(.+)">/) ||
-        body.match(/<title>(.+)<\/title>/);
+class OGPCard {
+    /**
+     * @param {Document} doc
+     */
+    _getImageUrl(doc) {
+        const $img = doc.querySelector('meta[property="og:image"]');
 
-    const [, description] =
-        body.match(/<meta\s+property="og:description"\s+content="(.+)">/) ||
-        body.match(/<meta\s+name="description"\s+content="(.+)">/);
-    const width = matchedImg ? 118 : 0;
+        if ($img) {
+            return $img.getAttribute('content');
+        }
 
-    return (
-        <a
-            href={url}
-            className={css({
-                textDecoration: 'none',
-                color: 'inherit'
-            })}
-        >
-            <div
+        return null;
+    }
+
+    /**
+     * @param {Document} doc
+     */
+    _getSiteName(doc) {
+        const $a = doc.querySelector('meta[property="og:title"]');
+
+        if ($a) {
+            return $a.getAttribute('content');
+        }
+
+        const $b = doc.querySelector('meta[property="og:site_name"]');
+
+        if ($b) {
+            return $b.getAttribute('content');
+        }
+
+        const $c = doc.querySelector('title');
+
+        if ($c) {
+            return $c.innerText;
+        }
+
+        return '';
+    }
+
+    /**
+     * @param {Document} doc
+     */
+    _getDescription(doc) {
+        const $a = doc.querySelector('meta[property="og:description"]');
+
+        if ($a) {
+            return $a.getAttribute('content');
+        }
+
+        const $b = doc.querySelector('meta[name="description"]');
+
+        if ($b) {
+            return $b.getAttribute('content');
+        }
+
+        return '';
+    }
+
+    /**
+     * @param {string} url
+     */
+    async render(url) {
+        const doc = domparser.parseFromString(
+            await rp(url, {
+                headers: {
+                    'User-Agent': 'request.js',
+                    'Accept-Language': 'ja-JP'
+                }
+            }),
+            'text/html'
+        );
+        const imgUrl = this._getImageUrl(doc);
+        const siteName = this._getSiteName(doc);
+        const description = this._getDescription(doc);
+        const width = imgUrl ? 118 : 0;
+
+        return (
+            <a
+                href={url}
                 className={css({
-                    border: '1px solid rgb(229, 229, 229)',
-                    display: 'flex'
+                    textDecoration: 'none',
+                    color: 'inherit'
                 })}
             >
-                {matchedImg ? (
-                    <div
-                        className={css({
-                            backgroundImage: `url(${matchedImg[1]})`,
-                            width,
-                            height: width,
-                            backgroundPosition: '50% 50%',
-                            backgroundRepeat: 'no-repeat',
-                            backgroundSize: 'cover'
-                        })}
-                    />
-                ) : null}
                 <div
                     className={css({
-                        padding: 22,
-                        width: `calc(100% - ${width}px)`,
-                        boxSizing: 'border-box'
+                        border: '1px solid rgb(229, 229, 229)',
+                        display: 'flex'
                     })}
                 >
+                    {imgUrl ? (
+                        <div
+                            className={css({
+                                backgroundImage: `url(${imgUrl})`,
+                                width,
+                                height: width,
+                                backgroundPosition: '50% 50%',
+                                backgroundRepeat: 'no-repeat',
+                                backgroundSize: 'cover'
+                            })}
+                        />
+                    ) : null}
                     <div
                         className={css({
-                            fontSize: 17,
-                            fontWeight: 'bold',
-                            marginBottom: 3,
-                            wordBreak: 'break-all',
-                            whiteSpace: 'nowrap',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis'
+                            padding: 22,
+                            width: `calc(100% - ${width}px)`,
+                            boxSizing: 'border-box'
                         })}
                     >
-                        {siteName}
-                    </div>
-                    <div
-                        className={css({
-                            fontSize: 13,
-                            color: 'rgb(115, 115, 115)',
-                            wordBreak: 'break-all',
-                            whiteSpace: 'nowrap',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis'
-                        })}
-                    >
-                        {description}
-                    </div>
-                    <div
-                        className={css({
-                            fontSize: 12,
-                            color: 'rgb(200, 200, 200)',
-                            wordBreak: 'break-all',
-                            whiteSpace: 'nowrap',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis'
-                        })}
-                    >
-                        {new URL(url).hostname}
+                        <div
+                            className={css({
+                                fontSize: 17,
+                                fontWeight: 'bold',
+                                marginBottom: 3,
+                                wordBreak: 'break-all',
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis'
+                            })}
+                        >
+                            {siteName}
+                        </div>
+                        <div
+                            className={css({
+                                fontSize: 13,
+                                color: 'rgb(115, 115, 115)',
+                                wordBreak: 'break-all',
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                paddingBottom: 10
+                            })}
+                        >
+                            {description}
+                        </div>
+                        <div
+                            className={css({
+                                fontSize: 12,
+                                color: 'rgb(200, 200, 200)',
+                                wordBreak: 'break-all',
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis'
+                            })}
+                        >
+                            {new URL(url).hostname}
+                        </div>
                     </div>
                 </div>
-            </div>
-        </a>
-    );
-};
+            </a>
+        );
+    }
+}
+
+export const ogpCard = new OGPCard();

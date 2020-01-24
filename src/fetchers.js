@@ -6,7 +6,7 @@ import liburl from 'url';
 import dayjs from 'dayjs';
 import urljoin from 'url-join';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { renderTweetCard, renderInstgramCard, renderOgpCard } from './util';
+import { renderTweetCard, renderInstgramCard, ogpCard } from './util';
 import React from 'react';
 import uuid from 'uuid/v4';
 
@@ -193,7 +193,7 @@ export class LineBlog {
                 const key = `_ogp_${uuid()}`;
 
                 mediaDic[key] = renderToStaticMarkup(
-                    await renderOgpCard($ogp.href)
+                    await ogpCard.render($ogp.href)
                 );
                 $ogp.outerHTML = key;
             }
