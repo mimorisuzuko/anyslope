@@ -199,9 +199,7 @@ export class LineBlog {
             }
 
             for (const $iframe of $parsed.querySelectorAll('iframe')) {
-                const key = `_youtube_${uuid()}`;
-
-                mediaDic[key] = renderToStaticMarkup(
+                $iframe.outerText = renderToStaticMarkup(
                     <div>
                         <iframe
                             width='480'
@@ -213,7 +211,6 @@ export class LineBlog {
                         />
                     </div>
                 );
-                $iframe.outerHTML = key;
             }
 
             ret.push({
@@ -229,7 +226,7 @@ export class LineBlog {
                         }
                     )
                     .replace(
-                        /(_(video|instagram|tweet|ogp|youtube)_[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12})/gi,
+                        /(_(video|instagram|tweet|ogp)_[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12})/gi,
                         (match, key) => {
                             return mediaDic[key];
                         }
