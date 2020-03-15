@@ -164,6 +164,7 @@ class Article extends Component {
                 >
                     <div
                         className={css({
+                            wordBreak: 'break-all',
                             'p:last-child': {
                                 marginBottom: 0
                             }
