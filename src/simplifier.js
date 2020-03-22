@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import matchAll from 'string.prototype.matchall';
+import is from '@sindresorhus/is';
 
 class HTMLSimplifier {
     /**
@@ -338,15 +339,21 @@ class HTMLSimplifier {
             const { nodeName } = $node;
 
             if (nodeName === '#text') {
-                const { nodeValue } = $node;
+                let { nodeValue } = $node;
 
-                $fragment.appendChild(
-                    new Text(
-                        nodeValue === '\u00A0' || nodeValue === '　'
-                            ? '<br>'
-                            : nodeValue.trim()
-                    )
-                );
+                if (nodeValue === '\u00A0' || nodeValue === '　') {
+                    $fragment.appendChild(new Text('<br>'));
+                } else {
+                    nodeValue = nodeValue.trim();
+
+                    $fragment.appendChild(
+                        new Text(
+                            is.urlString(nodeValue)
+                                ? `<a href="${nodeValue}">${nodeValue}</a>`
+                                : nodeValue
+                        )
+                    );
+                }
             } else if (nodeName === 'IMG') {
                 $fragment.appendChild(this._img2text($node));
             } else if (nodeName === 'A') {
