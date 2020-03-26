@@ -13,7 +13,7 @@ import { JSDOM } from 'jsdom';
     } = new JSDOM(
         await rp('https://www.hinatazaka46.com/s/official/search/artist')
     );
-    const members = Promise.all(
+    const members = await Promise.all(
         _.map(
             document.querySelectorAll(
                 '.sorted.sort-default.current .p-member__item'
