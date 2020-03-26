@@ -3,7 +3,6 @@ import { css } from 'emotion';
 import { connect } from 'react-redux';
 import Icon from './Icon';
 import { GoCheck } from 'react-icons/go';
-import autobind from 'autobind-decorator';
 import { scrollToArticleTop } from '../util';
 import actions from '../actions';
 
@@ -11,8 +10,7 @@ import actions from '../actions';
     return { following, checked, searchState };
 })
 export default class SidebarArticleItem extends Component {
-    @autobind
-    onClickItem() {
+    onClickItem = () => {
         const {
             props: { article, following, searchState, dispatch }
         } = this;
@@ -24,9 +22,9 @@ export default class SidebarArticleItem extends Component {
         scrollToArticleTop(
             document.querySelector(`[data-article-id="${article.id}"]`)
         );
-    }
+    };
 
-    render() {
+    render = () => {
         const {
             props: { article, following, checked, searchState }
         } = this;
@@ -74,5 +72,5 @@ export default class SidebarArticleItem extends Component {
                 </span>
             </div>
         );
-    }
+    };
 }

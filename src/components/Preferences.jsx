@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { css } from 'emotion';
 import { shadowBaseStyle, pink } from '../styles';
 import { connect } from 'react-redux';
-import autobind from 'autobind-decorator';
 import fs from 'fs-extra';
 import AceEditor from 'react-ace';
 import { toast } from 'react-toastify';
@@ -16,8 +15,7 @@ import { EXTRA_BLOGS_CONFIG_PATH } from '../config';
     return { openPreferences, extraBlogs };
 })
 export default class Preferences extends Component {
-    @autobind
-    onClickSaveButton() {
+    onClickSaveButton = () => {
         const {
             props: { extraBlogs }
         } = this;
@@ -37,18 +35,17 @@ export default class Preferences extends Component {
                 draggable: false
             });
         }
-    }
+    };
 
-    @autobind
-    onChange(value) {
+    onChange = (value) => {
         const {
             props: { dispatch }
         } = this;
 
         dispatch(actions.updateOtherBlogs(value));
-    }
+    };
 
-    render() {
+    render = () => {
         const {
             props: { openPreferences, extraBlogs }
         } = this;
@@ -137,5 +134,5 @@ export default class Preferences extends Component {
                 </div>
             </div>
         ) : null;
-    }
+    };
 }

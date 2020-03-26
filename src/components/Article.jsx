@@ -2,7 +2,6 @@ import React, { Component, createRef } from 'react';
 import Icon from './Icon';
 import { scrollToArticleTop } from '../util';
 import { GoCheck } from 'react-icons/go';
-import autobind from 'autobind-decorator';
 import _ from 'lodash';
 import { css } from 'emotion';
 import { shadowBaseStyle } from '../styles';
@@ -68,14 +67,9 @@ const ArticleHeader = ({ article: { date, author, title, url }, color }) => {
     return { checked, following, searchState, anyzaka };
 })
 class Article extends Component {
-    constructor() {
-        super();
+    $base = createRef();
 
-        this.$base = createRef();
-    }
-
-    @autobind
-    onClickCheck() {
+    onClickCheck = () => {
         const {
             props: {
                 dispatch,
@@ -88,13 +82,12 @@ class Article extends Component {
 
         dispatch(actions.toggleChecked(url));
         scrollToArticleTop($base);
-    }
+    };
 
     /**
      * @param {Event} e
      */
-    @autobind
-    onClickLink(e) {
+    onClickLink = (e) => {
         e.preventDefault();
 
         const {
@@ -102,9 +95,9 @@ class Article extends Component {
         } = e;
 
         shell.openExternal(href);
-    }
+    };
 
-    componentDidMount() {
+    componentDidMount = () => {
         const {
             $base: { current: $base }
         } = this;
@@ -112,9 +105,9 @@ class Article extends Component {
         _.forEach($base.querySelectorAll('a'), ($a) => {
             $a.addEventListener('click', this.onClickLink);
         });
-    }
+    };
 
-    render() {
+    render = () => {
         const {
             props: {
                 article,
@@ -198,7 +191,7 @@ class Article extends Component {
                 />
             </div>
         );
-    }
+    };
 }
 
 export default Article;

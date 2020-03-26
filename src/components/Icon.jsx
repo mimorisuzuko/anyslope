@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
     return { anyzaka };
 })
 class Icon extends Component {
-    render() {
+    render = () => {
         const {
             props: { name, size = 48, css: baseStyle, anyzaka }
         } = this;
@@ -26,7 +26,7 @@ class Icon extends Component {
                 })}
             />
         );
-    }
+    };
 }
 
 export default Icon;

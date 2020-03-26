@@ -16,7 +16,7 @@ import SearchInSidebar from './SearchInSidebar';
     return { articles, searchState };
 })
 export default class Sidebar extends Component {
-    render() {
+    render = () => {
         const {
             props: { articles, searchState }
         } = this;
@@ -77,5 +77,5 @@ export default class Sidebar extends Component {
                 </div>
             </div>
         );
-    }
+    };
 }

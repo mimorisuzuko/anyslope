@@ -3,7 +3,7 @@ import { css } from 'emotion';
 import { sidebarItemMarginStyle } from '../styles';
 
 export default class DateSeparator extends PureComponent {
-    render() {
+    render = () => {
         const {
             props: { date }
         } = this;
@@ -17,5 +17,5 @@ export default class DateSeparator extends PureComponent {
                 {date.format('YYYY/MM/DD')}
             </div>
         );
-    }
+    };
 }

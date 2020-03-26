@@ -1,5 +1,4 @@
 import React, { PureComponent } from 'react';
-import autobind from 'autobind-decorator';
 import { css } from 'emotion';
 import actions from '../actions';
 import Sidebar from './Sidebar';
@@ -18,16 +17,15 @@ class App extends PureComponent {
         ipcRenderer.on('menu:preferences', this.onClickPreferencesOfMenuItem);
     }
 
-    @autobind
-    onClickPreferencesOfMenuItem() {
+    onClickPreferencesOfMenuItem = () => {
         const {
             props: { dispatch }
         } = this;
 
         dispatch(actions.setPreferencesState(true));
-    }
+    };
 
-    render() {
+    render = () => {
         return (
             <div
                 className={css({
@@ -53,7 +51,7 @@ class App extends PureComponent {
                 />
             </div>
         );
-    }
+    };
 }
 
 export default App;

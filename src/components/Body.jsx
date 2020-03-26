@@ -1,5 +1,4 @@
 import React, { Component, createRef } from 'react';
-import autobind from 'autobind-decorator';
 import Article from './Article';
 import { BeatLoader } from 'react-spinners';
 import { css } from 'emotion';
@@ -14,15 +13,11 @@ import 'react-toastify/dist/ReactToastify.min.css';
     return { articles, loading, anyzaka };
 })
 export default class Body extends Component {
-    constructor() {
-        super();
+    $loading = createRef();
+    $articles = createRef();
+    prevloadingIsVisible = true;
 
-        this.$loading = createRef();
-        this.$articles = createRef();
-        this.prevloadingIsVisible = true;
-    }
-
-    async fetch() {
+    fetch = async () => {
         const {
             props: { anyzaka }
         } = this;
@@ -48,38 +43,37 @@ export default class Body extends Component {
         }
 
         return blogs;
-    }
+    };
 
-    componentDidMount() {
+    componentDidMount = () => {
         const {
             props: { dispatch }
         } = this;
+
         dispatch(actions.init()).then(() => {
             dispatch(actions.addArticles(this.fetch()));
             this.watchLoading();
         });
-    }
+    };
 
-    loadAndAddArticles() {
+    loadAndAddArticles = () => {
         const {
             props: { dispatch }
         } = this;
 
         dispatch(actions.startToLoadArticles());
         dispatch(actions.addArticles(this.fetch()));
-    }
+    };
 
-    @autobind
-    onClickResetFilter() {
+    onClickResetFilter = () => {
         const {
             props: { dispatch }
         } = this;
 
         dispatch(actions.setFilter(-1));
-    }
+    };
 
-    @autobind
-    watchLoading() {
+    watchLoading = () => {
         const {
             $loading: { current: $loading },
             prevloadingIsVisible,
@@ -94,14 +88,13 @@ export default class Body extends Component {
 
         this.prevloadingIsVisible = loadingIsVisible;
         requestAnimationFrame(this.watchLoading);
-    }
+    };
 
-    @autobind
-    onClickLoad() {
+    onClickLoad = () => {
         this.loadAndAddArticles();
-    }
+    };
 
-    render() {
+    render = () => {
         const {
             props: { articles, loading }
         } = this;
@@ -175,5 +168,5 @@ export default class Body extends Component {
                 <Filter />
             </div>
         );
-    }
+    };
 }

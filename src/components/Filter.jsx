@@ -3,7 +3,6 @@ import { css } from 'emotion';
 import Icon from './Icon';
 import { GoTriangleDown, GoTriangleRight } from 'react-icons/go';
 import { shadowBaseStyle } from '../styles';
-import autobind from 'autobind-decorator';
 import { connect } from 'react-redux';
 import actions from '../actions';
 
@@ -14,8 +13,7 @@ export default class Filter extends Component {
     /**
      * @param {Event} e
      */
-    @autobind
-    onClickFilter(e) {
+    onClickFilter = (e) => {
         const {
             currentTarget: {
                 dataset: { strkey }
@@ -27,13 +25,12 @@ export default class Filter extends Component {
         const key = parseInt(strkey);
 
         dispatch(actions.setFilter(key === openFilterIndex ? -1 : key));
-    }
+    };
 
     /**
      * @param {Event} e
      */
-    @autobind
-    onClickFilterMember(e) {
+    onClickFilterMember = (e) => {
         const {
             props: { dispatch }
         } = this;
@@ -44,9 +41,9 @@ export default class Filter extends Component {
         } = e;
 
         dispatch(actions.toggleFollowing(member));
-    }
+    };
 
-    render() {
+    render = () => {
         const {
             props: { following, openFilterIndex, anyzaka }
         } = this;
@@ -157,5 +154,5 @@ export default class Filter extends Component {
                 </div>
             </div>
         );
-    }
+    };
 }

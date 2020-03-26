@@ -2,25 +2,19 @@ import React, { Component, createRef } from 'react';
 import { css } from 'emotion';
 import { connect } from 'react-redux';
 import { GoSearch } from 'react-icons/go';
-import autobind from 'autobind-decorator';
 import actions from '../actions';
 
 @connect(({ searchState, loading }) => {
     return { searchState, loading };
 })
 export default class SearchInSidebar extends Component {
-    constructor() {
-        super();
-
-        this.$input = createRef();
-        this.timer = -1;
-    }
+    $input = createRef();
+    timer = -1;
 
     /**
      * @param {Event} e
      */
-    @autobind
-    onChange(e) {
+    onChange = (e) => {
         const {
             currentTarget: { value }
         } = e;
@@ -34,36 +28,33 @@ export default class SearchInSidebar extends Component {
         this.timer = setTimeout(() => {
             dispatch(actions.updateParsedQuery(value));
         }, 300);
-    }
+    };
 
-    @autobind
-    onFocus() {
+    onFocus = () => {
         const {
             props: { dispatch }
         } = this;
 
         dispatch(actions.canLoadArticles(false));
-    }
+    };
 
-    @autobind
-    onBlur() {
+    onBlur = () => {
         const {
             props: { dispatch }
         } = this;
 
         dispatch(actions.canLoadArticles(true));
-    }
+    };
 
-    @autobind
-    onClick() {
+    onClick = () => {
         const {
             $input: { current: $input }
         } = this;
 
         $input.focus();
-    }
+    };
 
-    render() {
+    render = () => {
         const {
             props: { searchState }
         } = this;
@@ -104,5 +95,5 @@ export default class SearchInSidebar extends Component {
                 />
             </div>
         );
-    }
+    };
 }
