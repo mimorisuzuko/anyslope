@@ -4,6 +4,9 @@ import is from '@sindresorhus/is';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 
+const serializer = new XMLSerializer();
+const domparser = new DOMParser();
+
 class HTMLSimplifier {
     /**
      * @param {Element} $html
@@ -82,6 +85,14 @@ class HTMLSimplifier {
         return s;
     }
 
+    _isHtmlString = (s) => {
+        const { innerHTML } = domparser
+            .parseFromString(s, 'text/html')
+            .querySelector('body');
+
+        return innerHTML;
+    };
+
     /**
      * @param {Element} $e
      */
@@ -145,7 +156,7 @@ class HTMLSimplifier {
      */
     _simplifyA($a) {
         const { childNodes, href } = $a;
-        const $fragment = this._processChildNodes(childNodes);
+        const $fragment = this._processChildNodes(childNodes, false);
 
         if (this._isNewLines($fragment)) {
             return $fragment;
@@ -153,9 +164,13 @@ class HTMLSimplifier {
 
         const $ret = document.createDocumentFragment();
 
-        $ret.appendChild(new Text(`<a href="${href}">`));
-        $ret.appendChild($fragment);
-        $ret.appendChild(new Text('</a>'));
+        $ret.appendChild(
+            new Text(
+                `<a href="${href}">${serializer.serializeToString(
+                    $fragment
+                )}</a>`
+            )
+        );
 
         return $ret;
     }
@@ -334,7 +349,7 @@ class HTMLSimplifier {
         return $ret;
     }
 
-    _processChildNodes($nodes) {
+    _processChildNodes($nodes, canValidateUrl = false) {
         const $fragment = document.createDocumentFragment();
 
         _.forEach($nodes, ($node) => {
@@ -350,12 +365,17 @@ class HTMLSimplifier {
 
                     $fragment.appendChild(
                         new Text(
+                            canValidateUrl &&
                             is.urlString(nodeValue) &&
                             /^http(s)?:\/\//.test(nodeValue)
                                 ? renderToStaticMarkup(
                                       <a href={nodeValue}>{nodeValue}</a>
                                   )
+                                : this._isHtmlString(nodeValue)
+                                ? nodeValue
                                 : nodeValue
+                                      .replace(/</g, '&lt;')
+                                      .replace(/>/g, '&gt;')
                         )
                     );
                 }
