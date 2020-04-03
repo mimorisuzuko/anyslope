@@ -1,6 +1,8 @@
 import _ from 'lodash';
 import matchAll from 'string.prototype.matchall';
 import is from '@sindresorhus/is';
+import React from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 
 class HTMLSimplifier {
     /**
@@ -348,8 +350,11 @@ class HTMLSimplifier {
 
                     $fragment.appendChild(
                         new Text(
-                            is.urlString(nodeValue)
-                                ? `<a href="${nodeValue}">${nodeValue}</a>`
+                            is.urlString(nodeValue) &&
+                            /^http(s)?:\/\//.test(nodeValue)
+                                ? renderToStaticMarkup(
+                                      <a href={nodeValue}>{nodeValue}</a>
+                                  )
                                 : nodeValue
                         )
                     );
