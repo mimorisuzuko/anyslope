@@ -198,7 +198,7 @@ export class LineBlog {
                 $ogp.outerHTML = key;
             }
 
-            for (const $iframe of $parsed.querySelectorAll('iframe')) {
+            for (const $iframe of $content.querySelectorAll('iframe')) {
                 $iframe.outerText = renderToStaticMarkup(
                     <div>
                         <iframe

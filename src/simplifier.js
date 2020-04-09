@@ -14,7 +14,14 @@ class HTMLSimplifier {
      */
     simplify($html) {
         _.forEach($html.querySelectorAll('img'), ($img) => {
-            this._replace($img, this._img2text($img));
+            const { parentElement: $parent } = $img;
+            const { tagName } = $parent;
+
+            // If parent is <A />, remove it
+            this._replace(
+                tagName === 'A' ? $parent : $img,
+                this._img2text($img)
+            );
         });
 
         _.forEach($html.querySelectorAll('a'), ($a) => {
