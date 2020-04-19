@@ -356,7 +356,7 @@ class HTMLSimplifier {
         return $ret;
     }
 
-    _processChildNodes($nodes, canValidateUrl = false) {
+    _processChildNodes($nodes, canValidateUrl = true) {
         const $fragment = document.createDocumentFragment();
 
         _.forEach($nodes, ($node) => {
