@@ -517,15 +517,22 @@ class OGPCard {
      * @param {string} url
      */
     async render(url) {
-        const doc = domparser.parseFromString(
-            await rp(url, {
-                headers: {
-                    'User-Agent': 'request.js',
-                    'Accept-Language': 'ja-JP'
-                }
-            }),
-            'text/html'
-        );
+        const body = await rp(url, {
+            headers: {
+                'User-Agent': 'request.js',
+                'Accept-Language': 'ja-JP'
+            }
+        }).catch(({ statusCode, response: { body } }) => {
+            if (statusCode === 404) {
+                return body;
+            }
+
+            console.error(statusCode);
+
+            return null;
+        });
+
+        const doc = domparser.parseFromString(body, 'text/html');
         const imgUrl = this._getImageUrl(doc);
         const siteName = this._getSiteName(doc);
         const description = this._getDescription(doc);
