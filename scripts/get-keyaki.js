@@ -10,36 +10,7 @@ import { JSDOM } from 'jsdom';
 (async () => {
     const {
         window: { document }
-    } = new JSDOM(await rp('http://www.keyakizaka46.com/s/k46o/search/artist'));
-    const members = [];
-    const es = document.querySelectorAll(
-        '.sorted.sort-default.current > .box-member'
-    );
-
-    for (let i = 0; i < 2; i += 1) {
-        for (const $li of es[i].querySelectorAll('li')) {
-            const name = $li
-                .querySelector('.name')
-                .textContent.replace(/\s/g, '');
-            const { body, headers } = await rp({
-                url: $li.querySelector('img').src,
-                encoding: null,
-                resolveWithFullResponse: true
-            });
-
-            await fs.writeFile(
-                libpath.join(ICONS_DIR, `${name}.jpg`),
-                body,
-                'binary'
-            );
-
-            members.push({
-                name,
-                lastModified: headers['last-modified']
-            });
-        }
-    }
-
+    } = new JSDOM(await rp('https://www.keyakizaka46.com/s/k46o/diary/member'));
     const anyzaka = await fs.readJSON(ANY_SLOPE_DEFAULT_VALUE_PATH);
 
     await fs.writeJSON(
@@ -49,7 +20,32 @@ import { JSDOM } from 'jsdom';
             {
                 name: '欅坂46',
                 color: 'rgb(84, 176, 74)',
-                members,
+                members: await Promise.all(
+                    _.map(
+                        document.querySelectorAll('[data-member]'),
+                        async ($item) => {
+                            const name = $item
+                                .querySelector('.name')
+                                .textContent.trim();
+                            const { body, headers } = await rp({
+                                url: $item.querySelector('img').src,
+                                encoding: null,
+                                resolveWithFullResponse: true
+                            });
+
+                            await fs.writeFile(
+                                libpath.join(ICONS_DIR, `${name}.jpg`),
+                                body,
+                                'binary'
+                            );
+
+                            return {
+                                name,
+                                lastModified: headers['last-modified']
+                            };
+                        }
+                    )
+                ),
                 extra: false,
                 page: 0,
                 fetcher: 'Keyaki'

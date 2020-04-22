@@ -86,7 +86,11 @@ export default class AnySlope extends Record({ slopes: List() }) {
             const slope = slopes.get(i);
             const exist = slope
                 .get('members')
-                .find((a) => a.get('name') === name);
+                .find(
+                    (a) =>
+                        _.replace(a.get('name'), /\s/, '') ===
+                        _.replace(name, /\s/, '')
+                );
 
             if (exist) {
                 ret = slope.get('color');
@@ -109,12 +113,16 @@ export default class AnySlope extends Record({ slopes: List() }) {
             const slope = slopes.get(i);
             const exist = slope
                 .get('members')
-                .find((a) => a.get('name') === name);
+                .find(
+                    (a) =>
+                        _.replace(a.get('name'), /\s/, '') ===
+                        _.replace(name, /\s/, '')
+                );
 
             if (exist) {
                 const temp = libpath.join(
                     slope.get('extra') ? EXTRA_ICONS_DIR : ICONS_DIR,
-                    `${name}.jpg`
+                    `${exist.get('name')}.jpg`
                 );
 
                 if (fs.existsSync(temp)) {

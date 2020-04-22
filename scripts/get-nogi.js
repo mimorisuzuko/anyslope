@@ -9,23 +9,22 @@ import { JSDOM } from 'jsdom';
 import urlJoin from 'url-join';
 
 (async () => {
-    const baseUrl = 'http://www.nogizaka46.com/member/';
+    const baseUrl = 'http://blog.nogizaka46.com/';
     const {
         window: { document }
     } = new JSDOM(await rp(baseUrl));
     const members = [];
 
-    for (const $unit of document.querySelectorAll('.unit')) {
-        const {
-            window: { document }
-        } = new JSDOM(
-            await rp(urlJoin(baseUrl, $unit.querySelector('a').href))
-        );
-        const name = document
-            .querySelector('h2')
-            .childNodes[1].nodeValue.replace(/\s/g, '');
+    for (const $unit of document
+        .getElementById('sidemember')
+        .querySelectorAll('.unit')) {
+        const { alt: name } = $unit.querySelector('img');
         const { body, headers } = await rp({
-            url: document.getElementById('profile').querySelector('img').src,
+            url: new JSDOM(
+                await rp(urlJoin(baseUrl, $unit.querySelector('a').href))
+            ).window.document
+                .getElementById('sideprofile')
+                .querySelector('img').src,
             encoding: null,
             resolveWithFullResponse: true
         });
@@ -53,8 +52,7 @@ import urlJoin from 'url-join';
                 color: 'rgb(118, 37, 133)',
                 members: [
                     ...members,
-                    { name: '運営スタッフ', lastModified: 0 },
-                    { name: '４期生', lastModified: 0 }
+                    { name: '運営スタッフ', lastModified: 0 }
                 ],
                 extra: false,
                 page: 1,

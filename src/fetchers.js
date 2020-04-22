@@ -300,7 +300,7 @@ export class Nogi {
             ret.push({
                 date: dayjs(dates[i].childNodes[0].nodeValue.slice(0, -1)),
                 title: titles[i].innerText,
-                author: names[i].innerText.replace(/\s/g, ''),
+                author: names[i].innerText.trim(),
                 html: convertHtmlToHtmlString($content),
                 content: $content.innerText,
                 url: (urls[i] ? urls[i] : titles[i].querySelector('a')).href
@@ -341,7 +341,7 @@ export class Keyaki {
                 return {
                     date: dayjs(datestr),
                     title: $title.innerText.trim(),
-                    author: name.replace(/\s/g, ''),
+                    author: name.trim(),
                     html: convertHtmlToHtmlString($content),
                     content: $content.innerText,
                     url: liburl.resolve(Keyaki.BASE_URL, $title.pathname)
@@ -390,7 +390,7 @@ export class Hinata {
                         .innerText.trim(),
                     author: $article
                         .querySelector('.c-blog-article__name')
-                        .innerText.replace(/\s/g, ''),
+                        .innerText.trim(),
                     html: convertHtmlToHtmlString($content),
                     content: $content.innerText,
                     url: liburl.resolve(

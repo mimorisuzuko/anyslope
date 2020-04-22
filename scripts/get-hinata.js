@@ -11,35 +11,7 @@ import { JSDOM } from 'jsdom';
     const {
         window: { document }
     } = new JSDOM(
-        await rp('https://www.hinatazaka46.com/s/official/search/artist')
-    );
-    const members = await Promise.all(
-        _.map(
-            document.querySelectorAll(
-                '.sorted.sort-default.current .p-member__item'
-            ),
-            async ($item) => {
-                const name = $item
-                    .querySelector('.c-member__name')
-                    .textContent.replace(/\s/g, '');
-                const { body, headers } = await rp({
-                    url: $item.querySelector('img').src,
-                    encoding: null,
-                    resolveWithFullResponse: true
-                });
-
-                await fs.writeFile(
-                    libpath.join(ICONS_DIR, `${name}.jpg`),
-                    body,
-                    'binary'
-                );
-
-                return {
-                    name,
-                    lastModified: headers['last-modified']
-                };
-            }
-        )
+        await rp('https://www.hinatazaka46.com/s/official/diary/member')
     );
     const anyzaka = await fs.readJSON(ANY_SLOPE_DEFAULT_VALUE_PATH);
 
@@ -50,7 +22,34 @@ import { JSDOM } from 'jsdom';
             {
                 name: '日向坂46',
                 color: 'rgb(81, 182, 224)',
-                members,
+                members: await Promise.all(
+                    _.map(
+                        document.querySelectorAll('.p-blog-face__list'),
+                        async ($item) => {
+                            const name = $item
+                                .querySelector('.c-blog-face__name')
+                                .textContent.trim();
+                            const { body, headers } = await rp({
+                                url: $item
+                                    .querySelector('.c-blog-face__item')
+                                    .style.backgroundImage.slice(4, -1),
+                                encoding: null,
+                                resolveWithFullResponse: true
+                            });
+
+                            await fs.writeFile(
+                                libpath.join(ICONS_DIR, `${name}.jpg`),
+                                body,
+                                'binary'
+                            );
+
+                            return {
+                                name,
+                                lastModified: headers['last-modified']
+                            };
+                        }
+                    )
+                ),
                 extra: false,
                 page: 0,
                 fetcher: 'Hinata'
