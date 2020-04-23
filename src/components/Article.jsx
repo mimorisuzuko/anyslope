@@ -152,7 +152,8 @@ class Article extends Component {
                             maxWidth: '100%',
                             display: 'block'
                         },
-                        display: contentIsVisible ? 'block' : 'none'
+                        display: contentIsVisible ? 'block' : 'none',
+                        backgroundColor: 'white'
                     })}
                 >
                     <div

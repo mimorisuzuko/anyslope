@@ -334,7 +334,7 @@ export class Keyaki {
                 const { innerText: datestr } = $article.querySelector(
                     '.box-bottom li'
                 );
-                const $title = $article.querySelector('h3 a');
+                const $title = $article.querySelector('h3');
                 const { innerText: name } = $article.querySelector('.name');
                 const $content = $article.querySelector('.box-article');
 
@@ -344,7 +344,10 @@ export class Keyaki {
                     author: name.trim(),
                     html: convertHtmlToHtmlString($content),
                     content: $content.innerText,
-                    url: liburl.resolve(Keyaki.BASE_URL, $title.pathname)
+                    url: liburl.resolve(
+                        Keyaki.BASE_URL,
+                        _.get($title.querySelector('a'), 'pathname') || ''
+                    )
                 };
             }
         );

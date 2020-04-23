@@ -28,3 +28,5 @@ export const pink = 'rgb(244, 143, 177)';
 export const sidebarItemMarginStyle = css({
     margin: '0 8px 0px 24px'
 });
+
+export const marginBetweenArticles = 16;

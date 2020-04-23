@@ -2,11 +2,16 @@ import React, { Component, createRef } from 'react';
 import Article from './Article';
 import { BeatLoader } from 'react-spinners';
 import { css } from 'emotion';
-import { bodyBaseStyle, titlebarBaseStyle } from '../styles';
+import {
+    bodyBaseStyle,
+    titlebarBaseStyle,
+    marginBetweenArticles
+} from '../styles';
 import Filter from './Filter';
 import { connect } from 'react-redux';
 import actions from '../actions';
 import * as fetchers from '../fetchers';
+import ArticleDebugger from './ArticleDebugger';
 import 'react-toastify/dist/ReactToastify.min.css';
 
 @connect(({ articles, loading, anyzaka }) => {
@@ -124,13 +129,14 @@ export default class Body extends Component {
                             marginRight: 'auto'
                         })}
                     >
+                        <ArticleDebugger />
                         {articles.map((article) => {
                             return (
                                 <Article
                                     article={article}
                                     key={article.id}
                                     css={css({
-                                        marginBottom: 16
+                                        marginBottom: marginBetweenArticles
                                     })}
                                 />
                             );

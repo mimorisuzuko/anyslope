@@ -17,11 +17,16 @@ class HTMLSimplifier {
             const { parentElement: $parent } = $img;
             const { tagName } = $parent;
 
-            // If parent is <A />, remove it
-            this._replace(
-                tagName === 'A' ? $parent : $img,
-                this._img2text($img)
-            );
+            if ($img.src === document.location.href) {
+                // If $img.src is blank, remove it
+                $img.remove();
+            } else {
+                // If parent is <A />, remove it
+                this._replace(
+                    tagName === 'A' ? $parent : $img,
+                    this._img2text($img)
+                );
+            }
         });
 
         _.forEach($html.querySelectorAll('a'), ($a) => {
