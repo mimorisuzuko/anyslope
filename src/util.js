@@ -258,7 +258,12 @@ const renderImagesInTweet = (matches) => {
  * @param {string} url
  */
 export const renderTweetCard = async (url) => {
-    const body = await rp(url);
+    const body = await rp(url, {
+        headers: {
+            'User-Agent': 'bot'
+        }
+    });
+
     const [, sceenname] = url.match(/https:\/\/twitter.com\/(.+)\/status/);
     const [, username] = body.match(
         /<meta\s+property="og:title"\s+content="(.+)\s+on Twitter">/
@@ -519,7 +524,7 @@ class OGPCard {
     async render(url) {
         const body = await rp(url, {
             headers: {
-                'User-Agent': 'request.js',
+                'User-Agent': 'bot',
                 'Accept-Language': 'ja-JP'
             }
         }).catch(({ statusCode, response: { body } }) => {
