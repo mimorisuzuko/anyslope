@@ -15,12 +15,6 @@ export default class AnySlope extends Record({ slopes: List() }) {
                 color: 'rgb(90, 196, 127)',
                 fetcher: 'LineBlog',
                 page: 1
-            },
-            ameblo: {
-                name: 'Ameba Blog',
-                color: 'rgb(45, 140, 60)',
-                fetcher: 'Ameblo',
-                page: 1
             }
         };
 

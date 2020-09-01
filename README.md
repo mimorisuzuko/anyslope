@@ -1,6 +1,6 @@
 # AnySlope
 
-AnySlope allows users to read sakamichi's blogs, LINE BLOG, and, Ameba Blog in one application.
+AnySlope allows users to read sakamichi's blogs, LINE BLOG in one application.
 
 ![](./ss.png)
 
