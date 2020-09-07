@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import rp from 'request-promise';
 import Article from './models/Article';
-import { convertHtmlToHtmlString } from './util';
+import { simplifier } from './util';
 import liburl from 'url';
 import dayjs from 'dayjs';
 import urljoin from 'url-join';
@@ -39,7 +39,7 @@ export class LineBlog {
                 title: $title.innerText,
                 author: $parsed.querySelector('.profile-photo h2').innerText,
                 content: $content.innerText,
-                html: await convertHtmlToHtmlString($content),
+                html: await simplifier.simplify($content),
                 url: $title.href
             });
         }
@@ -110,7 +110,7 @@ export class Nogi {
                 date: dayjs(dates[i].childNodes[0].nodeValue.slice(0, -1)),
                 title: titles[i].innerText,
                 author: names[i].innerText.trim(),
-                html: await convertHtmlToHtmlString($content),
+                html: await simplifier.simplify($content),
                 content: $content.innerText,
                 url: (urls[i] ? urls[i] : titles[i].querySelector('a')).href
             });
@@ -149,7 +149,7 @@ export class Keyaki {
                 date: dayjs(datestr),
                 title: $title.innerText.trim(),
                 author: name.trim(),
-                html: await convertHtmlToHtmlString($content),
+                html: await simplifier.simplify($content),
                 content: $content.innerText,
                 url: liburl.resolve(
                     Keyaki.BASE_URL,
@@ -197,7 +197,7 @@ export class Hinata {
                 author: $article
                     .querySelector('.c-blog-article__name')
                     .innerText.trim(),
-                html: await convertHtmlToHtmlString($content),
+                html: await simplifier.simplify($content),
                 content: $content.innerText,
                 url: liburl.resolve(
                     Hinata.BASE_URL,

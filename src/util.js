@@ -149,14 +149,12 @@ class HTMLSimplifier {
                 const $fragment = document.createDocumentFragment();
 
                 $fragment.appendChild(
-                    new Text(
-                        `<span style="color:${$font.getAttribute('color')}">`
-                    )
+                    new Text(`<font color="${$font.getAttribute('color')}">`)
                 );
                 for (const $child of $font.childNodes) {
                     $fragment.appendChild($child);
                 }
-                $fragment.appendChild(new Text('</span>'));
+                $fragment.appendChild(new Text('</font>'));
                 this._replace($font, $fragment);
             }
         }
@@ -165,7 +163,10 @@ class HTMLSimplifier {
         for (const $div of $html.querySelectorAll('div')) {
             if (this._isNewLine($div)) {
                 this._replace($div, new Text('<br>'));
-            } else if ($div.querySelectorAll('div').length === 0) {
+            } else if (
+                $div.querySelectorAll('div').length === 0 &&
+                !$div.querySelector('br')
+            ) {
                 $div.appendChild(new Text('<br>'));
             }
         }
@@ -173,6 +174,11 @@ class HTMLSimplifier {
         // New line - 2
         for (const $p of $html.querySelectorAll('p')) {
             $p.appendChild(new Text('<br>'));
+        }
+
+        // New line - 3
+        for (const $br of $html.querySelectorAll('br')) {
+            this._replace($br, new Text('<br>'));
         }
 
         return $html.innerText
@@ -184,12 +190,12 @@ class HTMLSimplifier {
      * @param {Element} $e
      */
     _isNewLine($e) {
-        _.every($e.childNodes, ($a) => {
-            return (
-                ($a.nodeName === '#text' && !$a.nodeValue.trim()) ||
-                $a.tagName === 'BR' ||
-                this._isNewLine($a)
-            );
+        return _.every($e.childNodes, ($a) => {
+            if ($a.nodeName === '#text') {
+                return !$a.nodeValue.trim();
+            }
+
+            return $a.tagName === 'BR' || this._isNewLine($a);
         });
     }
 
@@ -234,13 +240,7 @@ class HTMLSimplifier {
     }
 }
 
-const simplifier = new HTMLSimplifier();
-
-/**
- * @param {Element} $html
- * @returns {string}
- */
-export const convertHtmlToHtmlString = simplifier.simplify;
+export const simplifier = new HTMLSimplifier();
 
 /**
  * @param {Element} $e
