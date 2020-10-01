@@ -199,10 +199,11 @@ export class Hinata {
                     .innerText.trim(),
                 html: await simplifier.simplify($content),
                 content: $content.innerText,
-                url: liburl.resolve(
-                    Hinata.BASE_URL,
-                    $article.querySelector('.c-button-blog-detail').pathname
-                )
+                // url: liburl.resolve(
+                //     Hinata.BASE_URL,
+                //     $article.querySelector('.c-button-blog-detail').pathname
+                // )
+                url: ''
             });
         }
 

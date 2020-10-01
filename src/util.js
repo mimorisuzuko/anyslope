@@ -123,7 +123,7 @@ class HTMLSimplifier {
 
             $fragment.appendChild(new Text(`<a href="${$a.href}">`));
             for (const $child of $a.childNodes) {
-                $fragment.appendChild($child);
+                $fragment.appendChild($child.cloneNode(true));
             }
             $fragment.appendChild(new Text('</a>'));
             this._replace($a, $fragment);
@@ -136,7 +136,7 @@ class HTMLSimplifier {
 
                 $fragment.appendChild(new Text(`<${tag}>`));
                 for (const $child of $e.childNodes) {
-                    $fragment.appendChild($child);
+                    $fragment.appendChild($child.cloneNode(true));
                 }
                 $fragment.appendChild(new Text(`</${tag}>`));
                 this._replace($e, $fragment);
@@ -152,7 +152,7 @@ class HTMLSimplifier {
                     new Text(`<font color="${$font.getAttribute('color')}">`)
                 );
                 for (const $child of $font.childNodes) {
-                    $fragment.appendChild($child);
+                    $fragment.appendChild($child.cloneNode(true));
                 }
                 $fragment.appendChild(new Text('</font>'));
                 this._replace($font, $fragment);
