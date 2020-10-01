@@ -7,6 +7,7 @@ import liburl from 'url';
 import Hls from 'hls.js';
 import matchAll from 'string.prototype.matchall';
 import { renderToStaticMarkup } from 'react-dom/server';
+import { isDevelopment } from './config';
 
 const cardWidth = 500;
 const domparser = new DOMParser();
@@ -35,14 +36,22 @@ class HTMLSimplifier {
         // Convert <img /> to Text
         // Judge whether it is a line emoji
         for (const $img of $html.querySelectorAll('img')) {
-            this._replace(
-                $img,
-                new Text(
-                    HTMLSimplifier.LINE_EMOJI_RE.test($img.src)
-                        ? `<img src="${$img.src}" style="width:1.3em;height:1.3em;position:relative;top:0.2em;" alt="emoji">`
-                        : $img.outerHTML
-                )
-            );
+            if (HTMLSimplifier.LINE_EMOJI_RE.test($img.src)) {
+                this._replace(
+                    $img,
+                    new Text(
+                        `<img src="${$img.src}" style="width:1.3em;height:1.3em;position:relative;top:0.2em;" alt="emoji">`
+                    )
+                );
+            } else {
+                const { nextSibling: $next } = $img;
+
+                if ($next && $next.nodeName === 'BR') {
+                    $next.remove();
+                }
+
+                this._replace($img, new Text($img.outerHTML));
+            }
         }
 
         // LINE: Tweet card
@@ -162,23 +171,40 @@ class HTMLSimplifier {
         // New line - 1
         for (const $div of $html.querySelectorAll('div')) {
             if (this._isNewLine($div)) {
-                this._replace($div, new Text('<br>'));
+                this._replace(
+                    $div,
+                    new Text((isDevelopment ? '[BR 1]' : '') + '<br>')
+                );
             } else if (
-                $div.querySelectorAll('div').length === 0 &&
-                !$div.querySelector('br')
+                !$div.querySelector('div') &&
+                $div.lastChild.nodeName !== 'BR'
             ) {
-                $div.appendChild(new Text('<br>'));
+                $div.appendChild(
+                    new Text((isDevelopment ? '[BR 1]' : '') + '<br>')
+                );
             }
         }
 
         // New line - 2
         for (const $p of $html.querySelectorAll('p')) {
-            $p.appendChild(new Text('<br>'));
+            if (this._isNewLine($p)) {
+                this._replace(
+                    $p,
+                    new Text((isDevelopment ? '[BR 2]' : '') + '<br>')
+                );
+            } else if ($p.lastChild.nodeName !== 'BR') {
+                $p.appendChild(
+                    new Text((isDevelopment ? '[BR 2]' : '') + '<br>')
+                );
+            }
         }
 
         // New line - 3
         for (const $br of $html.querySelectorAll('br')) {
-            this._replace($br, new Text('<br>'));
+            this._replace(
+                $br,
+                new Text((isDevelopment ? '[BR 3]' : '') + '<br>')
+            );
         }
 
         return $html.innerText
