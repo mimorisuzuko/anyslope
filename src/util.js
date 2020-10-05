@@ -6,48 +6,267 @@ import dayjs from 'dayjs';
 import liburl from 'url';
 import Hls from 'hls.js';
 import matchAll from 'string.prototype.matchall';
-import simplifyer from './simplifier';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { isDevelopment } from './config';
 
 const cardWidth = 500;
 const domparser = new DOMParser();
 
-/**
- * @param {Element} $html
- * @returns {string}
- */
-export const convertHtmlToHtmlString = ($html) => {
-    const splited = simplifyer.trim(simplifyer.simplify($html)).split(/\n/);
-    const s =
-        splited.length === 1
-            ? _.join(
-                  _.map(_.split(splited[0], '<br>'), (a) => {
-                      return !a
-                          ? ''
-                          : /^<div/.test(a)
-                          ? a
-                          : a !== '<br>'
-                          ? `<div>${a}</div>`
-                          : a;
-                  }),
-                  '<br>'
-              )
-            : _.join(
-                  _.map(splited, (a) => {
-                      if (!a) {
-                          return '<br>';
-                      }
+class HTMLSimplifier {
+    static LINE_EMOJI_RE = /https:\/\/parts\.lineblog\.me\/img\/emoji\/line\/\d+\/\d+\.png/;
+    static URL_RE = /http(s)?:\/\/([\w-]+\.)+[\w-]+(\/[\w- ./?%&=~]*)?/;
 
-                      return /^<div/.test(a)
-                          ? a
-                          : a !== '<br>'
-                          ? `<div>${a}</div>`
-                          : a;
-                  }),
-                  ''
-              );
+    /**
+     * @param {HTMLElement} $html
+     */
+    simplify = async ($html) => {
+        // Convert url string (not <a />) to <a />
+        for (const $text of this._textWalker($html)) {
+            if (
+                HTMLSimplifier.URL_RE.test($text.nodeValue) &&
+                !this._isLink($text)
+            ) {
+                $text.nodeValue = $text.nodeValue.replace(
+                    HTMLSimplifier.URL_RE,
+                    (a) => `<a href="${a}">${a}</a>`
+                );
+            }
+        }
 
-    return simplifyer.trim(s);
-};
+        // Convert <img /> to Text
+        // Judge whether it is a line emoji
+        for (const $img of $html.querySelectorAll('img')) {
+            if (HTMLSimplifier.LINE_EMOJI_RE.test($img.src)) {
+                this._replace(
+                    $img,
+                    new Text(
+                        `<img src="${$img.src}" style="width:1.3em;height:1.3em;position:relative;top:0.2em;" alt="emoji">`
+                    )
+                );
+            } else {
+                const { nextSibling: $next } = $img;
+
+                if ($next && $next.nodeName === 'BR') {
+                    $next.remove();
+                }
+
+                this._replace($img, new Text($img.outerHTML));
+            }
+        }
+
+        // LINE: Tweet card
+        for (const $tweet of $html.querySelectorAll('.twitter-tweet')) {
+            this._replace(
+                $tweet,
+                new Text(
+                    renderToStaticMarkup(
+                        await renderTweetCard($tweet.children[1].href)
+                    )
+                )
+            );
+        }
+
+        // LINE: Instagram card
+        for (const $instagram of $html.querySelectorAll('.instagram-media')) {
+            this._replace(
+                $instagram,
+                new Text(
+                    renderToStaticMarkup(
+                        await renderInstgramCard(
+                            $instagram.dataset.instgrmPermalink
+                        )
+                    )
+                )
+            );
+        }
+
+        // LINE: Video
+        for (const $video of $html.querySelectorAll('.uploaded-video')) {
+            this._replace(
+                $video,
+                new Text(
+                    renderToStaticMarkup(
+                        <div>
+                            <video
+                                controls
+                                src={$video.querySelector('source').src}
+                            />
+                        </div>
+                    )
+                )
+            );
+        }
+
+        // LINE: OGP card
+        for (const $ogp of $html.querySelectorAll('.ogpLink')) {
+            this._replace(
+                $ogp,
+                new Text(renderToStaticMarkup(await ogpCard.render($ogp.href)))
+            );
+        }
+
+        // LINE: <iframe />
+        for (const $iframe of $html.querySelectorAll('iframe')) {
+            this._replace(
+                $iframe,
+                new Text(
+                    renderToStaticMarkup(
+                        <div>
+                            <iframe
+                                width='480'
+                                height='270'
+                                src={$iframe.src}
+                                frameBorder='0'
+                                allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture'
+                                allowFullScreen
+                            />
+                        </div>
+                    )
+                )
+            );
+        }
+
+        // Convert <a /> to Text
+        for (const $a of $html.querySelectorAll('a')) {
+            const $fragment = document.createDocumentFragment();
+
+            $fragment.appendChild(new Text(`<a href="${$a.href}">`));
+            for (const $child of $a.childNodes) {
+                $fragment.appendChild($child.cloneNode(true));
+            }
+            $fragment.appendChild(new Text('</a>'));
+            this._replace($a, $fragment);
+        }
+
+        // Style - 1
+        for (const tag of ['b', 'strong', 'i', 'u']) {
+            for (const $e of $html.querySelectorAll(tag)) {
+                const $fragment = document.createDocumentFragment();
+
+                $fragment.appendChild(new Text(`<${tag}>`));
+                for (const $child of $e.childNodes) {
+                    $fragment.appendChild($child.cloneNode(true));
+                }
+                $fragment.appendChild(new Text(`</${tag}>`));
+                this._replace($e, $fragment);
+            }
+        }
+
+        // Style - 2
+        for (const $font of $html.querySelectorAll('font')) {
+            if ($font.hasAttribute('color')) {
+                const $fragment = document.createDocumentFragment();
+
+                $fragment.appendChild(
+                    new Text(`<font color="${$font.getAttribute('color')}">`)
+                );
+                for (const $child of $font.childNodes) {
+                    $fragment.appendChild($child.cloneNode(true));
+                }
+                $fragment.appendChild(new Text('</font>'));
+                this._replace($font, $fragment);
+            }
+        }
+
+        // New line - 1
+        for (const $div of $html.querySelectorAll('div')) {
+            if (this._isNewLine($div)) {
+                this._replace(
+                    $div,
+                    new Text((isDevelopment ? '[BR 1]' : '') + '<br>')
+                );
+            } else if (
+                !$div.querySelector('div') &&
+                $div.lastChild.nodeName !== 'BR'
+            ) {
+                $div.appendChild(
+                    new Text((isDevelopment ? '[BR 1]' : '') + '<br>')
+                );
+            }
+        }
+
+        // New line - 2
+        for (const $p of $html.querySelectorAll('p')) {
+            if (this._isNewLine($p)) {
+                this._replace(
+                    $p,
+                    new Text((isDevelopment ? '[BR 2]' : '') + '<br>')
+                );
+            } else if ($p.lastChild.nodeName !== 'BR') {
+                $p.appendChild(
+                    new Text((isDevelopment ? '[BR 2]' : '') + '<br>')
+                );
+            }
+        }
+
+        // New line - 3
+        for (const $br of $html.querySelectorAll('br')) {
+            this._replace(
+                $br,
+                new Text((isDevelopment ? '[BR 3]' : '') + '<br>')
+            );
+        }
+
+        return $html.innerText
+            .replace(/^(<br>|\s)+/, '')
+            .replace(/(<br>|\s)+$/, '');
+    };
+
+    /**
+     * @param {Element} $e
+     */
+    _isNewLine($e) {
+        return _.every($e.childNodes, ($a) => {
+            if ($a.nodeName === '#text') {
+                return !$a.nodeValue.trim();
+            }
+
+            return $a.tagName === 'BR' || this._isNewLine($a);
+        });
+    }
+
+    /**
+     * @param {Element} $e
+     */
+    _replace($e, $new) {
+        const { parentElement } = $e;
+
+        parentElement.replaceChild($new, $e);
+    }
+
+    /**
+     * @param {Node} $node
+     * @returns {Text[]}
+     */
+    _textWalker($node) {
+        const s = [];
+
+        if ($node.nodeName === '#text') {
+            s.push($node);
+        } else {
+            _.forEach($node.childNodes, (a) => s.push(...this._textWalker(a)));
+        }
+
+        return s;
+    }
+
+    /**
+     * @param {Node} $node
+     */
+    _isLink($node, $parent) {
+        const { parentElement } = $node;
+
+        if (parentElement === null || $node === $parent) {
+            return false;
+        } else if (parentElement.nodeName === 'A') {
+            return true;
+        }
+
+        return this._isLink(parentElement, $parent);
+    }
+}
+
+export const simplifier = new HTMLSimplifier();
 
 /**
  * @param {Element} $e
